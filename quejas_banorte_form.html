@@ -699,6 +699,7 @@
           <option>Queja</option>
           <option>Asesoría</option>
           <option>Corrección</option>
+          <option>Seguimiento</option>
           <option>Reconsideración</option>
           <option>Jurídico</option>
           <option>Licitación</option>
@@ -733,9 +734,19 @@
         <span class="hint">Solo aplica cuando el escenario es Servicios de apoyo.</span>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ============ SECCIÓN 2A: Nombre dictaminador ============ -->
+  <div class="card hidden" data-block="dictaminador">
+    <div class="card-head">
+      <div class="card-num">2</div>
+      <div class="card-title">Dictaminador</div>
+    </div>
+    <div class="grid">
       <div class="field full">
-        <label>Nombre dictaminador</label>
-        <select id="Nombre_Dictaminador">
+        <label>Nombre dictaminador <span class="req">*</span></label>
+        <select id="Nombre_Dictaminador" data-cond-required="dictaminador">
           <option value="">Selecciona…</option>
         </select>
         <span class="hint">Lista filtrada según el tipo de trámite seleccionado.</span>
@@ -775,11 +786,32 @@
     </div>
   </div>
 
-  <!-- ============ SECCIÓN 3: Queja ============ -->
+  <!-- ============ Corrección: Tipo de condición ============ -->
+  <div class="card hidden" data-block="correccion">
+    <div class="card-head">
+      <div class="card-num">3</div>
+      <div class="card-title">Corrección</div>
+    </div>
+
+    <div class="grid">
+      <div class="field full">
+        <label>Tipo de condición <span class="req">*</span></label>
+        <select id="Tipo_Condicion" data-cond-required="correccion">
+          <option value="">Selecciona…</option>
+          <option>Cambio de proveedor</option>
+          <option>Renegociación de precio</option>
+          <option>Exclusión</option>
+          <option>Otra condición</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SECCIÓN 3: Detalle (queja / corrección) ============ -->
   <div class="card hidden" data-block="queja">
     <div class="card-head">
       <div class="card-num">3</div>
-      <div class="card-title">Detalle de la queja</div>
+      <div class="card-title" id="detalleTitulo">Detalle de la queja</div>
     </div>
 
     <div class="grid">
@@ -803,7 +835,7 @@
       </div>
 
       <div class="field full">
-        <label>Análisis de la queja <span class="req">*</span></label>
+        <label><span id="analisisLabel">Análisis de la queja</span> <span class="req">*</span></label>
         <textarea id="Analisis_Queja" data-cond-required="queja" maxlength="2000" placeholder="Describe el análisis del caso…"></textarea>
         <span class="char-counter" id="Analisis_Queja_counter" aria-live="polite"><b>0</b> / 2000 caracteres</span>
       </div>
@@ -833,20 +865,20 @@
   <div class="card hidden" data-block="clasificacion">
     <div class="card-head">
       <div class="card-num">4</div>
-      <div class="card-title">Clasificación y seguimiento</div>
+      <div class="card-title" id="clasificacionTitulo">Clasificación y seguimiento</div>
     </div>
 
     <div class="grid">
       <div class="field">
-        <label>Solicitud relacionada a</label>
-        <select id="Solicitud_Relacionada">
+        <label>Solicitud relacionada a <span class="req">*</span></label>
+        <select id="Solicitud_Relacionada" data-cond-required="clasificacion">
           <option value="">Selecciona…</option>
         </select>
       </div>
 
-      <div class="field">
-        <label>Seguimiento con</label>
-        <select id="Seguimiento_Con">
+      <div class="field" data-block="seguimiento_con">
+        <label>Seguimiento con <span class="req">*</span></label>
+        <select id="Seguimiento_Con" data-cond-required="seguimiento_con">
           <option value="">Selecciona…</option>
         </select>
         <span class="hint">Las opciones se ajustan según el tipo de trámite.</span>
@@ -861,30 +893,9 @@
       </div>
 
       <div class="field">
-        <label>¿Quién activa?</label>
-        <select id="Quien_Activa">
+        <label>¿Quién activa? <span class="req">*</span></label>
+        <select id="Quien_Activa" data-cond-required="clasificacion">
           <option value="">Selecciona…</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============ SECCIÓN 5: Corrección ============ -->
-  <div class="card hidden" data-block="correccion">
-    <div class="card-head">
-      <div class="card-num">5</div>
-      <div class="card-title">Corrección</div>
-    </div>
-
-    <div class="grid">
-      <div class="field full">
-        <label>Tipo de condición <span class="req">*</span></label>
-        <select id="Tipo_Condicion" data-cond-required="correccion">
-          <option value="">Selecciona…</option>
-          <option>Cambio de proveedor</option>
-          <option>Renegociación de precio</option>
-          <option>Exclusión</option>
-          <option>Otra condición</option>
         </select>
       </div>
     </div>
@@ -1529,7 +1540,7 @@ function requiereImpactoEconomico(){
   const atencion = valor("Tipo_Atencion");
   const decision = valor("Tiene_Impacto_Economico");
 
-  if(atencion !== "Queja"){
+  if(atencion !== "Queja" && atencion !== "Corrección"){
     return false;
   }
 
@@ -1552,31 +1563,44 @@ function actualizarVisibilidad(){
   const tramite  = valor("Tipo_Tramite");
   const contrat  = valor("Contratante");
 
-  const verEscenario = (
+  const esQueja          = atencion === "Queja";
+  const esCorreccion     = atencion === "Corrección";
+  const esSeguimiento    = atencion === "Seguimiento";
+  const esSiniestralidad = tramite === "Siniestralidad";
+
+  /* ---- Escenario: SOLO en Queja con trámite Programación/Reembolso/Pago directo ---- */
+  const verEscenario = esQueja && (
     tramite === "Programación" ||
     tramite === "Reembolso" ||
     tramite === "Pago directo"
   );
-
   toggleBlock("escenario", verEscenario);
 
   if(verEscenario){
     cargarOpcionesEscenario(tramite);
-    cargarDictaminadoresPorTramite();
     document.querySelector("[data-tramite-label]").textContent = tramite;
   }else{
+    $("Escenario").value = "";
+  }
+
+  const verSub = verEscenario && valor("Escenario") === "Servicios de apoyo";
+  toggleBlock("subescenario", verSub);
+  if(!verSub){ $("Subescenario").value = ""; }
+
+  /* ---- Dictaminador: Queja/Corrección, salvo Siniestralidad ---- */
+  const verDictaminador = (esQueja || esCorreccion) && !esSiniestralidad;
+  toggleBlock("dictaminador", verDictaminador);
+
+  if(verDictaminador){
+    cargarDictaminadoresPorTramite();
+  }else{
+    $("Nombre_Dictaminador").value = "";
     llenarSelect("Nombre_Dictaminador", [], "Selecciona…");
     ultimoTramiteDictaminador = "";
   }
 
-  toggleBlock("subescenario", valor("Escenario") === "Servicios de apoyo");
-
-  if(valor("Escenario") !== "Servicios de apoyo"){
-    $("Subescenario").value = "";
-  }
-
-  /* ---- Siniestralidad: switch "¿Es error del analista?" ---- */
-  const verSiniestralidad = tramite === "Siniestralidad";
+  /* ---- Siniestralidad: Queja/Corrección con trámite Siniestralidad ---- */
+  const verSiniestralidad = (esQueja || esCorreccion) && esSiniestralidad;
   toggleBlock("siniestralidad", verSiniestralidad);
 
   if(verSiniestralidad){
@@ -1589,6 +1613,7 @@ function actualizarVisibilidad(){
   }else{
     $("Es_Error_Analista").value = "";
     $("HC_Siniestralidad").value = "";
+    toggleBlock("hc_siniestralidad", false);
     document.querySelectorAll('[data-error-toggle] .impact-option').forEach(btn=>{
       btn.classList.remove("active");
       btn.setAttribute("aria-pressed", "false");
@@ -1597,43 +1622,66 @@ function actualizarVisibilidad(){
     if(errSwitch) errSwitch.classList.remove("invalid");
   }
 
-  toggleBlock("queja", atencion === "Queja");
+  /* ---- Tipo de condición: SOLO Corrección ---- */
+  toggleBlock("correccion", esCorreccion);
+  if(!esCorreccion){ $("Tipo_Condicion").value = ""; }
 
-  if(atencion !== "Queja"){
+  /* ---- Detalle (mismo bloque reutilizado para Queja y Corrección) ---- */
+  const verDetalle = esQueja || esCorreccion;
+  toggleBlock("queja", verDetalle);
+
+  if(esCorreccion){
+    $("detalleTitulo").textContent  = "Detalle de la corrección";
+    $("analisisLabel").textContent  = "Análisis de la corrección";
+    $("Analisis_Queja").placeholder = "Describe el análisis de la corrección…";
+  }else{
+    $("detalleTitulo").textContent  = "Detalle de la queja";
+    $("analisisLabel").textContent  = "Análisis de la queja";
+    $("Analisis_Queja").placeholder = "Describe el análisis del caso…";
+  }
+
+  if(!verDetalle){
+    $("Imputable_Gral").value = "";
+    $("Resultado_Queja").value = "";
+    $("Analisis_Queja").value = "";
     $("Tiene_Impacto_Economico").value = "";
     $("Impacto_Economico").value = "";
-
     document.querySelectorAll('[data-impact-toggle] .impact-option').forEach(btn=>{
       btn.classList.remove("active");
       btn.setAttribute("aria-pressed", "false");
     });
-
     const impactSwitch = document.querySelector('[data-impact-toggle] .impact-switch');
-    if(impactSwitch){
-      impactSwitch.classList.remove("invalid");
-    }
+    if(impactSwitch){ impactSwitch.classList.remove("invalid"); }
+    actualizarContadorAnalisis();
   }
 
+  /* ---- Impacto económico ($) ---- */
   const verImpactoEconomico = requiereImpactoEconomico();
   toggleBlock("impacto_economico", verImpactoEconomico);
+  if(!verImpactoEconomico){ $("Impacto_Economico").value = ""; }
 
-  if(!verImpactoEconomico){
-    $("Impacto_Economico").value = "";
-  }
-
-  const verClasificacion = atencion === "Queja";
+  /* ---- Clasificación (Seguimiento, Queja y Corrección) ---- */
+  const verClasificacion  = esSeguimiento || esQueja || esCorreccion;
+  const verSeguimientoCon = esSeguimiento || esCorreccion;   // en Queja NO se muestra
   toggleBlock("clasificacion", verClasificacion);
+  toggleBlock("seguimiento_con", verSeguimientoCon);
 
   if(verClasificacion){
-    cargarOpcionesSeguimiento(tramite);
-    cargarOpcionesHC();
+    $("clasificacionTitulo").textContent = esQueja ? "Clasificación" : "Clasificación y seguimiento";
 
-    /* El HC normal NO aplica para Siniestralidad (usa el switch de error) */
-    const verHC = valor("Seguimiento_Con") !== "" && hayOpcionesHC();
-    toggleBlock("hc", verHC);
-
-    if(!verHC){
+    if(verSeguimientoCon){
+      cargarOpcionesSeguimiento(tramite);
+      cargarOpcionesHC();
+      const verHC = valor("Seguimiento_Con") !== "" && hayOpcionesHC();
+      toggleBlock("hc", verHC);
+      if(!verHC){ $("HC").value = ""; }
+    }else{
+      /* Queja: sin "Seguimiento con" ni HC */
+      $("Seguimiento_Con").value = "";
       $("HC").value = "";
+      toggleBlock("hc", false);
+      ultimoTramiteSeguimiento = "";
+      ultimaClaveHC = "";
     }
   }else{
     $("Solicitud_Relacionada").value = "";
@@ -1641,14 +1689,14 @@ function actualizarVisibilidad(){
     $("HC").value = "";
     $("Quien_Activa").value = "";
     toggleBlock("hc", false);
-
     ultimoTramiteSeguimiento = "";
     ultimaClaveHC = "";
   }
 
-  toggleBlock("correccion", atencion === "Corrección");
+  /* ---- Contratante / Catálogo ---- */
   toggleBlock("contratante", atencion !== "");
   toggleBlock("catalogo", contrat === "Cartera General");
+  if(contrat !== "Cartera General"){ $("Catalogo").value = ""; }
 
   actualizarProgreso();
 }
