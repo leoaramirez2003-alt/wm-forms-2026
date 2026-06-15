@@ -1,0 +1,2305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self';
+               script-src 'self' 'unsafe-inline';
+               style-src 'self' 'unsafe-inline';
+               img-src 'self' data:;
+               connect-src 'self' https://*.powerplatform.com;
+               frame-src https://app.powerbi.com https://*.powerbi.com;
+               frame-ancestors 'none';
+               base-uri 'self';">
+<title>Quejas Banorte — Nuevo registro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* ===== Identidad WeeMedic ===== */
+    --wee:#1b5bff;            /* azul institucional brillante */
+    --wee-600:#1346cc;        /* hover / profundidad */
+    --wee-700:#0f37a3;        /* presionado */
+    --wee-ink:#0a2a6b;        /* azul tinta para acentos oscuros */
+    --wee-tint:#eaf0ff;       /* chips / fondos suaves */
+    --wee-tint-2:#f4f7ff;     /* fondo de campo sutil */
+    --wee-glow:rgba(27,91,255,.28);
+
+    --ink:#0f1b33;            /* texto principal */
+    --ink-soft:#5a6783;       /* texto secundario */
+    --bg:#eef2fb;             /* fondo app */
+    --card:#ffffff;
+    --line:#e6ebf5;
+    --line-2:#d3dbef;
+    --ok:#0e9f6e;
+    --ok-bg:#e7f8f1;
+    --err:#e02424;
+    --err-bg:#fdecec;
+
+    --radius:18px;
+    --radius-sm:12px;
+    --shadow:0 1px 2px rgba(10,42,107,.06),0 12px 32px rgba(10,42,107,.07);
+    --shadow-sm:0 2px 10px rgba(10,42,107,.06);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+
+  body{
+    font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    color:var(--ink);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    padding:0 0 70px;
+    background:
+      radial-gradient(900px 380px at 80% -120px, rgba(27,91,255,.10), transparent 60%),
+      radial-gradient(700px 320px at -5% 0%, rgba(27,91,255,.06), transparent 55%),
+      var(--bg);
+    min-height:100vh;
+  }
+
+  /* ===================== HEADER ===================== */
+  .topbar{
+    position:sticky;top:0;z-index:30;
+    background:linear-gradient(120deg,var(--wee-700) 0%,var(--wee) 55%,#3a78ff 100%);
+    color:#fff;
+    padding:22px 26px 30px;
+    box-shadow:0 10px 30px rgba(15,55,163,.28);
+    overflow:hidden;
+  }
+  /* onda decorativa inferior */
+  .topbar::after{
+    content:"";position:absolute;left:0;right:0;bottom:-1px;height:22px;
+    background:var(--bg);
+    -webkit-mask:radial-gradient(20px 22px at 20px bottom, transparent 98%, #000) repeat-x;
+    mask:radial-gradient(22px 22px at 22px bottom, transparent 98%, #000) repeat-x;
+    -webkit-mask-size:44px 22px;mask-size:44px 22px;
+  }
+  /* destellos sutiles del fondo */
+  .topbar::before{
+    content:"";position:absolute;top:-60px;right:-30px;width:220px;height:220px;
+    background:radial-gradient(circle, rgba(255,255,255,.16), transparent 65%);
+    pointer-events:none;
+  }
+  .brand{display:flex;align-items:center;gap:15px;position:relative;z-index:1}
+  .brand-mark{
+    width:46px;height:46px;border-radius:13px;flex-shrink:0;
+    background:#fff;
+    overflow:hidden;
+    box-shadow:0 8px 20px rgba(10,30,80,.25);
+  }
+  .brand-mark svg{display:block;width:100%;height:100%}
+  .brand-text h1{font-size:18px;font-weight:800;letter-spacing:-.2px;line-height:1.1}
+  .brand-text h1 span{font-weight:500;opacity:.7}
+  .brand-text p{font-size:12px;font-weight:500;opacity:.62;margin-top:2px;letter-spacing:.2px}
+
+  /* ===================== LAYOUT ===================== */
+  .wrap{max-width:780px;margin:24px auto 0;padding:0 22px}
+
+  .progress-hint{
+    font-size:12.5px;color:var(--ink-soft);
+    margin-bottom:20px;padding:11px 15px;
+    background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);
+    display:flex;align-items:center;gap:9px;
+  }
+  .progress-hint::before{
+    content:"";width:8px;height:8px;border-radius:50%;
+    background:var(--wee);box-shadow:0 0 0 4px var(--wee-tint);flex-shrink:0;
+  }
+  .progress-hint b{color:var(--wee);font-weight:700}
+
+  /* ===================== CARDS ===================== */
+  .card{
+    position:relative;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:24px 26px;
+    margin-bottom:16px;
+    box-shadow:var(--shadow);
+    animation:rise .4s cubic-bezier(.2,.7,.3,1) both;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  .card:focus-within{
+    border-color:var(--line-2);
+    box-shadow:0 1px 2px rgba(10,42,107,.06),0 16px 40px rgba(27,91,255,.12);
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  .card-head{display:flex;align-items:center;gap:13px;margin-bottom:20px}
+  .card-num{
+    width:30px;height:30px;border-radius:10px;flex-shrink:0;
+    background:linear-gradient(135deg,var(--wee),var(--wee-600));
+    color:#fff;font-size:13px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 14px var(--wee-glow);
+  }
+  .card-title{font-size:16px;font-weight:800;color:var(--ink);letter-spacing:-.2px}
+  .card-sub{
+    font-size:11px;font-weight:700;color:var(--wee);margin-left:auto;
+    text-transform:uppercase;letter-spacing:.6px;
+    background:var(--wee-tint);padding:5px 11px;border-radius:999px;
+  }
+  .card-sub:empty{display:none}
+
+  /* ===================== CAMPOS ===================== */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:17px}
+  .grid .full{grid-column:1 / -1}
+  @media(max-width:560px){.grid{grid-template-columns:1fr}}
+
+  .field{display:flex;flex-direction:column;gap:7px;animation:rise .3s ease both}
+  .field label{
+    font-size:12px;font-weight:700;color:var(--ink);
+    letter-spacing:.2px;text-transform:uppercase;
+  }
+  .field label .req{color:var(--err);margin-left:3px;-webkit-text-stroke:0}
+  .field .hint{font-size:11.5px;color:var(--ink-soft);font-weight:500;line-height:1.35}
+
+  input,select,textarea{
+    font-family:inherit;font-size:14px;color:var(--ink);font-weight:500;
+    padding:11px 13px;
+    border:1.5px solid var(--line-2);
+    border-radius:var(--radius-sm);
+    background:var(--wee-tint-2);
+    width:100%;
+    transition:border-color .15s, box-shadow .15s, background .15s;
+  }
+  input::placeholder,textarea::placeholder{color:#9aa6bf;font-weight:500}
+  input:hover,select:hover,textarea:hover{border-color:#bcc8e6}
+  input:focus,select:focus,textarea:focus{
+    outline:none;border-color:var(--wee);background:#fff;
+    box-shadow:0 0 0 4px var(--wee-glow);
+  }
+  select{
+    cursor:pointer;appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%231b5bff' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 13px center;padding-right:36px;
+  }
+  textarea{resize:vertical;min-height:110px;line-height:1.55}
+
+  /* Contador de caracteres del textarea */
+  .char-counter{
+    align-self:flex-end;
+    font-size:11.5px;font-weight:600;color:var(--ink-soft);
+    letter-spacing:.2px;font-variant-numeric:tabular-nums;
+    transition:color .2s ease;
+  }
+  .char-counter b{font-weight:800;color:var(--ink)}
+  .char-counter.near{color:var(--err)}
+  .char-counter.near b{color:var(--err)}
+
+  input.invalid,select.invalid,textarea.invalid{
+    border-color:var(--err);background:var(--err-bg);
+    box-shadow:0 0 0 4px rgba(224,36,36,.12);
+  }
+
+  .hidden{display:none !important}
+
+  /* ===================== SWITCH IMPACTO ===================== */
+  .impact-switch{
+    display:grid;grid-template-columns:1fr 1fr;gap:0;
+    padding:5px;border-radius:14px;
+    border:1.5px solid var(--line-2);background:var(--wee-tint-2);
+    position:relative;
+  }
+  .impact-option{
+    font-family:inherit;border:none;background:transparent;
+    color:var(--ink-soft);border-radius:10px;
+    padding:11px 16px;font-size:14px;font-weight:800;
+    cursor:pointer;position:relative;z-index:1;
+    display:flex;align-items:center;justify-content:center;gap:7px;
+    transition:color .2s ease;
+  }
+  .impact-option::before{
+    content:"";width:15px;height:15px;border-radius:50%;
+    border:2px solid currentColor;flex-shrink:0;
+    transition:all .2s ease;
+  }
+  .impact-option:hover{color:var(--wee)}
+  .impact-option[aria-pressed="true"]{color:#fff}
+  .impact-option[data-impact-value="Sí"][aria-pressed="true"]{
+    background:linear-gradient(135deg,var(--wee),var(--wee-600));
+    box-shadow:0 8px 18px var(--wee-glow);
+  }
+  .impact-option[data-impact-value="No"][aria-pressed="true"]{
+    background:linear-gradient(135deg,#475569,#334155);
+    box-shadow:0 8px 18px rgba(51,65,85,.25);
+  }
+  .impact-option[aria-pressed="true"]::before{
+    border-color:#fff;background:#fff;
+    box-shadow:inset 0 0 0 3px var(--wee);
+  }
+  .impact-option[data-impact-value="No"][aria-pressed="true"]::before{
+    box-shadow:inset 0 0 0 3px #334155;
+  }
+  .impact-option:active{transform:scale(.98)}
+  .impact-switch.invalid{
+    border-color:var(--err);background:var(--err-bg);
+    box-shadow:0 0 0 4px rgba(224,36,36,.12);
+  }
+
+  /* ===================== ACCIONES ===================== */
+  .actions{display:flex;align-items:center;gap:14px;margin-top:22px;padding:0 2px}
+  .btn{
+    font-family:inherit;font-size:14.5px;font-weight:800;letter-spacing:.2px;
+    padding:14px 30px;border-radius:13px;
+    border:none;cursor:pointer;
+    transition:transform .12s, box-shadow .25s, background .2s;
+  }
+  .btn-primary{
+    background:linear-gradient(135deg,var(--wee),var(--wee-600));
+    color:#fff;box-shadow:0 8px 22px var(--wee-glow);
+    display:flex;align-items:center;gap:8px;
+  }
+  .btn-primary:hover{box-shadow:0 12px 30px var(--wee-glow);transform:translateY(-2px)}
+  .btn-primary:active{transform:translateY(0)}
+  .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
+  .btn-ghost{background:transparent;color:var(--ink-soft);padding:14px 18px}
+  .btn-ghost:hover{color:var(--wee);background:var(--wee-tint)}
+
+  /* ===================== TOAST ===================== */
+  .toast{
+    position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(140px);
+    background:#fff;border-radius:14px;padding:15px 22px;
+    box-shadow:0 16px 50px rgba(10,42,107,.22);
+    display:flex;align-items:center;gap:13px;
+    font-size:14px;font-weight:700;z-index:60;max-width:90vw;
+    transition:transform .45s cubic-bezier(.2,.9,.3,1.3);
+  }
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .toast.ok{border-left:4px solid var(--ok)}
+  .toast.err{border-left:4px solid var(--err)}
+  .toast .ic{
+    width:26px;height:26px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;color:#fff;flex-shrink:0;font-size:15px;
+  }
+  .toast.ok .ic{background:var(--ok)}
+  .toast.err .ic{background:var(--err)}
+
+  .spinner{
+    width:16px;height:16px;border:2px solid rgba(255,255,255,.45);
+    border-top-color:#fff;border-radius:50%;
+    display:inline-block;animation:spin .7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== Header WeeMedic tipo referencia ===== */
+.topbar{
+  background:linear-gradient(120deg,#1557ff 0%,#0f5bff 55%,#1462ff 100%) !important;
+  padding:22px 26px 34px;
+}
+.brand{
+  min-height:132px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:18px !important;
+  position:relative !important;
+  z-index:1 !important;
+  text-align:left !important;
+}
+.brand-mark{
+  width:58px !important;
+  height:58px !important;
+  border-radius:15px !important;
+  flex-shrink:0 !important;
+  background:#fff !important;
+  overflow:hidden !important;
+  box-shadow:0 10px 24px rgba(10,30,80,.18) !important;
+}
+.brand-mark svg{display:block !important;width:100% !important;height:100% !important}
+.brand-text h1{
+  font-size:46px !important;
+  font-weight:800 !important;
+  letter-spacing:-1.8px !important;
+  line-height:.92 !important;
+  color:#fff !important;
+  text-shadow:0 8px 24px rgba(10,30,80,.16) !important;
+}
+.brand-text h1 span{display:none !important}
+.brand-text p{
+  font-size:14px !important;
+  font-weight:500 !important;
+  opacity:.78 !important;
+  margin-top:7px !important;
+  letter-spacing:.2px !important;
+  text-align:right !important;
+}
+@media(max-width:560px){
+  .topbar{padding:18px 18px 28px !important}
+  .brand{min-height:110px !important;gap:12px !important}
+  .brand-mark{width:46px !important;height:46px !important;border-radius:13px !important}
+  .brand-text h1{font-size:34px !important;letter-spacing:-1.2px !important}
+  .brand-text p{font-size:12px !important;text-align:left !important}
+}
+
+
+/* ===== Header con logo real WeeMedic centrado y más pequeño ===== */
+.topbar{
+  background:#1557ff !important;
+  padding:18px 26px 28px !important;
+}
+.brand.brand-logo-only{
+  min-height:108px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+  gap:0 !important;
+}
+.brand-full-logo{
+  width:min(330px, 72vw) !important;
+  height:auto !important;
+  display:block !important;
+  filter:drop-shadow(0 8px 18px rgba(10,30,80,.12));
+}
+@media(max-width:560px){
+  .topbar{padding:16px 18px 24px !important}
+  .brand.brand-logo-only{min-height:88px !important}
+  .brand-full-logo{width:min(260px, 78vw) !important}
+}
+
+
+/* ===== Corrección franja informativa completa ===== */
+.progress-hint{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  flex-wrap:nowrap !important;
+  width:100% !important;
+  line-height:1.45 !important;
+}
+.progress-hint::before{content:none !important;display:none !important;}
+.progress-hint .hint-dot{
+  width:8px !important;
+  height:8px !important;
+  border-radius:50% !important;
+  background:var(--wee) !important;
+  box-shadow:0 0 0 4px var(--wee-tint) !important;
+  flex:0 0 auto !important;
+}
+.progress-hint .hint-text{
+  display:block !important;
+  min-width:0 !important;
+  flex:1 1 auto !important;
+  white-space:normal !important;
+  overflow:visible !important;
+  word-break:normal !important;
+}
+.progress-hint strong{
+  color:var(--wee) !important;
+  font-weight:800 !important;
+}
+@media(max-width:560px){
+  .progress-hint{
+    align-items:flex-start !important;
+    font-size:12.5px !important;
+    padding:11px 13px !important;
+  }
+}
+
+
+/* ============================================================
+   CAPA DE PULIDO VISUAL — micro-interacciones, progreso, validación inline
+   ============================================================ */
+
+/* Reveal suave de secciones condicionales + hover de tarjeta */
+.card{animation:rise .45s cubic-bezier(.2,.7,.3,1) both}
+.card:hover{box-shadow:0 1px 2px rgba(10,42,107,.06),0 18px 44px rgba(27,91,255,.10)}
+.card[data-block]:not(.hidden){animation:revealCard .5s cubic-bezier(.2,.7,.3,1) both}
+@keyframes revealCard{
+  from{opacity:0;transform:translateY(14px) scale(.99)}
+  to{opacity:1;transform:none}
+}
+
+/* Número de tarjeta con micro-respuesta al hover */
+.card-num{transition:transform .25s cubic-bezier(.2,.7,.3,1)}
+.card:hover .card-num{transform:rotate(-4deg) scale(1.06)}
+
+/* Inputs: foco con leve elevación */
+.field input:focus,.field select:focus,.field textarea:focus{transform:translateY(-1px)}
+
+/* Botón primario: destello al pasar el cursor */
+.btn-primary{position:relative;overflow:hidden}
+.btn-primary::after{
+  content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);
+  transform:skewX(-18deg);transition:left .6s ease;pointer-events:none;
+}
+.btn-primary:hover::after{left:140%}
+
+/* Barra de progreso WeeMedic */
+.wee-progress{
+  background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);
+  padding:13px 16px;margin-bottom:18px;
+  display:flex;align-items:center;gap:14px;
+}
+.wee-progress .wp-track{
+  flex:1 1 auto;height:9px;border-radius:999px;
+  background:var(--wee-tint);overflow:hidden;position:relative;
+}
+.wee-progress .wp-fill{
+  height:100%;width:0%;border-radius:999px;
+  background:linear-gradient(90deg,var(--wee),#3a78ff);
+  transition:width .5s cubic-bezier(.2,.7,.3,1), background .3s ease;
+}
+.wee-progress .wp-label{
+  font-size:12px;font-weight:800;color:var(--wee);
+  white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+.wee-progress .wp-count{font-size:11px;font-weight:600;color:var(--ink-soft);white-space:nowrap}
+.wee-progress.complete .wp-fill{background:linear-gradient(90deg,var(--ok),#10b981)}
+.wee-progress.complete .wp-label{color:var(--ok)}
+
+/* Mensajes de validación inline por campo */
+.field-error{
+  font-size:11.5px;font-weight:700;color:var(--err);
+  display:flex;align-items:center;gap:6px;
+  max-height:0;opacity:0;overflow:hidden;
+  transition:max-height .25s ease, opacity .25s ease, margin .25s ease;
+}
+.field-error::before{content:"⚠";font-size:12px;line-height:1}
+.field-error.show{max-height:40px;opacity:1;margin-top:2px}
+
+/* Sacudida sutil al marcar inválido */
+.invalid{animation:shakeX .32s cubic-bezier(.36,.07,.19,.97)}
+@keyframes shakeX{
+  10%,90%{transform:translateX(-1px)}
+  20%,80%{transform:translateX(2px)}
+  30%,50%,70%{transform:translateX(-4px)}
+  40%,60%{transform:translateX(4px)}
+}
+
+/* Respeta a quien prefiere menos movimiento */
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+}
+
+/* ============================================================
+   LAYOUT CON BARRA LATERAL (sidebar + lienzo conmutable)
+   ============================================================ */
+.layout{
+  max-width:1180px;margin:24px auto 0;padding:0 22px;
+  display:flex;gap:22px;align-items:flex-start;
+}
+.sidebar{
+  flex:0 0 210px;
+  background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);box-shadow:var(--shadow-sm);
+  padding:12px;
+}
+.sidebar-title{
+  font-size:10.5px;font-weight:800;color:var(--ink-soft);
+  text-transform:uppercase;letter-spacing:.7px;
+  padding:6px 14px 10px;
+}
+.sidebar-nav{display:flex;flex-direction:column;gap:6px}
+.nav-item{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  font-family:inherit;font-size:14px;font-weight:700;color:var(--ink-soft);
+  background:transparent;border:none;border-radius:12px;
+  padding:12px 14px;cursor:pointer;
+  transition:background .15s, color .15s, transform .12s;
+}
+.nav-item:hover{background:var(--wee-tint);color:var(--wee)}
+.nav-item:active{transform:scale(.98)}
+.nav-item.active{
+  background:linear-gradient(135deg,var(--wee),var(--wee-600));color:#fff;
+  box-shadow:0 8px 18px var(--wee-glow);
+}
+.nav-ic{font-size:18px;line-height:1;flex-shrink:0}
+.canvas{flex:1 1 auto;min-width:0}
+.view{animation:rise .35s cubic-bezier(.2,.7,.3,1) both}
+.view.hidden{display:none}
+@media(max-width:820px){
+  .layout{flex-direction:column;gap:14px;max-width:780px}
+  .sidebar{flex:none;width:100%}
+  .sidebar-title{display:none}
+  .sidebar-nav{flex-direction:row}
+  .nav-item{flex:1 1 0;justify-content:center}
+}
+
+/* ============================================================
+   VISTA DE REPORTE FILTRADO
+   ============================================================ */
+.report-filter-card{padding:22px 26px 20px}
+.report-page-title{display:flex;align-items:center;gap:13px;margin-bottom:20px}
+.back-link{
+  width:34px;height:34px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;font-weight:800;color:var(--wee);
+  background:var(--wee-tint);border:1px solid var(--line-2);
+  border-radius:10px;cursor:pointer;font-family:inherit;
+  transition:background .15s, color .15s, transform .12s;
+}
+.back-link:hover{background:var(--wee);color:#fff;transform:translateX(-2px)}
+.back-link:active{transform:translateX(0)}
+.report-title-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.report-page-title h2{font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-.3px;line-height:1.2}
+.report-subtitle{font-size:12.5px;color:var(--ink-soft);font-weight:500;line-height:1.4;margin:0}
+.report-filter-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(190px, 1fr));
+  gap:16px 17px;
+}
+.report-filter-grid .field{margin:0}
+.report-action-area{
+  display:flex;align-items:center;gap:13px;
+  margin-top:22px;padding-top:18px;border-top:1px solid var(--line);
+}
+.excel-badge{
+  width:42px;height:42px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;color:#fff;border-radius:12px;
+  background:linear-gradient(135deg,var(--ok),#0c8a5f);
+  box-shadow:0 6px 14px rgba(14,159,110,.26);
+}
+.excel-caption{display:flex;flex-direction:column;line-height:1.25}
+.excel-caption b{font-size:13px;font-weight:800;color:var(--ink)}
+.excel-caption span{font-size:11.5px;color:var(--ink-soft);font-weight:500}
+.report-action-area .btn-primary{margin-left:auto}
+@media(max-width:560px){
+  .report-action-area{flex-wrap:wrap}
+  .report-action-area .btn-primary{margin-left:0;flex:1 1 auto;justify-content:center}
+}
+
+/* ============================================================
+   VISTA POWER BI
+   ============================================================ */
+.powerbi-card{padding:22px 26px 20px}
+.powerbi-head{margin-bottom:18px}
+.powerbi-head h2{font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-.3px}
+.powerbi-head p{font-size:12.5px;color:var(--ink-soft);font-weight:500;margin-top:4px;line-height:1.45}
+.powerbi-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:16px}
+.powerbi-action-card{
+  display:flex;align-items:center;gap:13px;text-align:left;width:100%;font-family:inherit;cursor:pointer;
+  background:var(--wee-tint-2);border:1.5px solid var(--line-2);border-radius:var(--radius-sm);padding:14px 16px;
+  transition:border-color .15s, box-shadow .15s, transform .12s, background .15s;
+}
+.powerbi-action-card:hover{border-color:var(--wee);background:#fff;box-shadow:0 8px 22px rgba(27,91,255,.10);transform:translateY(-2px)}
+.powerbi-action-card:active{transform:translateY(0)}
+.powerbi-action-card.loading{opacity:.65;pointer-events:none}
+.powerbi-action-icon{
+  width:40px;height:40px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:800;color:#fff;border-radius:11px;
+  background:linear-gradient(135deg,var(--wee),var(--wee-600));box-shadow:0 6px 14px var(--wee-glow);
+}
+.powerbi-action-text{display:flex;flex-direction:column;line-height:1.3;min-width:0}
+.powerbi-action-text strong{font-size:14px;font-weight:800;color:var(--ink)}
+.powerbi-action-text small{font-size:11.5px;color:var(--ink-soft);font-weight:500}
+.powerbi-note{
+  font-size:12px;color:var(--wee-ink);background:var(--wee-tint);
+  border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:11px 14px;line-height:1.45;margin-bottom:18px;
+}
+.powerbi-preview{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:#fff;box-shadow:var(--shadow-sm)}
+.powerbi-preview iframe{display:block;width:100%;height:72vh;min-height:680px;border:0}
+@media(max-width:560px){
+  .powerbi-actions{grid-template-columns:1fr}
+  .powerbi-preview iframe{height:70vh;min-height:520px}
+}
+</style>
+</head>
+
+<body>
+<div aria-hidden="true" style="position:absolute; left:-9999px; top:-9999px; height:0; width:0; overflow:hidden;">
+  <label for="website_url">Sitio web (no llenar)</label>
+  <input type="text" id="website_url" name="website_url" tabindex="-1" autocomplete="off">
+</div>
+<div class="topbar">
+  <div class="brand brand-logo-only">
+    <img class="brand-full-logo" src="data:image/png;base64,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" alt="WeeMedic Health administration">
+  </div>
+</div>
+
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-title">Quejas Banorte</div>
+    <nav class="sidebar-nav">
+      <button type="button" class="nav-item active" data-view="registro" onclick="cambiarVista('registro')">
+        <span class="nav-ic" aria-hidden="true">📝</span>
+        <span class="nav-label">Registro</span>
+      </button>
+      <button type="button" class="nav-item" data-view="reportes" onclick="cambiarVista('reportes')">
+        <span class="nav-ic" aria-hidden="true">📊</span>
+        <span class="nav-label">Reportes</span>
+      </button>
+      <button type="button" class="nav-item" data-view="powerbi" onclick="cambiarVista('powerbi')">
+        <span class="nav-ic" aria-hidden="true">📈</span>
+        <span class="nav-label">Power BI</span>
+      </button>
+    </nav>
+  </aside>
+
+  <main class="canvas">
+
+  <div class="view" data-view-panel="registro" id="viewRegistro">
+
+  <div class="progress-hint">
+    <span class="hint-dot" aria-hidden="true"></span>
+    <span class="hint-text"><strong>Quejas Banorte</strong> · Los campos marcados con <strong>*</strong> son obligatorios. Las secciones aparecen según el tipo de atención.</span>
+  </div>
+
+  <div class="wee-progress" id="weeProgress" role="progressbar" aria-label="Progreso del formulario">
+    <div class="wp-track"><div class="wp-fill" id="wpFill"></div></div>
+    <span class="wp-label" id="wpLabel">0%</span>
+    <span class="wp-count" id="wpCount">0 de 0 campos</span>
+  </div>
+
+  <!-- ============ SECCIÓN 1: Datos generales ============ -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-num">1</div>
+      <div class="card-title">Datos generales</div>
+    </div>
+
+    <div class="grid">
+      <div class="field full">
+        <label>Gestor que registra <span class="req">*</span></label>
+        <select id="gestor" data-required>
+          <option value="">Selecciona tu nombre…</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Folio <span class="req">*</span></label>
+        <input type="text" id="Folio" data-required placeholder="Ej. 13796449" autocomplete="off">
+        <span class="hint">Identificador de la queja en el sistema Banorte</span>
+      </div>
+
+      <div class="field">
+        <label>Fecha de recepción ATC <span class="req">*</span></label>
+        <input type="date" id="Fecha_Recepcion_ATC" data-required>
+      </div>
+
+      <div class="field">
+        <label>Tipo de trámite <span class="req">*</span></label>
+        <select id="Tipo_Tramite" data-required>
+          <option value="">Selecciona…</option>
+          <option>Programación</option>
+          <option>Reembolso</option>
+          <option>Pago directo</option>
+          <option>Siniestralidad</option>
+          <option>Pagos</option>
+          <option>ATF</option>
+          <option>Case Managment</option>
+          <option>AP</option>
+          <option>Redes</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Tipo de atención <span class="req">*</span></label>
+        <select id="Tipo_Atencion" data-required>
+          <option value="">Selecciona…</option>
+          <option>Queja</option>
+          <option>Asesoría</option>
+          <option>Corrección</option>
+          <option>Reconsideración</option>
+          <option>Jurídico</option>
+          <option>Licitación</option>
+          <option>Reinstalación</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SECCIÓN 2: Escenario ============ -->
+  <div class="card hidden" data-block="escenario">
+    <div class="card-head">
+      <div class="card-num">2</div>
+      <div class="card-title">Escenario</div>
+      <div class="card-sub" data-tramite-label></div>
+    </div>
+
+    <div class="grid">
+      <div class="field full">
+        <label>Escenario <span class="req">*</span></label>
+        <select id="Escenario" data-cond-required="escenario">
+          <option value="">Selecciona…</option>
+        </select>
+        <span class="hint">Las opciones cambian según el tipo de trámite seleccionado.</span>
+      </div>
+
+      <div class="field full hidden" data-block="subescenario">
+        <label>Subescenario <span class="req">*</span></label>
+        <select id="Subescenario" data-cond-required="subescenario">
+          <option value="">Selecciona…</option>
+        </select>
+        <span class="hint">Solo aplica cuando el escenario es Servicios de apoyo.</span>
+      </div>
+
+      <div class="field full">
+        <label>Nombre dictaminador</label>
+        <select id="Nombre_Dictaminador">
+          <option value="">Selecciona…</option>
+        </select>
+        <span class="hint">Lista filtrada según el tipo de trámite seleccionado.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SECCIÓN 2B: Siniestralidad ============ -->
+  <div class="card hidden" data-block="siniestralidad">
+    <div class="card-head">
+      <div class="card-num">2</div>
+      <div class="card-title">Siniestralidad</div>
+      <div class="card-sub">Pago Reembolso</div>
+    </div>
+
+    <div class="grid">
+      <div class="field full" data-error-toggle>
+        <label>¿Es error del analista? <span class="req">*</span></label>
+
+        <input type="hidden" id="Es_Error_Analista" data-cond-required="siniestralidad">
+
+        <div class="impact-switch" role="group" aria-label="¿Es error del analista?">
+          <button type="button" class="impact-option" data-impact-value="Sí" aria-pressed="false" onclick="seleccionarErrorAnalista('Sí')">Sí</button>
+          <button type="button" class="impact-option" data-impact-value="No" aria-pressed="false" onclick="seleccionarErrorAnalista('No')">No</button>
+        </div>
+
+        <span class="hint">Indica si la siniestralidad se debe a un error del analista.</span>
+      </div>
+
+      <div class="field full hidden" data-block="hc_siniestralidad">
+        <label>Analista responsable del error <span class="req">*</span></label>
+<select id="HC_Siniestralidad" data-cond-required="hc_siniestralidad">
+  <option value="">Selecciona…</option>
+</select>
+<span class="hint">Selecciona el analista de Pago Reembolso / Reclamos Reembolso que generó el error.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SECCIÓN 3: Queja ============ -->
+  <div class="card hidden" data-block="queja">
+    <div class="card-head">
+      <div class="card-num">3</div>
+      <div class="card-title">Detalle de la queja</div>
+    </div>
+
+    <div class="grid">
+      <div class="field">
+        <label>¿A quién es imputable? <span class="req">*</span></label>
+        <select id="Imputable_Gral" data-cond-required="queja">
+          <option value="">Selecciona…</option>
+          <option>Banorte</option>
+          <option>Weemedic</option>
+          <option>No aplica</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Resultado <span class="req">*</span></label>
+        <select id="Resultado_Queja" data-cond-required="queja">
+          <option value="">Selecciona…</option>
+          <option>Procede</option>
+          <option>No procede</option>
+        </select>
+      </div>
+
+      <div class="field full">
+        <label>Análisis de la queja <span class="req">*</span></label>
+        <textarea id="Analisis_Queja" data-cond-required="queja" maxlength="2000" placeholder="Describe el análisis del caso…"></textarea>
+        <span class="char-counter" id="Analisis_Queja_counter" aria-live="polite"><b>0</b> / 2000 caracteres</span>
+      </div>
+
+      <div class="field full" data-impact-toggle>
+        <label>¿Tiene impacto económico? <span class="req">*</span></label>
+
+        <input type="hidden" id="Tiene_Impacto_Economico" data-cond-required="queja">
+
+        <div class="impact-switch" role="group" aria-label="¿Tiene impacto económico?">
+          <button type="button" class="impact-option" data-impact-value="Sí" aria-pressed="false" onclick="seleccionarImpactoEconomico('Sí')">Sí</button>
+          <button type="button" class="impact-option" data-impact-value="No" aria-pressed="false" onclick="seleccionarImpactoEconomico('No')">No</button>
+        </div>
+
+        <span class="hint">Indica si la queja genera un monto económico asociado.</span>
+      </div>
+
+      <div class="field hidden" data-block="impacto_economico">
+        <label>Impacto económico ($) <span class="req">*</span></label>
+        <input type="number" id="Impacto_Economico" ... min="0.01" step="0.01">
+        <span class="hint">Captura el monto solo si seleccionaste "Sí".</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SECCIÓN 4: Clasificación y seguimiento ============ -->
+  <div class="card hidden" data-block="clasificacion">
+    <div class="card-head">
+      <div class="card-num">4</div>
+      <div class="card-title">Clasificación y seguimiento</div>
+    </div>
+
+    <div class="grid">
+      <div class="field">
+        <label>Solicitud relacionada a</label>
+        <select id="Solicitud_Relacionada">
+          <option value="">Selecciona…</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Seguimiento con</label>
+        <select id="Seguimiento_Con">
+          <option value="">Selecciona…</option>
+        </select>
+        <span class="hint">Las opciones se ajustan según el tipo de trámite.</span>
+      </div>
+
+      <div class="field hidden" data-block="hc">
+        <label>HC / persona de seguimiento <span class="req">*</span></label>
+        <select id="HC" data-cond-required="hc">
+          <option value="">Selecciona…</option>
+        </select>
+        <span class="hint">Persona con quien se dará seguimiento según el tipo de trámite.</span>
+      </div>
+
+      <div class="field">
+        <label>¿Quién activa?</label>
+        <select id="Quien_Activa">
+          <option value="">Selecciona…</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SECCIÓN 5: Corrección ============ -->
+  <div class="card hidden" data-block="correccion">
+    <div class="card-head">
+      <div class="card-num">5</div>
+      <div class="card-title">Corrección</div>
+    </div>
+
+    <div class="grid">
+      <div class="field full">
+        <label>Tipo de condición <span class="req">*</span></label>
+        <select id="Tipo_Condicion" data-cond-required="correccion">
+          <option value="">Selecciona…</option>
+          <option>Cambio de proveedor</option>
+          <option>Renegociación de precio</option>
+          <option>Exclusión</option>
+          <option>Otra condición</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SECCIÓN 6: Contratante ============ -->
+  <div class="card hidden" data-block="contratante">
+    <div class="card-head">
+      <div class="card-num">6</div>
+      <div class="card-title">Contratante y cierre</div>
+    </div>
+
+    <div class="grid">
+      <div class="field">
+        <label>Contratante <span class="req">*</span></label>
+        <select id="Contratante" data-cond-required="contratante">
+          <option value="">Selecciona…</option>
+          <option>PJF</option>
+          <option>Cartera General</option>
+          <option>Banco</option>
+          <option>AP</option>
+        </select>
+      </div>
+
+      <div class="field hidden" data-block="catalogo">
+        <label>Catálogo <span class="req">*</span></label>
+        <select id="Catalogo" data-cond-required="catalogo">
+          <option value="">Selecciona…</option>
+          <option>Plan médico total</option>
+          <option>Colectivo</option>
+          <option>Segumedic</option>  
+          <option>Transforma</option>
+          <option>Otra</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Fecha de respuesta final</label>
+        <input type="date" id="Fecha_Respuesta_Final">
+        <span class="hint">Opcional — déjalo vacío si el caso sigue abierto</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+   <button class="btn btn-primary" id="submitBtn" type="button">Guardar registro</button>
+    <button class="btn btn-ghost" id="resetBtn" type="button">Limpiar</button>
+  </div>
+
+  </div><!-- /viewRegistro -->
+
+  <div class="view hidden" data-view-panel="reportes" id="viewReportes">
+
+  <!-- ============ Reporte filtrado ============ -->
+  <div class="card report-filter-card">
+    <div class="report-page-title">
+      <button type="button" class="back-link" onclick="cambiarVista('registro')" aria-label="Volver a registro">←</button>
+      <div class="report-title-text">
+        <h2>Reporte de trámites o reclamaciones</h2>
+        <p class="report-subtitle">Genera y descarga el CSV filtrado por periodo y tipo</p>
+      </div>
+    </div>
+
+    <div class="report-filter-grid">
+      <div class="field">
+        <label>Tipo de trámite <span class="req">*</span></label>
+        <select id="Reporte_Tipo_Tramite">
+          <option value="Todos">Todos</option>
+          <option>Programación</option>
+          <option>Reembolso</option>
+          <option>Pago directo</option>
+          <option>Siniestralidad</option>
+          <option>Pagos</option>
+          <option>ATF</option>
+          <option>Case Managment</option>
+          <option>AP</option>
+          <option>Redes</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Fecha inicio <span class="req">*</span></label>
+        <input type="date" id="Reporte_Fecha_Inicio">
+      </div>
+
+      <div class="field">
+        <label>Fecha fin <span class="req">*</span></label>
+        <input type="date" id="Reporte_Fecha_Fin">
+      </div>
+
+      <div class="field">
+        <label>Estatus</label>
+        <select id="Reporte_Estatus">
+          <option value="Todos">Todos</option>
+          <option value="Abierto">Abierto</option>
+          <option value="Cerrado">Cerrado</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Tipo de reporte</label>
+        <select id="Reporte_Tipo">
+          <option value="detalle">Detalle de trámites</option>
+          <option value="calidad">Calidad y seguimiento</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="report-action-area">
+      <div class="excel-badge" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 13 2 3 2-3"/><path d="M9 16h4"/></svg>
+      </div>
+      <div class="excel-caption">
+        <b>Formato CSV</b>
+        <span>Compatible con Excel</span>
+      </div>
+      <button type="button" class="btn btn-primary" id="btnGenerarReporte" onclick="generarReporteFiltrado()">Generar Reporte</button>
+    </div>
+  </div>
+
+  </div><!-- /viewReportes -->
+
+  <div class="view hidden" data-view-panel="powerbi" id="viewPowerBI">
+  <div class="card powerbi-card">
+    <div class="powerbi-head">
+      <h2>Dashboard Power BI — Quejas Banorte</h2>
+      <p>Consulta visual del comportamiento de quejas, trámites, impacto económico y seguimiento.</p>
+    </div>
+
+    <div class="powerbi-actions">
+      <button type="button" class="powerbi-action-card" onclick="abrirDashboardPowerBI()">
+        <span class="powerbi-action-icon" aria-hidden="true">↗</span>
+        <span class="powerbi-action-text">
+          <strong>Abrir dashboard</strong>
+          <small>Abre el reporte público en una nueva pestaña.</small>
+        </span>
+      </button>
+      <button type="button" class="powerbi-action-card" id="btnRefreshPowerBI" onclick="solicitarRefreshPowerBI()">
+        <span class="powerbi-action-icon" aria-hidden="true">⟳</span>
+        <span class="powerbi-action-text">
+          <strong>Actualizar Power BI</strong>
+          <small>Solicita actualización del modelo semántico.</small>
+        </span>
+      </button>
+    </div>
+
+    <div class="powerbi-note">
+      La actualización <strong>no es en tiempo real puro</strong>: primero se solicita el refresh del modelo y el reporte se actualizará cuando Power BI termine de procesarlo (puede tardar unos minutos).
+    </div>
+
+    <div class="powerbi-preview">
+      <iframe id="powerbiFrame" title="Dashboard Power BI Quejas Banorte" loading="lazy" allowfullscreen="true"></iframe>
+    </div>
+  </div>
+  </div><!-- /viewPowerBI -->
+
+  </main>
+</div><!-- /layout -->
+
+<div class="toast" id="toast">
+  <div class="ic" id="toastIc">✓</div>
+  <span id="toastMsg"></span>
+</div>
+
+<script>
+/* ================================================================
+   1. CONFIGURACIÓN
+   ================================================================ */
+
+const FLOW_URL = "https://defaultabb9b2bf39d446218be853022aab1a.b4.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/45625e22e4be4cfaa5c138e24475e972/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=kfn5GbjGNTG9tVo1xmYJo3V6awDU0aP8nxE4_8burRw";
+
+const GESTORES = [
+  { nombre: "MEJIA LEON HUGO ALEJANDRO",        correo: "hmejia@weemedic.com"  },
+  { nombre: "PEÑA JAIMES JAVIER ALEJANDRO",     correo: "jpena@weemedic.com"   },
+  { nombre: "VALDES CASTAÑEDA MARIA FERNANDA",  correo: "mvaldes@weemedic.com" },
+  { nombre: "ZAMUDIO GALINDO PAULINA",          correo: "pzamudio@weemedic.com"},
+];
+
+const ESCENARIOS_PROGRAMACION_REEMBOLSO = [
+  "Cirugía",
+  "Medicamentos",
+  "Consultas médicas",
+  "Servicios de apoyo"
+];
+
+const ESCENARIOS_PAGO_DIRECTO = [
+  "Altas",
+  "Tiempos de espera",
+  "Rechazos"
+];
+
+const SUBESCENARIOS_SERVICIOS_APOYO = [
+  "Óptica",
+  "Quimioterapias",
+  "Unidad terapia física",
+  "Otros conceptos especiales",
+  "Laboratorios",
+  "Laboratorios / Gabinetes",
+  "Gabinetes",
+  "Radioterapias",
+  "Hemodiálisis",
+  "Central de mezclas",
+  "Aparatos ortopédicos",
+  "Ambulancia",
+  "Enfermería",
+  "Home care",
+  "Prótesis de extremidades",
+  "Check ups",
+  "Audiología",
+  "Atención oftalmológica ambulatoria"
+];
+
+const SOLICITUD_RELACIONADA_OPCIONES = [
+  "Aplicación condiciones",
+  "Tiempo respuesta",
+  "Corrección administrativa (Nombre, edad, proveedor)",
+  "Solicitud VIP",
+  "Revisión dictamen médico",
+  "Revisión pagos",
+  "Reinstalación",
+  "Emisión",
+  "Revisión y pago directo",
+  "Otra"
+];
+
+const QUIEN_ACTIVA_OPCIONES = [
+  "CJF",
+  "SCN",
+  "TRIFE",
+  "Indemnizaciones SB",
+  "Área comercial",
+  "Agente/Despacho/Broker",
+  "Interno/WEE",
+  "Jurídico"
+];
+
+/* Lista de analistas de Reclamos Reembolso — usada por el switch de Siniestralidad */
+const HC_PAGO_REEMBOLSO_ANALISTAS = [
+  "VAZQUEZ ARELLANO DIANA CECILIA",
+  "DE LA O QUIROZ JOSE ANTONIO",
+  "FLORES PALAFOX PAMELA JOCELINE",
+  "MACEDONIO TOME JOVANA",
+  "BAENA ECHAVARRI JONATHAN",
+  "ZAVALA VAZQUEZ MIXUNARI",
+  "RIVERO MORENO JULIO ADRIAN",
+  "RAMIREZ MARTINEZ DIANA CAROLINA",
+  "GONZALEZ GUERRERO SOCORRO BELEM",
+  "GABRIEL RIVERA ALEJANDRO",
+  "FRIAS FAZ LUIS ARTURO",
+  "ALVAREZ GONZALEZ JANET VALERIA",
+  "POSADAS MORENO SARAI",
+  "VALERO GUERRERO OLGA LIDIA"
+];
+const HC_PAGO_REEMBOLSO_LIDERES = [
+  "LARA GARCIA ERIKA AURORA",
+  "AGUILAR HERNANDEZ JUAN CARLOS"
+];
+
+const SEGUIMIENTO_POR_TRAMITE = {
+  "Programación":   ["Dictaminador", "Gerencia", "Coordinación"],
+  "Reembolso":      ["Dictaminador", "Gerencia", "Coordinación"],
+  "Pago directo":   ["Dictaminador", "Gerencia", "Coordinación"],
+  "Siniestralidad": ["Analista Pago Reembolso", "Líder Pago Reembolso"],
+  "Pagos":          ["Dictaminador", "Gerencia", "Coordinación"],
+  "ATF":            ["Coordinación"],
+  "Case Managment": ["Dictaminador", "Coordinación"],
+  "AP":             ["Dictaminador", "Gerencia", "Coordinación"],
+  "Redes":          ["Dictaminador", "Gerencia", "Coordinación"]
+};
+
+const HC_CATALOGOS = {
+  "Programación": {
+    "Dictaminador": [
+      "ARRIAGA DOMINGUEZ ADRIANA CAROLINA",
+      "GARCIA IBARRA AMADA ESPERANZA",
+      "HERNANDEZ GARCIA MARIA CRISTINA",
+      "LOPEZ FLORES SILVIA ARACELI",
+      "LOZANO MORALES HERIBERTO ALEXIS",
+      "RAMIREZ HERRERA VICTOR ALAN",
+      "NAVA SANCHEZ JOSE ROBERTO",
+      "RANGEL AGUILAR BELEN SARAI",
+      "LOPEZ CALIXTO VICENTE ALEXIS",
+      "ORTIZ SILICEO ALBERTO ALEJANDRO",
+      "MOLINA VELAZQUEZ CARLOS MAURICIO",
+      "RIVERA TERRES PAOLA",
+      "SANCHEZ GARCIA ISMAEL AARON",
+      "FRANCO GARCIA AMINEY",
+      "PEREZ ALVAREZ STEPHANYE"
+    ],
+    "Gerencia": [],
+    "Coordinación": [
+      "HERNANDEZ TENORIO FELIPE ERNESTO",
+      "TORRES RUIZ CLAUDIA",
+      "HAM ORTIZ JESSICA"
+    ]
+  },
+
+  "Reembolso": {
+    "Dictaminador": [
+      "MARTINEZ ARRIAGA AXEL EMMANUEL",
+      "PEÑA MENDEZ ERICK NOE",
+      "SANCHEZ SALGADO YOLANDA",
+      "DIAZ TOVAR ROBERTO",
+      "ANDRADE PEREZ GUSTAVO MANUEL",
+      "CASTILLEJA HERNANDEZ YANIRA NALLELY",
+      "SANCHEZ AMEZQUITA MONICA",
+      "SANTIAGO CARRILLO REBECA ANDREA",
+      "FLORES SALA REGINA",
+      "FUENTES VILLALOBOS DULCE PAOLA",
+      "GUZMAN MUÑOZ PAMELA"
+    ],
+    "Gerencia": [
+      "OLIVERA ALVAREZ ANHALY"
+    ],
+    "Coordinación": [
+      "SALAZAR LOPEZ LUIS FERNANDO",
+      "AGUILAR HERNANDEZ JUAN CARLOS",
+      "JIMENEZ GARNICA VERONICA"
+    ]
+  },
+
+  "Pago directo": {
+    "Dictaminador": [
+      "RUIZ PALACIOS DAVID",
+      "PRADO PELAEZ VIRIDIANA",
+      "URBINA TERAN SAID",
+      "SANDOVAL PEREZ ANA KAREN",
+      "AVILA RESENDIZ CINTHIA BERENICE",
+      "RIVERA RAMIREZ GUADALUPE CONCEPCION",
+      "BAZALDUA OVIEDO IBAN GAUTIER",
+      "ESTRELLA VALADEZ EMERSON JOSE",
+      "SAUCEDA CASTRO JUAN ANTONIO",
+      "RAMIREZ SILVA LEANDRO EDUARDO",
+      "POTENCIANO PADILLA CRISTINA ARLETT",
+      "CANSECO VAZQUEZ BRENDA PATRICIA",
+      "MARGARITO NICOLAS JUAN MANUEL",
+      "HERRERA BARRERA MARIA LUISA",
+      "CARRILLO RUIZ BARBARA",
+      "ONTIVEROS TORRES ANA CRISTINA"
+    ],
+    "Gerencia": [
+      "BAZALDUA OVIEDO IBAN GAUTIER"
+    ],
+    "Coordinación": [
+      "SALAS GRANADOS ALEJANDRA GUADALUPE",
+      "AVILA RESENDIZ CINTHIA BERENICE",
+      "RAZO RUVALCABA JUAN MANUEL"
+    ]
+  },
+
+  "Pagos": {
+    "Dictaminador": [
+      "ONTIVEROS CORDOVA JOSE ARMANDO",
+      "FERNANDEZ CONTRERAS ERNESTO",
+      "ALVAREZ MARTINEZ IVAN",
+      "MARIN FABIAN JORGE OMAR",
+      "MARTINEZ REYES MAGALY",
+      "LOPEZ GARZON MARIA DEL PILAR",
+      "PEREZ SORIANO ISSAC",
+      "SANCHEZ FLORES ANA ELENA",
+      "ABAD SUAREZ ERIC BENTURA",
+      "BLANCARTE PEREZ BEATRIZ ADRIANA",
+      "REUS PRADO XOCHITL DEL CARMEN",
+      "IBARRA MUÑOZ JUAN CARLOS",
+      "TLAXCALTECO RUIZ TERESA ARACELI",
+      "CUELLAR RIOS ELIZABETH",
+      "AGUILAR TELLEZ BENJAMIN RODRIGO",
+      "MUÑOZ HUITZIL KAREN GIOVANNA",
+      "GONZALEZ MUNGUIA DENISSE ALEJANDRA",
+      "NUÑO NAJAR MARTHA MARCELA",
+      "ESPINDOLA SALAS URIEL RODRIGO",
+      "PEREZ AGUILAR MARIA GUADALUPE",
+      "SERRANO CANO ALICIA",
+      "LOZANO REYES PABLO DE JESUS",
+      "CORTES SALAS SAUL",
+      "SUAREZ JIMENEZ JOSE EDUARDO",
+      "MORALES ESQUIVEL JUAN ULISES",
+      "VAZQUEZ ARELLANO DIANA CECILIA",
+      "DE LA O QUIROZ JOSE ANTONIO",
+      "FLORES PALAFOX PAMELA JOCELINE",
+      "MACEDONIO TOME JOVANA",
+      "BAENA ECHAVARRI JONATHAN",
+      "ZAVALA VAZQUEZ MIXUNARI",
+      "RIVERO MORENO JULIO ADRIAN",
+      "RAMIREZ MARTINEZ DIANA CAROLINA",
+      "GONZALEZ GUERRERO SOCORRO BELEM",
+      "GABRIEL RIVERA ALEJANDRO",
+      "FRIAS FAZ LUIS ARTURO",
+      "ALVAREZ GONZALEZ JANET VALERIA",
+      "POSADAS MORENO SARAI",
+      "VALERO GUERRERO OLGA LIDIA",
+      "HERNANDEZ BLANCO JESUS ALEJANDRO"
+    ],
+    "Gerencia": [
+      "ANGELES MEDINA RAMON"
+    ],
+    "Coordinación": [
+      "LARA GARCIA ERIKA AURORA",
+      "AGUILAR HERNANDEZ JUAN CARLOS"
+    ]
+  },
+"ATF": {
+    "Dictaminador": [],
+    "Gerencia": [],
+    "Coordinación": ["JIMENEZ GARNICA VERONICA"]
+  },
+
+  "Case Managment": {
+    "Dictaminador": [
+      "SANCHEZ GARCIA ISMAEL AARON",
+      "MOLINA VELAZQUEZ CARLOS MAURICIO",
+      "RIVERA TERRES PAOLA",
+      "PEREZ ALVAREZ STEPHANYE"
+    ],
+    "Gerencia": [],
+    "Coordinación": [
+      "HERNANDEZ TENORIO FELIPE ERNESTO",
+      "TORRES RUIZ CLAUDIA"
+    ]
+  },
+
+  "Redes": {
+    "Dictaminador": [
+      "RAZO RUVALCABA JUAN MANUEL"
+    ],
+    "Gerencia": [
+      "ALTAMIRANO RAMOS ILSE"
+    ],
+    "Coordinación": [
+      "REYES GARCIA GRISEL",
+      "PARRA MARTINEZ FABIOLA",
+      "GARCIA OCARIZ TANIA"
+    ]
+  },
+  "Siniestralidad": {
+    "Analista Pago Reembolso": HC_PAGO_REEMBOLSO_ANALISTAS,
+    "Líder Pago Reembolso": HC_PAGO_REEMBOLSO_LIDERES
+  },
+};
+
+const $ = id => document.getElementById(id);
+
+let fechaInicio = new Date().toISOString();
+let ultimoTramite = "";
+let ultimoTramiteSeguimiento = "";
+let ultimaClaveHC = "";
+let ultimoTramiteDictaminador = "";
+let hcSiniestralidadCargado = false;
+
+/* ================================================================
+   2. ARRANQUE
+   ================================================================ */
+
+const selGestor = $("gestor");
+
+GESTORES.forEach(g => {
+  const o = document.createElement("option");
+  o.value = g.correo;
+  o.textContent = g.nombre;
+  o.dataset.nombre = g.nombre;
+  selGestor.appendChild(o);
+});
+
+/* ================================================================
+   3. FUNCIONES BASE
+   ================================================================ */
+
+function valor(id){
+  const el = $(id);
+  return el ? el.value.trim() : "";
+}
+
+function llenarSelect(selectId, opciones, placeholder = "Selecciona…"){
+  const select = $(selectId);
+
+  if(!select) return;
+
+  select.innerHTML = "";
+
+  const base = document.createElement("option");
+  base.value = "";
+  base.textContent = placeholder;
+  select.appendChild(base);
+
+  opciones.forEach(opcion => {
+    const o = document.createElement("option");
+    o.value = opcion;
+    o.textContent = opcion;
+    select.appendChild(o);
+  });
+}
+
+function inicializarCatalogosFijos(){
+  llenarSelect("Solicitud_Relacionada", SOLICITUD_RELACIONADA_OPCIONES, "Selecciona la solicitud…");
+  llenarSelect("Quien_Activa", QUIEN_ACTIVA_OPCIONES, "Selecciona quién activa…");
+}
+
+/* ================================================================
+   4. ESCENARIO
+   ================================================================ */
+
+function cargarOpcionesEscenario(tramite){
+  if(tramite === ultimoTramite) return;
+
+  ultimoTramite = tramite;
+
+  if(tramite === "Programación" || tramite === "Reembolso"){
+    llenarSelect("Escenario", ESCENARIOS_PROGRAMACION_REEMBOLSO, "Selecciona el escenario…");
+  }else if(tramite === "Pago directo"){
+    llenarSelect("Escenario", ESCENARIOS_PAGO_DIRECTO, "Selecciona el escenario de pago directo…");
+  }else{
+    llenarSelect("Escenario", [], "Selecciona…");
+  }
+
+  llenarSelect("Subescenario", SUBESCENARIOS_SERVICIOS_APOYO, "Selecciona el subescenario…");
+}
+
+function construirNombreEscenario(){
+  const tramite = valor("Tipo_Tramite");
+  const escenario = valor("Escenario");
+  const subescenario = valor("Subescenario");
+
+  if(!escenario) return "";
+
+  if((tramite === "Programación" || tramite === "Reembolso") && escenario === "Servicios de apoyo"){
+    return subescenario ? "Servicios de apoyo - " + subescenario : "";
+  }
+
+  if(tramite === "Pago directo"){
+    return "Pago directo - " + escenario;
+  }
+
+  return escenario;
+}
+
+/* ================================================================
+   5. SEGUIMIENTO Y HC
+   ================================================================ */
+
+function cargarOpcionesSeguimiento(tramite){
+  if(tramite === ultimoTramiteSeguimiento) return;
+
+  ultimoTramiteSeguimiento = tramite;
+
+  const opciones = SEGUIMIENTO_POR_TRAMITE[tramite] || [];
+
+  llenarSelect(
+    "Seguimiento_Con",
+    opciones,
+    opciones.length ? "Selecciona seguimiento…" : "Sin seguimiento disponible…"
+  );
+
+  llenarSelect("HC", [], "Selecciona HC…");
+  ultimaClaveHC = "";
+}
+
+function cargarOpcionesHC(){
+  const tramite = valor("Tipo_Tramite");
+  const seguimiento = valor("Seguimiento_Con");
+  const clave = tramite + "|" + seguimiento;
+
+  if(clave === ultimaClaveHC) return;
+
+  ultimaClaveHC = clave;
+
+  const opciones = HC_CATALOGOS[tramite]?.[seguimiento] || [];
+
+  llenarSelect(
+    "HC",
+    opciones,
+    opciones.length ? "Selecciona HC…" : "Sin HC configurado…"
+  );
+}
+
+function cargarDictaminadoresPorTramite(){
+  const tramite = valor("Tipo_Tramite");
+
+  if(tramite === ultimoTramiteDictaminador) return;
+  ultimoTramiteDictaminador = tramite;
+
+  const opciones = HC_CATALOGOS[tramite]?.["Dictaminador"] || [];
+
+  llenarSelect(
+    "Nombre_Dictaminador",
+    opciones,
+    opciones.length ? "Selecciona dictaminador…" : "Sin dictaminadores configurados…"
+  );
+}
+
+function hayOpcionesHC(){
+  const tramite = valor("Tipo_Tramite");
+  const seguimiento = valor("Seguimiento_Con");
+  const opciones = HC_CATALOGOS[tramite]?.[seguimiento] || [];
+  return opciones.length > 0;
+}
+
+function cargarHCSiniestralidad(){
+  if(hcSiniestralidadCargado) return;
+  hcSiniestralidadCargado = true;
+  llenarSelect("HC_Siniestralidad", HC_PAGO_REEMBOLSO_ANALISTAS, "Selecciona analista de Pago Reembolso…");
+}
+
+/* ================================================================
+   6. SWITCHES (impacto económico + error del analista)
+   ================================================================ */
+
+function seleccionarImpactoEconomico(valorSeleccionado){
+  $("Tiene_Impacto_Economico").value = valorSeleccionado;
+
+  document.querySelectorAll('[data-impact-toggle] .impact-option').forEach(btn=>{
+    const isActive = btn.getAttribute("data-impact-value") === valorSeleccionado;
+    btn.classList.toggle("active", isActive);
+    btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+  });
+
+  const switchEl = document.querySelector('[data-impact-toggle] .impact-switch');
+  if(switchEl){
+    switchEl.classList.remove("invalid");
+  }
+
+  actualizarVisibilidad();
+}
+
+function seleccionarErrorAnalista(valorSeleccionado){
+  $("Es_Error_Analista").value = valorSeleccionado;
+
+  document.querySelectorAll('[data-error-toggle] .impact-option').forEach(btn=>{
+    const isActive = btn.getAttribute("data-impact-value") === valorSeleccionado;
+    btn.classList.toggle("active", isActive);
+    btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+  });
+
+  const switchEl = document.querySelector('[data-error-toggle] .impact-switch');
+  if(switchEl){
+    switchEl.classList.remove("invalid");
+  }
+
+  actualizarVisibilidad();
+}
+
+function requiereImpactoEconomico(){
+  const atencion = valor("Tipo_Atencion");
+  const decision = valor("Tiene_Impacto_Economico");
+
+  if(atencion !== "Queja"){
+    return false;
+  }
+
+  switch(decision){
+    case "Sí":
+      return true;
+    case "No":
+      return false;
+    default:
+      return false;
+  }
+}
+
+/* ================================================================
+   7. VISIBILIDAD
+   ================================================================ */
+
+function actualizarVisibilidad(){
+  const atencion = valor("Tipo_Atencion");
+  const tramite  = valor("Tipo_Tramite");
+  const contrat  = valor("Contratante");
+
+  const verEscenario = (
+    tramite === "Programación" ||
+    tramite === "Reembolso" ||
+    tramite === "Pago directo"
+  );
+
+  toggleBlock("escenario", verEscenario);
+
+  if(verEscenario){
+    cargarOpcionesEscenario(tramite);
+    cargarDictaminadoresPorTramite();
+    document.querySelector("[data-tramite-label]").textContent = tramite;
+  }else{
+    llenarSelect("Nombre_Dictaminador", [], "Selecciona…");
+    ultimoTramiteDictaminador = "";
+  }
+
+  toggleBlock("subescenario", valor("Escenario") === "Servicios de apoyo");
+
+  if(valor("Escenario") !== "Servicios de apoyo"){
+    $("Subescenario").value = "";
+  }
+
+  /* ---- Siniestralidad: switch "¿Es error del analista?" ---- */
+  const verSiniestralidad = tramite === "Siniestralidad";
+  toggleBlock("siniestralidad", verSiniestralidad);
+
+  if(verSiniestralidad){
+    cargarHCSiniestralidad();
+    const esError = valor("Es_Error_Analista");
+    toggleBlock("hc_siniestralidad", esError === "Sí");
+    if(esError !== "Sí"){
+      $("HC_Siniestralidad").value = "";
+    }
+  }else{
+    $("Es_Error_Analista").value = "";
+    $("HC_Siniestralidad").value = "";
+    document.querySelectorAll('[data-error-toggle] .impact-option').forEach(btn=>{
+      btn.classList.remove("active");
+      btn.setAttribute("aria-pressed", "false");
+    });
+    const errSwitch = document.querySelector('[data-error-toggle] .impact-switch');
+    if(errSwitch) errSwitch.classList.remove("invalid");
+  }
+
+  toggleBlock("queja", atencion === "Queja");
+
+  if(atencion !== "Queja"){
+    $("Tiene_Impacto_Economico").value = "";
+    $("Impacto_Economico").value = "";
+
+    document.querySelectorAll('[data-impact-toggle] .impact-option').forEach(btn=>{
+      btn.classList.remove("active");
+      btn.setAttribute("aria-pressed", "false");
+    });
+
+    const impactSwitch = document.querySelector('[data-impact-toggle] .impact-switch');
+    if(impactSwitch){
+      impactSwitch.classList.remove("invalid");
+    }
+  }
+
+  const verImpactoEconomico = requiereImpactoEconomico();
+  toggleBlock("impacto_economico", verImpactoEconomico);
+
+  if(!verImpactoEconomico){
+    $("Impacto_Economico").value = "";
+  }
+
+  const verClasificacion = atencion === "Queja";
+  toggleBlock("clasificacion", verClasificacion);
+
+  if(verClasificacion){
+    cargarOpcionesSeguimiento(tramite);
+    cargarOpcionesHC();
+
+    /* El HC normal NO aplica para Siniestralidad (usa el switch de error) */
+    const verHC = valor("Seguimiento_Con") !== "" && hayOpcionesHC();
+    toggleBlock("hc", verHC);
+
+    if(!verHC){
+      $("HC").value = "";
+    }
+  }else{
+    $("Solicitud_Relacionada").value = "";
+    $("Seguimiento_Con").value = "";
+    $("HC").value = "";
+    $("Quien_Activa").value = "";
+    toggleBlock("hc", false);
+
+    ultimoTramiteSeguimiento = "";
+    ultimaClaveHC = "";
+  }
+
+  toggleBlock("correccion", atencion === "Corrección");
+  toggleBlock("contratante", atencion !== "");
+  toggleBlock("catalogo", contrat === "Cartera General");
+
+  actualizarProgreso();
+}
+
+function toggleBlock(name, show){
+  document.querySelectorAll('[data-block="'+name+'"]').forEach(el=>{
+    el.classList.toggle("hidden", !show);
+  });
+}
+
+/* ================================================================
+   8. LISTENERS
+   ================================================================ */
+
+[
+  "Tipo_Atencion",
+  "Tipo_Tramite",
+  "Contratante",
+  "Escenario",
+  "Subescenario",
+  "Seguimiento_Con"
+].forEach(id=>{
+  $(id).addEventListener("change", actualizarVisibilidad);
+});
+
+/* ================================================================
+   9. VALIDACIÓN
+   ================================================================ */
+
+function validar(){
+  const honeypot = document.getElementById("website_url");
+  if(honeypot && honeypot.value.trim() !== ""){
+    console.warn("Honeypot activado — posible bot detectado.");
+    return false; // Bloquea el envío sin avisarle al bot que lo detectamos.
+  }
+
+  let ok = true;
+  let primerError = null;
+  document.querySelectorAll(".invalid").forEach(e=>e.classList.remove("invalid"));
+  clearFieldErrors();
+
+  document.querySelectorAll(".impact-switch").forEach(s=>s.classList.remove("invalid"));
+
+ document.querySelectorAll("[data-required]").forEach(el=>{
+  el.value = el.value.trim();
+  if(!el.value.trim()){
+    el.classList.add("invalid");
+    setFieldError(el, "Este campo es obligatorio");
+    ok = false;
+    if(!primerError) primerError = el;
+  }
+});
+  document.querySelectorAll("[data-cond-required]").forEach(el=>{
+    const bloque = el.getAttribute("data-cond-required");
+    const seccionVisible = document.querySelector('[data-block="'+bloque+'"]:not(.hidden)');
+    const contenedorCampo = el.closest(".field");
+    const campoVisible = contenedorCampo ? contenedorCampo.offsetParent !== null : el.offsetParent !== null;
+
+    if(seccionVisible && campoVisible && !el.value.trim()){
+      el.classList.add("invalid");
+      setFieldError(el, "Este campo es obligatorio");
+
+      let switchAsociado = null;
+      if(el.id === "Tiene_Impacto_Economico"){
+        switchAsociado = document.querySelector('[data-impact-toggle] .impact-switch');
+      }else if(el.id === "Es_Error_Analista"){
+        switchAsociado = document.querySelector('[data-error-toggle] .impact-switch');
+      }
+
+      if(switchAsociado){
+        switchAsociado.classList.add("invalid");
+      }
+
+      ok = false;
+
+      if(!primerError){
+        primerError = switchAsociado || el;
+      }
+    }
+  });
+// Validación específica: Impacto_Economico debe ser número > 0 si Tiene_Impacto = "Sí"
+  if(valor("Tiene_Impacto_Economico") === "Sí"){
+    const inputImpacto = $("Impacto_Economico");
+    const rawImpacto = inputImpacto.value.trim();
+    const montoImpacto = parseFloat(rawImpacto);
+
+    if(rawImpacto !== "" && (isNaN(montoImpacto) || montoImpacto <= 0)){
+      inputImpacto.classList.add("invalid");
+      setFieldError(inputImpacto, "Ingresa un monto mayor a 0");
+      ok = false;
+      if(!primerError) primerError = inputImpacto;
+    }
+  }
+  if(primerError){
+    primerError.scrollIntoView({behavior:"smooth", block:"center"});
+
+    if(typeof primerError.focus === "function"){
+      primerError.focus({preventScroll:true});
+    }
+  }
+
+  return ok;
+}
+
+/* ================================================================
+   10. ENVÍO
+   ================================================================ */
+
+async function enviar(){
+  if(!validar()){
+    mostrarToast("err","Faltan campos obligatorios");
+    return;
+  }
+
+  if(FLOW_URL === ""){
+    mostrarToast("err","Falta pegar la URL del flujo en el código");
+    return;
+  }
+
+  const gestorOpt = selGestor.options[selGestor.selectedIndex];
+  const tramite = valor("Tipo_Tramite");
+
+  const payload = {
+    Folio:                    valor("Folio"),
+    Fecha_Recepcion_ATC:      valor("Fecha_Recepcion_ATC"),
+    Tipo_Tramite:             tramite,
+    Tipo_Atencion:            valor("Tipo_Atencion"),
+
+    Escenario:                valor("Escenario"),
+    Subescenario:             valor("Subescenario"),
+    Nombre_Escenario:         construirNombreEscenario(),
+
+    Imputable_Gral:           valor("Imputable_Gral"),
+    Resultado_Queja:          valor("Resultado_Queja"),
+    Analisis_Queja:           valor("Analisis_Queja"),
+    Tiene_Impacto_Economico:  valor("Tiene_Impacto_Economico"),
+    Impacto_Economico:        (() => {
+                                const raw = valor("Impacto_Economico");
+                                if(raw === "") return 0;
+                                const num = parseFloat(raw);
+                                return isNaN(num) ? 0 : num;
+                              })(),
+  Solicitud_Relacionada:    valor("Solicitud_Relacionada"),
+Seguimiento_Con:          valor("Seguimiento_Con"),
+HC:                       valor("HC"),
+Quien_Activa:             valor("Quien_Activa"),
+
+Contratante:              valor("Contratante"),
+Fecha_Respuesta_Final:    valor("Fecha_Respuesta_Final"),
+
+Nombre_Dictaminador:      tramite === "Siniestralidad"
+  ? valor("HC_Siniestralidad")
+  : valor("Nombre_Dictaminador"),
+
+Tipo_Condicion:           valor("Tipo_Condicion"),
+Catalogo:                 valor("Catalogo"),
+
+    Es_Error_Analista:        valor("Es_Error_Analista"),
+
+    Fecha_Inicio:             fechaInicio,
+    Fecha_Fin:                new Date().toISOString(),
+    Correo_Gestor:             selGestor.value.trim(),
+    Nombre_Gestor:            gestorOpt ? gestorOpt.dataset.nombre : ""
+  };
+
+  const btn = $("submitBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Guardando…';
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+  try{
+    const res = await fetch(FLOW_URL,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if(res.ok){
+      mostrarToast("ok","Registro guardado correctamente");
+      limpiar();
+    }else{
+      let msg = "Error al guardar (código "+res.status+")";
+      try{
+        const j = await res.json();
+        if(j.mensaje) msg = j.mensaje;
+      }catch(e){}
+      mostrarToast("err", msg);
+    }
+  }catch(err){
+    clearTimeout(timeoutId);
+    console.error("Error completo del fetch:", err);
+    if(err.name === "AbortError"){
+      mostrarToast("err","Tiempo de espera agotado (20s). Revisa tu conexión e intenta de nuevo.");
+    }else{
+      mostrarToast("err","No se pudo conectar. Revisa la consola.");
+    }
+  }finally{
+    btn.disabled = false;
+    btn.textContent = "Guardar registro";
+  }}
+
+/* ================================================================
+   11. UTILIDADES
+   ================================================================ */
+
+function limpiar(){
+  document.querySelectorAll("input,select,textarea").forEach(el=>{
+    if(el.tagName==="SELECT") el.selectedIndex = 0;
+    else el.value = "";
+  });
+
+  document.querySelectorAll(".invalid").forEach(e=>e.classList.remove("invalid"));
+
+  document.querySelectorAll(".impact-option").forEach(btn=>{
+    btn.classList.remove("active");
+    btn.setAttribute("aria-pressed", "false");
+  });
+
+  document.querySelectorAll(".impact-switch").forEach(s=>s.classList.remove("invalid"));
+
+  ultimoTramite = "";
+  ultimoTramiteSeguimiento = "";
+  ultimaClaveHC = "";
+  ultimoTramiteDictaminador = "";
+  hcSiniestralidadCargado = false;
+
+  inicializarCatalogosFijos();
+  actualizarVisibilidad();
+  actualizarContadorAnalisis();
+
+  fechaInicio = new Date().toISOString();
+}
+
+let toastTimer;
+
+function mostrarToast(tipo,msg){
+  const t = $("toast");
+
+  $("toastIc").textContent = tipo==="ok" ? "✓" : "!";
+  $("toastMsg").textContent = msg;
+
+  t.className = "toast show "+tipo;
+
+  clearTimeout(toastTimer);
+
+  toastTimer = setTimeout(()=>{
+    t.className = "toast "+tipo;
+  }, 3800);
+}
+
+$("submitBtn").addEventListener("click", enviar);
+$("resetBtn").addEventListener("click", limpiar);
+
+/* Contador de caracteres del análisis de la queja */
+function actualizarContadorAnalisis(){
+  const ta = $("Analisis_Queja");
+  const counter = $("Analisis_Queja_counter");
+  if(!ta || !counter) return;
+  const max = parseInt(ta.getAttribute("maxlength"), 10) || 2000;
+  const n = ta.value.length;
+  const b = counter.querySelector("b");
+  if(b) b.textContent = n;
+  counter.classList.toggle("near", n >= max * 0.9);
+}
+$("Analisis_Queja").addEventListener("input", actualizarContadorAnalisis);
+
+/* ================================================================
+   12. PROGRESO + VALIDACIÓN INLINE (capa visual)
+   ================================================================ */
+
+function actualizarProgreso(){
+  const reqs = [];
+  document.querySelectorAll("[data-required]").forEach(el=>reqs.push(el));
+  document.querySelectorAll("[data-cond-required]").forEach(el=>{
+    const bloque = el.getAttribute("data-cond-required");
+    const visible = document.querySelector('[data-block="'+bloque+'"]:not(.hidden)');
+    const cont = el.closest(".field");
+    const campoVisible = cont ? cont.offsetParent !== null : el.offsetParent !== null;
+    if(visible && campoVisible) reqs.push(el);
+  });
+  const total = reqs.length;
+  const llenos = reqs.filter(el => el.value.trim() !== "").length;
+  const pct = total ? Math.round(llenos / total * 100) : 0;
+
+  const fill = $("wpFill"), label = $("wpLabel"), count = $("wpCount"), bar = $("weeProgress");
+  if(fill) fill.style.width = pct + "%";
+  if(label) label.textContent = pct + "%";
+  if(count) count.textContent = llenos + " de " + total + " campos";
+  if(bar){
+    bar.classList.toggle("complete", total > 0 && llenos === total);
+    bar.setAttribute("aria-valuenow", pct);
+  }
+}
+
+function setFieldError(el, msg){
+  const field = el.closest(".field");
+  if(!field) return;
+  let err = field.querySelector(".field-error");
+  if(!err){
+    err = document.createElement("span");
+    err.className = "field-error";
+    field.appendChild(err);
+  }
+  err.textContent = msg;
+  err.classList.add("show");
+}
+
+function clearFieldErrors(){
+  document.querySelectorAll(".field-error.show").forEach(e=>e.classList.remove("show"));
+}
+
+/* Al escribir: recalcula progreso y limpia el error del campo corregido */
+document.addEventListener("input", e=>{
+  const t = e.target;
+  if(t && t.classList && t.classList.contains("invalid")){
+    t.classList.remove("invalid");
+    const f = t.closest(".field");
+    const err = f && f.querySelector(".field-error");
+    if(err) err.classList.remove("show");
+  }
+  actualizarProgreso();
+});
+document.addEventListener("change", actualizarProgreso);
+
+/* ================================================================
+   13. REPORTES Y DESCARGAS (CSV desde flujo de lectura)
+   ================================================================ */
+
+// Pega aquí la URL del flujo de LECTURA de Power Automate (ver power_automate_cambios.md).
+// Debe devolver un arreglo JSON con los registros de SharePoint.
+const REPORT_URL = "https://defaultabb9b2bf39d446218be853022aab1a.b4.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/2f08f42b57bc43e280eb23b2bb89e7e0/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=WDWQuMy-uQbqjL7VLEdD-imkxOwIV6l1FQUNcW-03Ak";
+
+// Etiquetas legibles para los encabezados del CSV.
+const ETIQUETAS_REPORTE = {
+  Folio:"Folio", Fecha_Recepcion_ATC:"Fecha recepción ATC",
+  Tipo_Tramite:"Tipo de trámite", Tipo_Atencion:"Tipo de atención",
+  Escenario:"Escenario", Subescenario:"Subescenario", Nombre_Escenario:"Nombre del escenario",
+  Imputable_Gral:"Imputable a", Resultado_Queja:"Resultado", Analisis_Queja:"Análisis de la queja",
+  Tiene_Impacto_Economico:"¿Tiene impacto económico?", Impacto_Economico:"Impacto económico ($)",
+  Solicitud_Relacionada:"Solicitud relacionada", Seguimiento_Con:"Seguimiento con",
+  HC:"HC / persona de seguimiento", Quien_Activa:"¿Quién activa?",
+  Contratante:"Contratante", Catalogo:"Catálogo", Tipo_Condicion:"Tipo de condición",
+  Nombre_Dictaminador:"Médico / dictaminador", Es_Error_Analista:"¿Error del analista?",
+  Nombre_Gestor:"Gestor", Correo_Gestor:"Correo del gestor",
+  Fecha_Respuesta_Final:"Fecha respuesta final", Fecha_Inicio:"Inicio captura", Fecha_Fin:"Fin captura"
+};
+
+// Reporte 1: detalle completo de trámites.
+const COLUMNAS_DETALLE = [
+  "Folio","Fecha_Recepcion_ATC","Tipo_Tramite","Tipo_Atencion",
+  "Escenario","Subescenario","Nombre_Escenario",
+  "Imputable_Gral","Resultado_Queja","Analisis_Queja",
+  "Tiene_Impacto_Economico","Impacto_Economico",
+  "Solicitud_Relacionada","Seguimiento_Con","HC","Quien_Activa",
+  "Contratante","Catalogo","Tipo_Condicion",
+  "Nombre_Dictaminador","Es_Error_Analista",
+  "Nombre_Gestor","Correo_Gestor",
+  "Fecha_Respuesta_Final","Fecha_Inicio","Fecha_Fin"
+];
+
+// Reporte 2: calidad y seguimiento (personas / médicos / responsables).
+const COLUMNAS_CALIDAD = [
+  "Folio","Fecha_Recepcion_ATC","Tipo_Tramite","Tipo_Atencion",
+  "Nombre_Gestor","Correo_Gestor",
+  "Nombre_Dictaminador","Es_Error_Analista",
+  "Imputable_Gral","Resultado_Queja",
+  "Seguimiento_Con","HC","Quien_Activa",
+  "Tiene_Impacto_Economico","Impacto_Economico",
+  "Fecha_Respuesta_Final"
+];
+
+function escaparCSV(v){
+  if(v === null || v === undefined) v = "";
+  v = String(v);
+  if(/[",\n\r]/.test(v)) v = '"' + v.replace(/"/g, '""') + '"';
+  return v;
+}
+
+function construirCSV(filas, columnas){
+  const head = columnas.map(c => escaparCSV(ETIQUETAS_REPORTE[c] || c)).join(",");
+  const body = filas.map(f => columnas.map(c => escaparCSV(f[c])).join(",")).join("\r\n");
+  return "﻿" + head + "\r\n" + body; // BOM para que Excel respete los acentos.
+}
+
+function descargarArchivo(nombre, contenido){
+  const blob = new Blob([contenido], { type:"text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = nombre;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ----- Reporte filtrado (nuevo panel de filtros) ----- */
+function generarReporteFiltrado(){
+  const tipoReporte = valor("Reporte_Tipo");
+  const tipoTramite = valor("Reporte_Tipo_Tramite");
+  const fechaInicio = valor("Reporte_Fecha_Inicio");
+  const fechaFin    = valor("Reporte_Fecha_Fin");
+  const estatus     = valor("Reporte_Estatus");
+
+  $("Reporte_Fecha_Inicio").classList.remove("invalid");
+  $("Reporte_Fecha_Fin").classList.remove("invalid");
+
+  if(!fechaInicio){
+    $("Reporte_Fecha_Inicio").classList.add("invalid");
+    mostrarToast("err","Selecciona la fecha de inicio.");
+    return;
+  }
+  if(!fechaFin){
+    $("Reporte_Fecha_Fin").classList.add("invalid");
+    mostrarToast("err","Selecciona la fecha de fin.");
+    return;
+  }
+  if(fechaInicio > fechaFin){
+    $("Reporte_Fecha_Inicio").classList.add("invalid");
+    $("Reporte_Fecha_Fin").classList.add("invalid");
+    mostrarToast("err","La fecha de inicio no puede ser mayor a la fecha de fin.");
+    return;
+  }
+
+  descargarReporteAvanzado({
+    tipoReporte: tipoReporte || "detalle",
+    tipoTramite: tipoTramite || "Todos",
+    fechaInicio: fechaInicio,
+    fechaFin:    fechaFin,
+    estatus:     estatus || "Todos"
+  });
+}
+
+async function descargarReporteAvanzado(payload){
+  if(!REPORT_URL || REPORT_URL.includes("PEGA_AQUI") || REPORT_URL.includes("TU_WORKFLOW_ID")){
+    mostrarToast("err","Falta configurar la URL del flujo de descarga (REPORT_URL).");
+    return;
+  }
+
+  const btn = $("btnGenerarReporte");
+  const textoOriginal = btn ? btn.textContent : "";
+  if(btn){ btn.disabled = true; btn.textContent = "Generando…"; }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+  try{
+    const res = await fetch(REPORT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        tipoReporte: payload.tipoReporte,
+        tipoTramite: payload.tipoTramite,
+        fechaInicio: payload.fechaInicio,
+        fechaFin:    payload.fechaFin,
+        estatus:     payload.estatus
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if(!res.ok){
+      const errorText = await res.text();
+      console.error("Respuesta del flujo:", res.status, errorText);
+      throw new Error("HTTP " + res.status);
+    }
+
+    const blob = await res.blob();
+
+    if(!blob || blob.size === 0){
+      mostrarToast("err","El flujo respondió vacío. Revisa el flujo de descarga.");
+      return;
+    }
+
+    const nombreArchivo = "reporte_" + payload.tipoReporte + "_" + payload.fechaInicio + "_a_" + payload.fechaFin + ".csv";
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = nombreArchivo;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    mostrarToast("ok","Reporte generado correctamente.");
+  }catch(err){
+    clearTimeout(timeoutId);
+    console.error("Error al generar el reporte filtrado:", err);
+    mostrarToast("err", err.name === "AbortError"
+      ? "Tiempo de espera agotado al generar el reporte."
+      : "No se pudo generar el reporte. Revisa la consola.");
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = textoOriginal; }
+  }
+}
+
+async function descargarReporte(tipo){
+  if(!REPORT_URL || REPORT_URL.includes("PEGA_AQUI") || REPORT_URL.includes("TU_WORKFLOW_ID")){
+    mostrarToast("err","Falta configurar la URL del flujo de descarga (REPORT_URL).");
+    return;
+  }
+
+  const btn = tipo === "detalle" ? $("btnReporteDetalle") : $("btnReporteCalidad");
+  const dl  = btn ? btn.querySelector(".report-dl") : null;
+  const textoOriginal = dl ? dl.textContent : "";
+
+  if(dl) dl.textContent = "Generando…";
+  if(btn) btn.classList.add("loading");
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+  try{
+    console.log("REPORT_URL:", REPORT_URL);
+    console.log("tipoReporte:", tipo);
+
+  const res = await fetch(REPORT_URL, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    tipoReporte: tipo
+  }),
+  signal: controller.signal
+});
+
+    clearTimeout(timeoutId);
+
+    if(!res.ok){
+      const errorText = await res.text();
+      console.error("Respuesta del flujo:", res.status, errorText);
+      throw new Error("HTTP " + res.status);
+    }
+
+    const blob = await res.blob();
+
+    if(!blob || blob.size === 0){
+      mostrarToast("err","El flujo respondió vacío. Revisa Get items y Create CSV table.");
+      return;
+    }
+
+    const fecha = new Date().toISOString().slice(0, 10);
+    const nombreArchivo = tipo === "detalle"
+      ? "reporte_detalle_tramites_" + fecha + ".csv"
+      : "reporte_calidad_seguimiento_" + fecha + ".csv";
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+
+    a.href = url;
+    a.download = nombreArchivo;
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(url);
+
+    mostrarToast("ok","Reporte descargado correctamente.");
+  }catch(err){
+    clearTimeout(timeoutId);
+    console.error("Error al generar el reporte:", err);
+
+    mostrarToast("err", err.name === "AbortError"
+      ? "Tiempo de espera agotado al generar el reporte."
+      : "No se pudo generar el reporte. Revisa la consola.");
+  }finally{
+    if(dl) dl.textContent = textoOriginal;
+    if(btn) btn.classList.remove("loading");
+  }
+}
+
+/* Cambio de vista (sidebar): registro ↔ reportes */
+function cambiarVista(nombre){
+  document.querySelectorAll("[data-view-panel]").forEach(v=>{
+    v.classList.toggle("hidden", v.getAttribute("data-view-panel") !== nombre);
+  });
+  document.querySelectorAll(".nav-item").forEach(n=>{
+    n.classList.toggle("active", n.getAttribute("data-view") === nombre);
+  });
+  window.scrollTo({ top:0, behavior:"smooth" });
+}
+
+/* ================================================================
+   14. POWER BI
+   ================================================================ */
+
+const POWERBI_PUBLIC_URL = "https://app.powerbi.com/view?r=eyJrIjoiNjUyMTk5OGEtZTIyYi00N2ZjLThmN2EtNzM2YmM0YTllZWE4IiwidCI6ImFiYjliMmJmLTM5ZDQtNDYyMS04YmU4LTUzMDIyYWFiMWFiNCIsImMiOjR9";
+const POWERBI_REFRESH_URL = "https://defaultabb9b2bf39d446218be853022aab1a.b4.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/5e1f92e995b94a089d72da1bd7cf7201/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IUCoI0EImJX_Wmajm0lmzz7ub5QlpmOTFxk6V1JzSk4";
+
+function abrirDashboardPowerBI(){
+  if(!POWERBI_PUBLIC_URL || POWERBI_PUBLIC_URL.includes("PEGA_AQUI")){
+    mostrarToast("err","Falta configurar la URL pública de Power BI.");
+    return;
+  }
+  window.open(POWERBI_PUBLIC_URL, "_blank", "noopener,noreferrer");
+}
+
+async function solicitarRefreshPowerBI(){
+  if(!POWERBI_REFRESH_URL){
+    mostrarToast("err","Falta configurar la URL del flujo de actualización de Power BI.");
+    return;
+  }
+
+  const btn = $("btnRefreshPowerBI");
+  if(btn) btn.classList.add("loading");
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+  try{
+    const res = await fetch(POWERBI_REFRESH_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ source: "crm-quejas-banorte" }),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if(!res.ok) throw new Error("HTTP " + res.status);
+
+    mostrarToast("ok","Actualización solicitada. Power BI puede tardar unos minutos en reflejar los cambios.");
+  }catch(err){
+    clearTimeout(timeoutId);
+    console.error("Error al solicitar refresh de Power BI:", err);
+    mostrarToast("err","No se pudo solicitar la actualización de Power BI.");
+  }finally{
+    if(btn) btn.classList.remove("loading");
+  }
+}
+
+function inicializarPowerBI(){
+  const frame = $("powerbiFrame");
+  if(!frame) return;
+  if(!POWERBI_PUBLIC_URL || POWERBI_PUBLIC_URL.includes("PEGA_AQUI")) return;
+  frame.src = POWERBI_PUBLIC_URL;
+}
+
+inicializarCatalogosFijos();
+actualizarVisibilidad();
+actualizarContadorAnalisis();
+actualizarProgreso();
+inicializarPowerBI();
+</script>
+
+</body>
+</html>
