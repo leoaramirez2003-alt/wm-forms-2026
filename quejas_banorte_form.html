@@ -1440,12 +1440,13 @@ function cargarOpcionesSeguimiento(tramite){
 
   ultimoTramiteSeguimiento = tramite;
 
-  const opciones = SEGUIMIENTO_POR_TRAMITE[tramite] || [];
+  const base = SEGUIMIENTO_POR_TRAMITE[tramite] || [];
+  const opciones = [...base, "Ninguno"];   // "Ninguno": el caso se resolvió sin tocar base con nadie
 
   llenarSelect(
     "Seguimiento_Con",
     opciones,
-    opciones.length ? "Selecciona seguimiento…" : "Sin seguimiento disponible…"
+    "Selecciona seguimiento…"
   );
 
   llenarSelect("HC", [], "Selecciona HC…");
