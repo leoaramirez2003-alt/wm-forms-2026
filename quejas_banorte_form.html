@@ -1140,11 +1140,50 @@
         </div>
 
         <div class="field">
-          <label>Estatus</label>
-          <select id="Reporte_Estatus">
+          <label>Campaña</label>
+          <select id="Reporte_Campania">
             <option value="Todos">Todos</option>
-            <option value="Abierto">Abierto</option>
-            <option value="Cerrado">Cerrado</option>
+            <option>Banorte</option>
+            <option>Sura</option>
+            <option>General de Salud</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Tipo de atención</label>
+          <select id="Reporte_Tipo_Atencion">
+            <option value="Todos">Todos</option>
+            <option>Queja</option>
+            <option>Asesoría</option>
+            <option>Corrección</option>
+            <option>Seguimiento</option>
+            <option>Reconsideración</option>
+            <option>Jurídico</option>
+            <option>Licitación</option>
+            <option>Reinstalación</option>
+            <option>Programación</option>
+            <option>Reembolso</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Prioridad</label>
+          <select id="Reporte_Prioridad">
+            <option value="Todos">Todos</option>
+            <option>Crítica</option>
+            <option>Alta</option>
+            <option>Media</option>
+            <option>Baja</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Estatus interno</label>
+          <select id="Reporte_Estatus_Interno">
+            <option value="Todos">Todos</option>
+            <option>Abierto</option>
+            <option>Resuelto</option>
+            <option>Cancelado</option>
           </select>
         </div>
 
@@ -1153,6 +1192,7 @@
           <select id="Reporte_Tipo">
             <option value="detalle">Detalle de trámites</option>
             <option value="calidad">Calidad y seguimiento</option>
+            <option value="adjuntos">Evidencias / adjuntos</option>
           </select>
         </div>
       </div>
@@ -3061,11 +3101,8 @@ OTRO
 
   /* ----- Reporte filtrado (nuevo panel de filtros) ----- */
   function generarReporteFiltrado(){
-    const tipoReporte = valor("Reporte_Tipo");
-    const tipoTramite = valor("Reporte_Tipo_Tramite");
     const fechaInicio = valor("Reporte_Fecha_Inicio");
     const fechaFin    = valor("Reporte_Fecha_Fin");
-    const estatus     = valor("Reporte_Estatus");
 
     $("Reporte_Fecha_Inicio").classList.remove("invalid");
     $("Reporte_Fecha_Fin").classList.remove("invalid");
@@ -3087,12 +3124,16 @@ OTRO
       return;
     }
 
+    /* Payload v2 (Fase 2): filtros nuevos + Tipo_Reporte (detalle/calidad/adjuntos) */
     descargarReporteAvanzado({
-      tipoReporte: tipoReporte || "detalle",
-      tipoTramite: tipoTramite || "Todos",
-      fechaInicio: fechaInicio,
-      fechaFin:    fechaFin,
-      estatus:     estatus || "Todos"
+      Fecha_Inicio:       fechaInicio,
+      Fecha_Fin:          fechaFin,
+      Tipo_Tramite:       valor("Reporte_Tipo_Tramite")  || "Todos",
+      Tipo_Atencion:      valor("Reporte_Tipo_Atencion") || "Todos",
+      Campania:           valor("Reporte_Campania")      || "Todos",
+      Prioridad_Atencion: valor("Reporte_Prioridad")     || "Todos",
+      Estatus_Interno:    valor("Reporte_Estatus_Interno") || "Todos",
+      Tipo_Reporte:       valor("Reporte_Tipo")          || "detalle"
     });
   }
 
@@ -3113,13 +3154,7 @@ OTRO
       const res = await fetch(REPORT_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tipoReporte: payload.tipoReporte,
-          tipoTramite: payload.tipoTramite,
-          fechaInicio: payload.fechaInicio,
-          fechaFin:    payload.fechaFin,
-          estatus:     payload.estatus
-        }),
+        body: JSON.stringify(payload),
         signal: controller.signal
       });
 
@@ -3138,7 +3173,7 @@ OTRO
         return;
       }
 
-      const nombreArchivo = "reporte_" + payload.tipoReporte + "_" + payload.fechaInicio + "_a_" + payload.fechaFin + ".csv";
+      const nombreArchivo = "reporte_" + payload.Tipo_Reporte + "_" + payload.Fecha_Inicio + "_a_" + payload.Fecha_Fin + ".csv";
 
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
