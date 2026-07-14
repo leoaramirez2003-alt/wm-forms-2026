@@ -12,7 +12,7 @@
                 frame-src https://app.powerbi.com https://*.powerbi.com;
                 frame-ancestors 'none';
                 base-uri 'self';">
-  <title>Quejas Banorte — Nuevo registro</title>
+  <title>Sistema Integral ATC — Registro de atención (DEV multicliente)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -613,6 +613,116 @@
     .powerbi-actions{grid-template-columns:1fr}
     .powerbi-preview{--pbi-zoom:.55;height:64vh;min-height:520px}
   }
+
+  /* ============================================================
+    CAPA UX v3 — Sistema Integral ATC (solo visual)
+    B-UX-01/03 sidebar fija con grupos · B-UX-02 identidad ·
+    B-UX-04/05 panel resumen · B-UX-06 breadcrumb · B-UX-08 responsive
+    ============================================================ */
+  :root{ --sbw:236px; }
+
+  /* Sidebar fija pegada al costado izquierdo */
+  .sidebar{
+    position:fixed;left:0;top:0;bottom:0;width:var(--sbw);
+    border-radius:0;border-top:none;border-bottom:none;border-left:none;
+    overflow-y:auto;z-index:60;
+    padding:18px 12px 26px;
+    box-shadow:2px 0 20px rgba(10,42,107,.07);
+  }
+  .sidebar-brand{
+    font-size:13.5px;font-weight:800;color:var(--wee-ink);
+    letter-spacing:.4px;text-transform:uppercase;
+    padding:6px 14px 14px;border-bottom:1px solid var(--line);margin-bottom:12px;
+  }
+  .sidebar-group{margin-bottom:16px}
+  .sidebar-group .sidebar-nav{flex-direction:column}
+  .nav-item.pending{cursor:default;color:#9aa6bf;font-weight:600}
+  .nav-item.pending:hover{background:transparent;color:#9aa6bf}
+  .nav-item.pending:active{transform:none}
+  .nav-item.pending .nav-label{
+    font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;
+  }
+  .pend-tag{
+    margin-left:auto;font-size:9px;font-weight:800;letter-spacing:.5px;
+    text-transform:uppercase;background:var(--wee-tint);color:var(--wee);
+    border-radius:999px;padding:2px 7px;flex-shrink:0;
+  }
+
+  /* Contenido recorrido a la derecha */
+  .topbar{margin-left:var(--sbw)}
+  .layout{display:block;max-width:none;margin:24px 0 0 var(--sbw);padding:0 26px}
+  .canvas{max-width:1240px;margin:0 auto}
+
+  /* Breadcrumb (B-UX-06) */
+  .breadcrumb{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    font-size:12px;font-weight:600;color:var(--ink-soft);
+    margin-bottom:14px;padding:0 2px;
+  }
+  .breadcrumb b{color:var(--wee);font-weight:800}
+  .bc-sep{opacity:.45}
+
+  /* Identidad en header (B-UX-02) */
+  .brand.brand-logo-only{flex-direction:column !important;gap:7px !important}
+  .brand-sys{font-size:14.5px;font-weight:700;color:#fff;opacity:.92;letter-spacing:.5px}
+
+  /* Registro: formulario + panel de resumen (B-UX-04 / B-UX-05) */
+  #viewRegistro{display:flex;gap:20px;align-items:flex-start}
+  #viewRegistro .form-col{flex:1 1 auto;min-width:0;max-width:820px}
+  .atc-summary{
+    flex:0 0 280px;position:sticky;top:20px;
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .sum-card{padding:16px 18px;margin-bottom:0}
+  .sum-head{
+    display:flex;align-items:center;gap:8px;
+    font-size:13px;font-weight:800;color:var(--ink);
+    padding-bottom:10px;margin-bottom:8px;border-bottom:1px solid var(--line);
+  }
+  .sum-item{
+    display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+    font-size:12px;color:var(--ink-soft);font-weight:600;padding:5px 0;
+  }
+  .sum-item b{
+    color:var(--ink);font-weight:800;text-align:right;
+    max-width:62%;overflow-wrap:anywhere;
+  }
+  @media(max-width:1100px){.atc-summary{display:none}}
+
+  /* Responsive (B-UX-08): sidebar colapsa a navegación superior */
+  @media(max-width:820px){
+    .sidebar{
+      position:static;width:100%;overflow:visible;
+      border-radius:var(--radius);border:1px solid var(--line);
+      box-shadow:var(--shadow-sm);padding:10px 12px;margin-bottom:14px;
+    }
+    .sidebar-brand{display:none}
+    .sidebar-group-secondary{display:none}
+    .sidebar-group{margin-bottom:0}
+    .sidebar-group .sidebar-nav{flex-direction:row}
+    .topbar{margin-left:0}
+    .layout{margin-left:0;padding:0 18px}
+  }
+
+  /* ============================================================
+    ESCALA VISUAL INICIAL 75 % (addendum 2026-07-14)
+    Estrategia ÚNICA: CSS zoom sobre <body> con variable central.
+    - No se manipula el zoom nativo del navegador.
+    - No se usa transform para la escala general (el transform:scale
+      de .powerbi-preview/--pbi-zoom es del iframe Power BI y es
+      independiente: NO se toca).
+    - En ≤820px la escala vuelve a 100% para preservar el responsive
+      (la media query evalúa el viewport físico, no el escalado).
+    ============================================================ */
+  :root{ --atc-ui-scale: 0.75; }
+  @media(max-width:820px){
+    :root{ --atc-ui-scale: 1; }
+  }
+  html{ background: var(--bg); }  /* evita franja blanca bajo el body escalado */
+  body{
+    zoom: var(--atc-ui-scale);
+    min-height: calc(100vh / var(--atc-ui-scale));  /* el fondo cubre el viewport visual completo */
+  }
   </style>
   </head>
 
@@ -624,36 +734,57 @@
   <div class="topbar">
     <div class="brand brand-logo-only">
       <img class="brand-full-logo" src="data:image/png;base64,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" alt="WeeMedic Health administration">
+      <div class="brand-sys">Sistema Integral ATC</div>
     </div>
   </div>
 
   <div class="layout">
 
     <aside class="sidebar">
-      <div class="sidebar-title">Quejas Banorte</div>
-      <nav class="sidebar-nav">
-        <button type="button" class="nav-item active" data-view="registro" onclick="cambiarVista('registro')">
-          <span class="nav-ic" aria-hidden="true">📝</span>
-          <span class="nav-label">Registro</span>
-        </button>
-        <button type="button" class="nav-item" data-view="reportes" onclick="cambiarVista('reportes')">
-          <span class="nav-ic" aria-hidden="true">📊</span>
-          <span class="nav-label">Reportes</span>
-        </button>
-        <button type="button" class="nav-item" data-view="powerbi" onclick="cambiarVista('powerbi')">
-          <span class="nav-ic" aria-hidden="true">📈</span>
-          <span class="nav-label">Power BI</span>
-        </button>
-      </nav>
+      <div class="sidebar-brand">Sistema Integral ATC</div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-title">Principal</div>
+        <nav class="sidebar-nav">
+          <button type="button" class="nav-item active" data-view="registro" onclick="cambiarVista('registro')">
+            <span class="nav-ic" aria-hidden="true">📝</span>
+            <span class="nav-label">Registro</span>
+          </button>
+          <button type="button" class="nav-item" data-view="reportes" onclick="cambiarVista('reportes')">
+            <span class="nav-ic" aria-hidden="true">📊</span>
+            <span class="nav-label">Reportes</span>
+          </button>
+          <button type="button" class="nav-item" data-view="powerbi" onclick="cambiarVista('powerbi')">
+            <span class="nav-ic" aria-hidden="true">📈</span>
+            <span class="nav-label">Power BI</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Grupo CATÁLOGOS eliminado (addendum 2026-07-14). Accesos de Administración: solo visuales, no enlazados (B-UX-03) -->
+      <div class="sidebar-group sidebar-group-secondary">
+        <div class="sidebar-title">Administración</div>
+        <nav class="sidebar-nav">
+          <span class="nav-item pending"><span class="nav-ic" aria-hidden="true">🕘</span><span class="nav-label">Bitácora del sistema</span><span class="pend-tag">Pend.</span></span>
+          <span class="nav-item pending"><span class="nav-ic" aria-hidden="true">📁</span><span class="nav-label">Evidencias (Biblioteca)</span><span class="pend-tag">Pend.</span></span>
+          <span class="nav-item pending"><span class="nav-ic" aria-hidden="true">⚙️</span><span class="nav-label">Configuración</span><span class="pend-tag">Pend.</span></span>
+        </nav>
+      </div>
     </aside>
 
     <main class="canvas">
 
+    <nav class="breadcrumb" aria-label="Ruta de navegación">
+      <span>Inicio</span><span class="bc-sep">›</span><span>Sistema Integral ATC</span><span class="bc-sep">›</span><b id="breadcrumbActual">Registro de atención</b>
+    </nav>
+
     <div class="view" data-view-panel="registro" id="viewRegistro">
+
+    <div class="form-col">
 
     <div class="progress-hint">
       <span class="hint-dot" aria-hidden="true"></span>
-      <span class="hint-text"><strong>Quejas Banorte</strong> · Los campos marcados con <strong>*</strong> son obligatorios. Las secciones aparecen según el tipo de atención.</span>
+      <span class="hint-text"><strong>Sistema Integral ATC</strong> · Los campos marcados con <strong>*</strong> son obligatorios. Las secciones aparecen según el tipo de atención.</span>
     </div>
 
     <div class="wee-progress" id="weeProgress" role="progressbar" aria-label="Progreso del formulario">
@@ -677,18 +808,34 @@
           </select>
         </div>
 
-        <div class="field full hidden" data-block="tipo_gestion">
-          <label>Tipo de gestión <span class="req">*</span></label>
-          <select id="Tipo_Gestion" data-cond-required="tipo_gestion">
-            <option value="">Selecciona…</option>
+        <div class="field full" data-block="tipo_gestion">
+          <label>Cliente <span class="req">*</span></label>
+          <select id="Tipo_Gestion" data-required>
+            <option value="">Selecciona el cliente…</option>
           </select>
-          <span class="hint">Aplica para gestión de General de Salud / Sura.</span>
+          <span class="hint">Cliente / campaña del registro. Define catálogos y campos específicos.</span>
+        </div>
+
+        <div class="field hidden" data-block="cuenta_con_folio">
+          <label>¿Cuenta con folio? <span class="req">*</span></label>
+          <select id="Cuenta_Con_Folio" data-cond-required="cuenta_con_folio">
+            <option value="">Selecciona…</option>
+            <option>Sí</option>
+            <option>No</option>
+          </select>
+          <span class="hint">Si no hay folio, el registro se identificará con el ID interno de SharePoint.</span>
+        </div>
+
+        <div class="field" data-block="folio">
+          <label>Folio <span class="req">*</span></label>
+          <input type="text" id="Folio" data-cond-required="folio" placeholder="Ej. 13796449" autocomplete="off">
+          <span class="hint">Identificador del trámite en el sistema del cliente</span>
         </div>
 
         <div class="field">
-          <label>Folio <span class="req">*</span></label>
-          <input type="text" id="Folio" data-required placeholder="Ej. 13796449" autocomplete="off">
-          <span class="hint">Identificador de la queja en el sistema Banorte</span>
+          <label>Póliza</label>
+          <input type="text" id="Poliza" placeholder="Número de póliza (opcional)" autocomplete="off">
+          <span class="hint">Opcional para todos los clientes.</span>
         </div>
 
         <div class="field">
@@ -713,17 +860,23 @@
           <label>Tipo de atención <span class="req">*</span></label>
           <select id="Tipo_Atencion" data-required>
             <option value="">Selecciona…</option>
-            <option>Queja</option>
-            <option>Asesoría</option>
-            <option>Corrección</option>
-            <option>Seguimiento</option>
-            <option>Reconsideración</option>
-            <option>Jurídico</option>
-            <option>Licitación</option>
-            <option>Reinstalación</option>
-            <option>Programación</option>
-            <option>Reembolso</option>
           </select>
+          <span class="hint">El catálogo cambia según el cliente.</span>
+        </div>
+
+        <div class="field full hidden" data-block="tipo_atencion_otro">
+          <label>Especifique el tipo de atención <span class="req">*</span></label>
+          <input type="text" id="Tipo_Atencion_Otro" data-cond-required="tipo_atencion_otro" placeholder="Describe la atención…" autocomplete="off">
+        </div>
+
+        <div class="field hidden" data-block="asegurado">
+          <label>Asegurado <span class="req">*</span></label>
+          <input type="text" id="Asegurado" data-cond-required="asegurado" placeholder="Nombre del asegurado…" autocomplete="off">
+        </div>
+
+        <div class="field hidden" data-block="agente">
+          <label>Agente <span class="req">*</span></label>
+          <input type="text" id="Agente" data-cond-required="agente" placeholder="Nombre del agente…" autocomplete="off">
         </div>
       </div>
     </div>
@@ -746,13 +899,6 @@
         <div class="field">
           <label>Estatus interno <span class="req">*</span></label>
           <select id="Estatus_Interno" data-required>
-            <option value="">Selecciona…</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Medio de contacto <span class="req">*</span></label>
-          <select id="Medio_Contacto" data-required>
             <option value="">Selecciona…</option>
           </select>
         </div>
@@ -1098,6 +1244,25 @@
       <button class="btn btn-ghost" id="resetBtn" type="button">Limpiar</button>
     </div>
 
+    </div><!-- /form-col -->
+
+    <!-- Panel derecho de resumen — solo informativo, campos existentes (B-UX-04 / B-UX-05) -->
+    <aside class="atc-summary" aria-label="Resumen de la atención">
+      <div class="card sum-card">
+        <div class="sum-head"><span aria-hidden="true">📋</span> Resumen de la atención</div>
+        <div class="sum-item"><span class="sum-label">Campaña / Gestión</span><b id="sum_campania">Banorte</b></div>
+        <div class="sum-item"><span class="sum-label">Prioridad</span><b id="sum_prioridad">--</b></div>
+        <div class="sum-item"><span class="sum-label">Estatus interno</span><b id="sum_estatus">--</b></div>
+        <div class="sum-item"><span class="sum-label">Gestor</span><b id="sum_gestor">--</b></div>
+        <div class="sum-item"><span class="sum-label">Fecha recepción</span><b id="sum_fecha">--</b></div>
+      </div>
+      <div class="card sum-card">
+        <div class="sum-head"><span aria-hidden="true">📎</span> Adjuntos y evidencia</div>
+        <div class="sum-item"><span class="sum-label">Cuenta con pruebas</span><b id="sum_pruebas">--</b></div>
+        <div class="sum-item"><span class="sum-label">Archivos seleccionados</span><b id="sum_adjuntos">0</b></div>
+      </div>
+    </aside>
+
     </div><!-- /viewRegistro -->
 
     <div class="view hidden" data-view-panel="reportes" id="viewReportes">
@@ -1265,23 +1430,45 @@
     { nombre: "PEÑA JAIMES JAVIER ALEJANDRO",     correo: "jpena@weemedic.com"   },
     { nombre: "VALDES CASTAÑEDA MARIA FERNANDA",  correo: "mvaldes@weemedic.com" },
     { nombre: "ZAMUDIO GALINDO PAULINA",          correo: "pzamudio@weemedic.com"},
-    { nombre: "CASA CANELA ALEXIS",               correo: "acasas@weemedic.com" },
+    { nombre: "CASAS CANELA ALEXIS",              correo: "acasas@weemedic.com" },
   ];
 
-  /* Gestores que muestran el campo Tipo_Gestion (por correo) */
-  const GESTORES_CON_TIPO_GESTION = ["mvaldes@weemedic.com", "acasas@weemedic.com"];
+  /* ===== Multicliente v1 (2026-07-14) =====
+     Cliente explícito y OBLIGATORIO. Eliminada la regla "Tipo_Gestion vacío = Banorte":
+     Banorte ahora viaja como literal "Banorte" en el payload. */
+  const CLIENTES = ["Banorte","Sura","General de Salud","General de Salud Infonavit"];
+  const CLIENTE_STORAGE_KEY = "atc_cliente";  /* solo guarda el valor del catálogo, sin PII */
 
-  /* Catálogos de Tipo de trámite */
+  /* Catálogos de Tipo de trámite por cliente */
   const TRAMITES_BANORTE = [
     "Programación","Reembolso","Pago directo","Siniestralidad",
-    "Pagos","ATF","Case Managment","AP","Redes"
+    "Pagos","ATF","Case Managment","AP","Redes","Otro"
   ];
-  const TRAMITES_SGS = ["Hospitalización","Alta Hospitalaria","Prioridad","Otro"]; /* Sura / General de Salud */
+  const TRAMITES_POR_CLIENTE = {
+    "Banorte": TRAMITES_BANORTE,
+    "Sura": ["Hospitalización","Reporte Hospitalario","Otro"],
+    "General de Salud": ["Revisión con Agente","Programación","Reembolso","Urgencias","Actualización de Carta","Hospitalización","Otro"],
+    "General de Salud Infonavit": ["Envío a Domicilio","Alcance y/o Cobertura","Corrección de datos","Cita Médica","Estado de Cuenta","Áreas CAT","Servicio del Proveedor","Transcripción","Aclaraciones","Otro"]
+  };
 
-  const TIPO_GESTION_OPCIONES       = ["General de Salud","Sura"];
+  /* Catálogos de Tipo de atención por cliente (Banorte = catálogo productivo + Otro) */
+  const ATENCIONES_POR_CLIENTE = {
+    "Banorte": ["Queja","Asesoría","Corrección","Seguimiento","Reconsideración","Jurídico","Licitación","Reinstalación","Programación","Reembolso","Otro"],
+    "Sura": ["Queja","Otro"],
+    "General de Salud": ["Incidencia","Queja","Otro"],
+    "General de Salud Infonavit": ["Queja","Otro"]
+  };
+
+  /* Configuración declarativa por cliente */
+  const CLIENT_CONFIG = {
+    "Banorte":                    { preguntaFolio:false, asegurado:false, agente:false },
+    "Sura":                       { preguntaFolio:true,  asegurado:true,  agente:true  },
+    "General de Salud":           { preguntaFolio:true,  asegurado:true,  agente:true  },
+    "General de Salud Infonavit": { preguntaFolio:true,  asegurado:true,  agente:false }
+  };
+
   const IMPLICACION_OPCIONES        = ["Ninguna","UNE","CONDUSEF","DEMANDA"];
   const PRIORIDAD_ATENCION_OPCIONES = ["Crítica","Alta","Media","Baja"];
-  const MEDIO_CONTACTO_OPCIONES     = ["Correo electrónico","WhatsApp","Llamada telefónica"];
   const ESTATUS_INTERNO_OPCIONES    = ["Abierto","Resuelto","Cancelado"];
   const TIPO_ACTIVACION_INTERNA_OPCIONES = ["En seguimiento con área interna","Escalado","Ninguno","Otro"];
 
@@ -1319,8 +1506,10 @@
     "Médico / Medical","Claims","Call Center","Account Manager","Networks","Case Management","Ninguno"
   ];
 
-  /* ===== Contratante por campaña ===== */
+  /* ===== Contratante por cliente ===== */
   const CONTRATANTES_BANORTE = ["PJF","Cartera General","Banco","AP","Otro"];
+  /* Catálogo propio GS Infonavit (contratante único del catálogo actual; NO se bloquea el campo, incluye "Otro") */
+  const CONTRATANTES_GS_INFONAVIT = ["INFONAVIT","Otro"];
 
   /* ☐ PENDIENTE: pegar aquí el catálogo completo de General de Salud (uno por línea).
      El código lo limpia y deduplica solo. Mientras esté vacío, GS solo ofrece "Otro". */
@@ -1800,14 +1989,22 @@ OTRO
       opciones = construirCatalogoGS();
       input.placeholder = "Busca contratante de General de Salud…";
       if(hint) hint.textContent = "Busca y selecciona el contratante de General de Salud.";
+    }else if(tg === "General de Salud Infonavit"){
+      opciones = CONTRATANTES_GS_INFONAVIT;
+      input.placeholder = "Selecciona contratante Infonavit…";
+      if(hint) hint.textContent = "Catálogo propio de General de Salud Infonavit.";
     }else if(tg === "Sura"){
       opciones = [];
       input.placeholder = "Captura contratante de Sura…";
       if(hint) hint.textContent = "Captura el contratante de Sura como texto libre.";
-    }else{
+    }else if(tg === "Banorte"){
       opciones = CONTRATANTES_BANORTE;
       input.placeholder = "Selecciona contratante…";
       if(hint) hint.textContent = "Selecciona el contratante Banorte.";
+    }else{
+      opciones = [];
+      input.placeholder = "Selecciona primero el cliente…";
+      if(hint) hint.textContent = "El catálogo de contratantes depende del cliente.";
     }
 
     opciones.forEach(op => {
@@ -2172,25 +2369,47 @@ OTRO
   function inicializarCatalogosFijos(){
     llenarSelect("Solicitud_Relacionada", SOLICITUD_RELACIONADA_OPCIONES, "Selecciona la solicitud…");
     llenarSelect("Quien_Activa", QUIEN_ACTIVA_OPCIONES, "Selecciona quién activa…");
-    llenarSelect("Tipo_Gestion", TIPO_GESTION_OPCIONES, "Selecciona…");
+    llenarSelect("Tipo_Gestion", CLIENTES, "Selecciona el cliente…");
+    restaurarClienteRecordado();
     llenarSelect("Prioridad_Atencion", PRIORIDAD_ATENCION_OPCIONES, "Selecciona la prioridad…");
     llenarSelect("Estatus_Interno", ESTATUS_INTERNO_OPCIONES, "Selecciona…");
     $("Estatus_Interno").value = "Abierto";   // default
-    llenarSelect("Medio_Contacto", MEDIO_CONTACTO_OPCIONES, "Selecciona…");
     llenarSelect("Implicacion", IMPLICACION_OPCIONES, "Selecciona…");
     llenarSelect("Tipo_Activacion_Interna", TIPO_ACTIVACION_INTERNA_OPCIONES, "Selecciona…");
     cargarTipoTramite();
+    cargarTipoAtencion();
   }
 
-  /* Llena Tipo_Tramite según el tipo de gestión (Banorte vs Sura/General de Salud) */
+  /* Multicliente: catálogos de trámite y atención según cliente explícito */
   function cargarTipoTramite(){
-    const tg = valor("Tipo_Gestion");
-    const gestorSGS = GESTORES_CON_TIPO_GESTION.includes(selGestor.value.trim());
-    const usarSGS = gestorSGS && (tg === "Sura" || tg === "General de Salud");
-    const catalogo = usarSGS ? TRAMITES_SGS : TRAMITES_BANORTE;
+    const cliente = valor("Tipo_Gestion");
+    const catalogo = TRAMITES_POR_CLIENTE[cliente] || [];
     const actual = valor("Tipo_Tramite");
-    llenarSelect("Tipo_Tramite", catalogo, "Selecciona…");
+    llenarSelect("Tipo_Tramite", catalogo, cliente ? "Selecciona…" : "Selecciona primero el cliente…");
     if(catalogo.includes(actual)) $("Tipo_Tramite").value = actual;  // conserva selección si sigue siendo válida
+  }
+
+  function cargarTipoAtencion(){
+    const cliente = valor("Tipo_Gestion");
+    const catalogo = ATENCIONES_POR_CLIENTE[cliente] || [];
+    const actual = valor("Tipo_Atencion");
+    llenarSelect("Tipo_Atencion", catalogo, cliente ? "Selecciona…" : "Selecciona primero el cliente…");
+    if(catalogo.includes(actual)) $("Tipo_Atencion").value = actual;
+  }
+
+  /* Recordar la última selección válida de cliente (solo el valor del catálogo, sin PII) */
+  function restaurarClienteRecordado(){
+    try{
+      const guardado = localStorage.getItem(CLIENTE_STORAGE_KEY);
+      if(guardado && CLIENTES.includes(guardado)) $("Tipo_Gestion").value = guardado;
+    }catch(e){ /* almacenamiento no disponible: sin persistencia */ }
+  }
+
+  function recordarCliente(){
+    try{
+      const c = valor("Tipo_Gestion");
+      if(CLIENTES.includes(c)) localStorage.setItem(CLIENTE_STORAGE_KEY, c);
+    }catch(e){}
   }
 
   /* ================================================================
@@ -2398,6 +2617,7 @@ OTRO
     ================================================================ */
 
   function actualizarVisibilidad(){
+    const cliente  = valor("Tipo_Gestion");
     const atencion = valor("Tipo_Atencion");
     const tramite  = valor("Tipo_Tramite");
     const contrat  = valor("Contratante");
@@ -2407,8 +2627,9 @@ OTRO
     const esSeguimiento    = atencion === "Seguimiento";
     const esSiniestralidad = tramite === "Siniestralidad";
 
-    /* ---- Escenario: SOLO en Queja con trámite Programación/Reembolso/Pago directo ---- */
-    const verEscenario = esQueja && (
+    /* ---- Escenario: SOLO Banorte, en Queja con trámite Programación/Reembolso/Pago directo.
+       (GS también tiene Programación/Reembolso pero sus escenarios Banorte NO aplican — decisión multicliente v1) ---- */
+    const verEscenario = cliente === "Banorte" && esQueja && (
       tramite === "Programación" ||
       tramite === "Reembolso" ||
       tramite === "Pago directo"
@@ -2426,12 +2647,13 @@ OTRO
     toggleBlock("subescenario", verSub);
     if(!verSub){ $("Subescenario").value = ""; }
 
-    /* ---- Dictaminador (Banorte) / Colaborador (Sura-GS) ---- */
+    /* ---- Dictaminador (Banorte) / Colaborador (Sura-GS) ----
+       GS Infonavit: sin catálogo de colaborador definido → sección oculta (documentado, pendiente de catálogo) */
     const esSGS_disp = esGestionSGS();
     // Banorte: Queja/Corrección salvo Siniestralidad · Sura/GS: en Queja/Corrección/Seguimiento
     const verDictaminador = esSGS_disp
       ? (esQueja || esCorreccion || esSeguimiento)
-      : ((esQueja || esCorreccion) && !esSiniestralidad);
+      : (cliente === "Banorte" && (esQueja || esCorreccion) && !esSiniestralidad);
     toggleBlock("dictaminador", verDictaminador);
 
     // Reetiquetar según campaña
@@ -2566,14 +2788,34 @@ OTRO
 
     /* ================= v2: campos nuevos ================= */
 
-    /* ---- Tipo de gestión (por gestor) + catálogo de trámite ---- */
-    const gestorSGS = GESTORES_CON_TIPO_GESTION.includes(selGestor.value.trim());
-    toggleBlock("tipo_gestion", gestorSGS);
-    if(!gestorSGS){ $("Tipo_Gestion").value = ""; }
+    /* ---- Cliente (siempre visible y obligatorio) + catálogos por cliente ---- */
+    toggleBlock("tipo_gestion", true);
     cargarTipoTramite();
+    cargarTipoAtencion();
     const verTramiteOtro = valor("Tipo_Tramite") === "Otro";
     toggleBlock("tipo_tramite_otro", verTramiteOtro);
     if(!verTramiteOtro){ $("Tipo_Tramite_Otro").value = ""; }
+    const verAtencionOtro = valor("Tipo_Atencion") === "Otro";
+    toggleBlock("tipo_atencion_otro", verAtencionOtro);
+    if(!verAtencionOtro){ $("Tipo_Atencion_Otro").value = ""; }
+
+    /* ---- Folio / ¿Cuenta con folio? por cliente ---- */
+    const cfgCliente = CLIENT_CONFIG[cliente] || null;
+    const verPreguntaFolio = !!(cfgCliente && cfgCliente.preguntaFolio);
+    toggleBlock("cuenta_con_folio", verPreguntaFolio);
+    if(!verPreguntaFolio){ $("Cuenta_Con_Folio").value = ""; }
+    // Banorte: Folio siempre visible y obligatorio · Sura/GS/GS Infonavit: solo si ¿Cuenta con folio? = Sí
+    const verFolio = cliente === "Banorte" || (verPreguntaFolio && valor("Cuenta_Con_Folio") === "Sí");
+    toggleBlock("folio", verFolio);
+    if(!verFolio){ $("Folio").value = ""; }   // sin folio: el ID de SharePoint es el identificador interno
+
+    /* ---- Asegurado / Agente por cliente ---- */
+    const verAsegurado = !!(cfgCliente && cfgCliente.asegurado);
+    toggleBlock("asegurado", verAsegurado);
+    if(!verAsegurado){ $("Asegurado").value = ""; }
+    const verAgente = !!(cfgCliente && cfgCliente.agente);
+    toggleBlock("agente", verAgente);
+    if(!verAgente){ $("Agente").value = ""; }
 
     /* ---- Contratante dinámico (Banorte catálogo / GS buscable / Sura libre) ---- */
     cargarContratantes();
@@ -2671,7 +2913,7 @@ OTRO
     "Subescenario",
     "Seguimiento_Con",
     "gestor",
-    "Tipo_Gestion",
+    "Cuenta_Con_Folio",
     "Implicacion",
     "Solicitud_Relacionada",
     "Quien_Activa",
@@ -2683,6 +2925,18 @@ OTRO
     "Contratante"
   ].forEach(id=>{
     $(id).addEventListener("change", actualizarVisibilidad);
+  });
+
+  /* Cliente: listener único y centralizado — recuerda la selección y limpia
+     los valores incompatibles del cliente anterior antes de recalcular. */
+  $("Tipo_Gestion").addEventListener("change", () => {
+    recordarCliente();
+    $("Tipo_Tramite").value = "";
+    $("Tipo_Tramite_Otro").value = "";
+    $("Tipo_Atencion").value = "";
+    $("Tipo_Atencion_Otro").value = "";
+    $("Cuenta_Con_Folio").value = "";
+    actualizarVisibilidad();
   });
 
   /* ================================================================
@@ -2839,15 +3093,21 @@ OTRO
       Nombre_Gestor:            gestorOpt ? gestorOpt.dataset.nombre : "",
 
       /* ===== v2: campos nuevos ===== */
-      Tipo_Gestion:                 valor("Tipo_Gestion"),
+      Tipo_Gestion:                 valor("Tipo_Gestion"),   /* multicliente: SIEMPRE explícito ("Banorte" incluido) */
       Tipo_Tramite_Otro:            valor("Tipo_Tramite_Otro"),
+
+      /* ===== Multicliente v1 ===== */
+      Cuenta_Con_Folio:             valor("Cuenta_Con_Folio"),
+      Poliza:                       valor("Poliza"),
+      Asegurado:                    valor("Asegurado"),
+      Agente:                       valor("Agente"),
+      Tipo_Atencion_Otro:           valor("Tipo_Atencion_Otro"),
       Solicitud_Relacionada_Otro:   valor("Solicitud_Relacionada_Otro"),
       Implicacion:                  valor("Implicacion"),
       Cargo_Persona_Implicada:      valor("Cargo_Persona_Implicada"),
       Partida_Subgrupo:             valor("Partida_Subgrupo"),
       Prioridad_Atencion:           valor("Prioridad_Atencion"),
       Quien_Activa_Otro:            valor("Quien_Activa_Otro"),
-      Medio_Contacto:               valor("Medio_Contacto"),
       Cuenta_Con_Pruebas:           valor("Cuenta_Con_Pruebas"),
       Tipo_Activacion_Interna:      valor("Tipo_Activacion_Interna"),
       Tipo_Activacion_Interna_Otro: valor("Tipo_Activacion_Interna_Otro"),
@@ -2880,7 +3140,19 @@ OTRO
       clearTimeout(timeoutId);
 
       if(res.ok){
-        mostrarToast("ok","Registro guardado correctamente");
+        let msgOk = "Registro guardado correctamente";
+        if(!payload.Folio){
+          /* Sin folio: el identificador interno es el ID de SharePoint.
+             Requiere que el flujo lo devuelva en la Response (ver guía backend multicliente). */
+          try{
+            const j = await res.clone().json();
+            const idInterno = j && (j.id ?? j.ID ?? j.Id);
+            if(idInterno !== undefined && idInterno !== null && idInterno !== ""){
+              msgOk = "Registro guardado. ID interno: " + idInterno;
+            }
+          }catch(e){ /* el flujo aún no devuelve ID */ }
+        }
+        mostrarToast("ok", msgOk);
         limpiar();
       }else{
         let msg = "Error al guardar (código "+res.status+")";
@@ -3281,6 +3553,7 @@ OTRO
     document.querySelectorAll(".nav-item").forEach(n=>{
       n.classList.toggle("active", n.getAttribute("data-view") === nombre);
     });
+    actualizarBreadcrumb(nombre);
     window.scrollTo({ top:0, behavior:"smooth" });
   }
 
@@ -3339,11 +3612,51 @@ OTRO
     frame.src = POWERBI_PUBLIC_URL;
   }
 
+  /* ================================================================
+    15. CAPA VISUAL UX v3 — breadcrumb + resumen de la atención
+    Solo lectura de campos existentes: no toca payload, validaciones
+    ni lógica de negocio.
+    ================================================================ */
+
+  const BREADCRUMB_VISTAS = {
+    registro: "Registro de atención",
+    reportes: "Reportes",
+    powerbi:  "Power BI"
+  };
+
+  function actualizarBreadcrumb(nombre){
+    const b = $("breadcrumbActual");
+    if(b) b.textContent = BREADCRUMB_VISTAS[nombre] || nombre;
+  }
+
+  function actualizarResumenAtencion(){
+    const set = (id, v) => {
+      const el = $(id);
+      if(el) el.textContent = (v && String(v).trim()) ? v : "--";
+    };
+    set("sum_campania", valor("Tipo_Gestion"));   /* multicliente: sin default Banorte */
+    set("sum_prioridad", valor("Prioridad_Atencion"));
+    set("sum_estatus", valor("Estatus_Interno"));
+    const g = selGestor.options[selGestor.selectedIndex];
+    set("sum_gestor", (g && g.value) ? g.dataset.nombre : "");
+    const f = valor("Fecha_Recepcion_ATC");
+    set("sum_fecha", f ? f.replace("T", " · ") : "");
+    set("sum_pruebas", valor("Cuenta_Con_Pruebas"));
+    const af = $("Adjuntos_Files");
+    const elAdj = $("sum_adjuntos");
+    if(elAdj) elAdj.textContent = String(af && af.files ? af.files.length : 0);
+  }
+
+  document.addEventListener("input", actualizarResumenAtencion);
+  document.addEventListener("change", actualizarResumenAtencion);
+  $("resetBtn").addEventListener("click", () => setTimeout(actualizarResumenAtencion, 0));
+
   inicializarCatalogosFijos();
   actualizarVisibilidad();
   actualizarContadorAnalisis();
   actualizarProgreso();
   inicializarPowerBI();
+  actualizarResumenAtencion();
   </script>
 
   </body>
