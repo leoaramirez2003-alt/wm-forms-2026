@@ -1,0 +1,43 @@
+
+  /* ============================================================
+    VISTA DE REPORTE FILTRADO
+    ============================================================ */
+  .report-filter-card{padding:22px 26px 20px}
+  .report-page-title{display:flex;align-items:center;gap:13px;margin-bottom:20px}
+  .back-link{
+    width:34px;height:34px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-size:17px;font-weight:800;color:var(--wee);
+    background:var(--wee-tint);border:1px solid var(--line-2);
+    border-radius:10px;cursor:pointer;font-family:inherit;
+    transition:background .15s, color .15s, transform .12s;
+  }
+  .back-link:hover{background:var(--wee);color:#fff;transform:translateX(-2px)}
+  .back-link:active{transform:translateX(0)}
+  .report-title-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .report-page-title h2{font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-.3px;line-height:1.2}
+  .report-subtitle{font-size:12.5px;color:var(--ink-soft);font-weight:500;line-height:1.4;margin:0}
+  .report-filter-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(190px, 1fr));
+    gap:16px 17px;
+  }
+  .report-filter-grid .field{margin:0}
+  .report-action-area{
+    display:flex;align-items:center;gap:13px;
+    margin-top:22px;padding-top:18px;border-top:1px solid var(--line);
+  }
+  .excel-badge{
+    width:42px;height:42px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;color:#fff;border-radius:12px;
+    background:linear-gradient(135deg,var(--ok),#0c8a5f);
+    box-shadow:0 6px 14px rgba(14,159,110,.26);
+  }
+  .excel-caption{display:flex;flex-direction:column;line-height:1.25}
+  .excel-caption b{font-size:13px;font-weight:800;color:var(--ink)}
+  .excel-caption span{font-size:11.5px;color:var(--ink-soft);font-weight:500}
+  .report-action-area .btn-primary{margin-left:auto}
+  @media(max-width:560px){
+    .report-action-area{flex-wrap:wrap}
+    .report-action-area .btn-primary{margin-left:0;flex:1 1 auto;justify-content:center}
+  }

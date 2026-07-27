@@ -1,0 +1,188 @@
+    /* ===================== CARDS ===================== */
+    .card{
+      position:relative;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:24px 26px;
+      margin-bottom:16px;
+      box-shadow:var(--shadow);
+      animation:rise .4s cubic-bezier(.2,.7,.3,1) both;
+      transition:border-color .2s, box-shadow .2s;
+    }
+    .card:focus-within{
+      border-color:var(--line-2);
+      box-shadow:0 1px 2px rgba(10,42,107,.06),0 16px 40px rgba(27,91,255,.12);
+    }
+    @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+    .card-head{display:flex;align-items:center;gap:13px;margin-bottom:20px}
+    .card-num{
+      width:30px;height:30px;border-radius:10px;flex-shrink:0;
+      background:linear-gradient(135deg,var(--wee),var(--wee-600));
+      color:#fff;font-size:13px;font-weight:800;
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 6px 14px var(--wee-glow);
+    }
+    .card-title{font-size:16px;font-weight:800;color:var(--ink);letter-spacing:-.2px}
+    .card-sub{
+      font-size:11px;font-weight:700;color:var(--wee);margin-left:auto;
+      text-transform:uppercase;letter-spacing:.6px;
+      background:var(--wee-tint);padding:5px 11px;border-radius:999px;
+    }
+    .card-sub:empty{display:none}
+
+    /* ===================== ACCIONES ===================== */
+    .actions{display:flex;align-items:center;gap:14px;margin-top:22px;padding:0 2px}
+    .btn{
+      font-family:inherit;font-size:14.5px;font-weight:800;letter-spacing:.2px;
+      padding:14px 30px;border-radius:13px;
+      border:none;cursor:pointer;
+      transition:transform .12s, box-shadow .25s, background .2s;
+    }
+    .btn-primary{
+      background:linear-gradient(135deg,var(--wee),var(--wee-600));
+      color:#fff;box-shadow:0 8px 22px var(--wee-glow);
+      display:flex;align-items:center;gap:8px;
+    }
+    .btn-primary:hover{box-shadow:0 12px 30px var(--wee-glow);transform:translateY(-2px)}
+    .btn-primary:active{transform:translateY(0)}
+    .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
+    .btn-ghost{background:transparent;color:var(--ink-soft);padding:14px 18px}
+    .btn-ghost:hover{color:var(--wee);background:var(--wee-tint)}
+
+    /* ===================== TOAST ===================== */
+    .toast{
+      position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(140px);
+      background:#fff;border-radius:14px;padding:15px 22px;
+      box-shadow:0 16px 50px rgba(10,42,107,.22);
+      display:flex;align-items:center;gap:13px;
+      font-size:14px;font-weight:700;z-index:60;max-width:90vw;
+      transition:transform .45s cubic-bezier(.2,.9,.3,1.3);
+    }
+    .toast.show{transform:translateX(-50%) translateY(0)}
+    .toast.ok{border-left:4px solid var(--ok)}
+    .toast.err{border-left:4px solid var(--err)}
+    .toast .ic{
+      width:26px;height:26px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-weight:800;color:#fff;flex-shrink:0;font-size:15px;
+    }
+    .toast.ok .ic{background:var(--ok)}
+    .toast.err .ic{background:var(--err)}
+
+    .spinner{
+      width:16px;height:16px;border:2px solid rgba(255,255,255,.45);
+      border-top-color:#fff;border-radius:50%;
+      display:inline-block;animation:spin .7s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+
+  /* ===== Corrección franja informativa completa ===== */
+  .progress-hint{
+    display:flex !important;
+    align-items:center !important;
+    gap:10px !important;
+    flex-wrap:nowrap !important;
+    width:100% !important;
+    line-height:1.45 !important;
+  }
+  .progress-hint::before{content:none !important;display:none !important;}
+  .progress-hint .hint-dot{
+    width:8px !important;
+    height:8px !important;
+    border-radius:50% !important;
+    background:var(--wee) !important;
+    box-shadow:0 0 0 4px var(--wee-tint) !important;
+    flex:0 0 auto !important;
+  }
+  .progress-hint .hint-text{
+    display:block !important;
+    min-width:0 !important;
+    flex:1 1 auto !important;
+    white-space:normal !important;
+    overflow:visible !important;
+    word-break:normal !important;
+  }
+  .progress-hint strong{
+    color:var(--wee) !important;
+    font-weight:800 !important;
+  }
+  @media(max-width:560px){
+    .progress-hint{
+      align-items:flex-start !important;
+      font-size:12.5px !important;
+      padding:11px 13px !important;
+    }
+  }
+
+
+  /* ============================================================
+    CAPA DE PULIDO VISUAL — micro-interacciones, progreso, validación inline
+    ============================================================ */
+
+  /* Reveal suave de secciones condicionales + hover de tarjeta */
+  .card{animation:rise .45s cubic-bezier(.2,.7,.3,1) both}
+  .card:hover{box-shadow:0 1px 2px rgba(10,42,107,.06),0 18px 44px rgba(27,91,255,.10)}
+  .card[data-block]:not(.hidden){animation:revealCard .5s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes revealCard{
+    from{opacity:0;transform:translateY(14px) scale(.99)}
+    to{opacity:1;transform:none}
+  }
+
+  /* Número de tarjeta con micro-respuesta al hover */
+  .card-num{transition:transform .25s cubic-bezier(.2,.7,.3,1)}
+  .card:hover .card-num{transform:rotate(-4deg) scale(1.06)}
+
+  /* Botón primario: destello al pasar el cursor */
+  .btn-primary{position:relative;overflow:hidden}
+  .btn-primary::after{
+    content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);
+    transform:skewX(-18deg);transition:left .6s ease;pointer-events:none;
+  }
+  .btn-primary:hover::after{left:140%}
+
+  /* Barra de progreso WeeMedic */
+  .wee-progress{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);
+    padding:13px 16px;margin-bottom:18px;
+    display:flex;align-items:center;gap:14px;
+  }
+  .wee-progress .wp-track{
+    flex:1 1 auto;height:9px;border-radius:999px;
+    background:var(--wee-tint);overflow:hidden;position:relative;
+  }
+  .wee-progress .wp-fill{
+    height:100%;width:0%;border-radius:999px;
+    background:linear-gradient(90deg,var(--wee),#3a78ff);
+    transition:width .5s cubic-bezier(.2,.7,.3,1), background .3s ease;
+  }
+  .wee-progress .wp-label{
+    font-size:12px;font-weight:800;color:var(--wee);
+    white-space:nowrap;font-variant-numeric:tabular-nums;
+  }
+  .wee-progress .wp-count{font-size:11px;font-weight:600;color:var(--ink-soft);white-space:nowrap}
+  .wee-progress.complete .wp-fill{background:linear-gradient(90deg,var(--ok),#10b981)}
+  .wee-progress.complete .wp-label{color:var(--ok)}
+  .atc-summary{
+    flex:0 0 280px;position:sticky;top:20px;
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .sum-card{padding:16px 18px;margin-bottom:0}
+  .sum-head{
+    display:flex;align-items:center;gap:8px;
+    font-size:13px;font-weight:800;color:var(--ink);
+    padding-bottom:10px;margin-bottom:8px;border-bottom:1px solid var(--line);
+  }
+  .sum-item{
+    display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+    font-size:12px;color:var(--ink-soft);font-weight:600;padding:5px 0;
+  }
+  .sum-item b{
+    color:var(--ink);font-weight:800;text-align:right;
+    max-width:62%;overflow-wrap:anywhere;
+  }
+  @media(max-width:1100px){.atc-summary{display:none}}
