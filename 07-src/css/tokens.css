@@ -1,0 +1,26 @@
+    :root{
+      /* ===== Identidad WeeMedic ===== */
+      --wee:#1b5bff;            /* azul institucional brillante */
+      --wee-600:#1346cc;        /* hover / profundidad */
+      --wee-700:#0f37a3;        /* presionado */
+      --wee-ink:#0a2a6b;        /* azul tinta para acentos oscuros */
+      --wee-tint:#eaf0ff;       /* chips / fondos suaves */
+      --wee-tint-2:#f4f7ff;     /* fondo de campo sutil */
+      --wee-glow:rgba(27,91,255,.28);
+
+      --ink:#0f1b33;            /* texto principal */
+      --ink-soft:#5a6783;       /* texto secundario */
+      --bg:#eef2fb;             /* fondo app */
+      --card:#ffffff;
+      --line:#e6ebf5;
+      --line-2:#d3dbef;
+      --ok:#0e9f6e;
+      --ok-bg:#e7f8f1;
+      --err:#e02424;
+      --err-bg:#fdecec;
+
+      --radius:18px;
+      --radius-sm:12px;
+      --shadow:0 1px 2px rgba(10,42,107,.06),0 12px 32px rgba(10,42,107,.07);
+      --shadow-sm:0 2px 10px rgba(10,42,107,.06);
+    }
