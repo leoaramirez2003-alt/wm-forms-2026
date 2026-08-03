@@ -173,12 +173,17 @@
     /* ---- Clasificación (Seguimiento, Queja y Corrección; también Sura/GS) ---- */
     const sgs = esGestionSGS();
     const verClasificacion  = esSeguimiento || esQueja || esCorreccion || sgs;
-    const verSeguimientoCon = esSeguimiento || esCorreccion || sgs;   // en Queja Banorte NO se muestra
+    /* HF-CRM-2026-07-30-SEG-QUEJA-01: "Seguimiento con" y "HC / persona de seguimiento"
+       se muestran en las tres atenciones — Queja, Seguimiento y Corrección — por
+       decisión de la autoridad funcional. Antes Queja quedaba excluida. */
+    const verSeguimientoCon = esSeguimiento || esCorreccion || esQueja || sgs;
     toggleBlock("clasificacion", verClasificacion);
     toggleBlock("seguimiento_con", verSeguimientoCon);
 
     if(verClasificacion){
-      $("clasificacionTitulo").textContent = esQueja ? "Clasificación" : "Clasificación y seguimiento";
+      /* El título deja de alternar: la sección ahora contiene campos de
+         seguimiento también en Queja (HF-CRM-2026-07-30-SEG-QUEJA-01). */
+      $("clasificacionTitulo").textContent = "Clasificación y seguimiento";
 
       if(sgs){
         /* Sura/GS: seguimiento general (no filtra). El colaborador se captura en la
@@ -190,20 +195,17 @@
         $("HC").value = "";
         toggleBlock("hc", false);
         ultimaClaveHC = "";        // fuerza recarga de Banorte al volver
-      }else if(verSeguimientoCon){
+      }else{
+        /* Banorte — Queja, Seguimiento y Corrección: cargan "Seguimiento con" y
+           HC filtrados por trámite. La rama previa "Queja: sin Seguimiento con ni
+           HC" se retiró por quedar inalcanzable tras HF-CRM-2026-07-30-SEG-QUEJA-01
+           (verSeguimientoCon pasó a cubrir las tres atenciones). */
         ultimoTipoGestionHC = "";  // fuerza recarga de SGS al volver
         cargarOpcionesSeguimiento(tramite);
         cargarOpcionesHC();
         const verHC = valor("Seguimiento_Con") !== "" && hayOpcionesHC();
         toggleBlock("hc", verHC);
         if(!verHC){ $("HC").value = ""; }
-      }else{
-        /* Queja: sin "Seguimiento con" ni HC */
-        $("Seguimiento_Con").value = "";
-        $("HC").value = "";
-        toggleBlock("hc", false);
-        ultimoTramiteSeguimiento = "";
-        ultimaClaveHC = "";
       }
     }else{
       $("Solicitud_Relacionada").value = "";
