@@ -61,13 +61,22 @@
     const esSeguimiento    = atencion === "Seguimiento";
     const esSiniestralidad = tramite === "Siniestralidad";
 
-    /* ---- Escenario: SOLO Banorte, en Queja con trámite Programación/Reembolso/Pago directo.
-       (GS también tiene Programación/Reembolso pero sus escenarios Banorte NO aplican — decisión multicliente v1) ---- */
-    const verEscenario = cliente === "Banorte" && esQueja && (
-      tramite === "Programación" ||
-      tramite === "Reembolso" ||
-      tramite === "Pago directo"
-    );
+    /* ---- Escenario: RETIRADO DE LA INTERFAZ (HF-CRM-2026-07-30-ESCENARIO-01).
+       Por decisión de la autoridad funcional, la sección Escenario y su
+       subescenario dejan de mostrarse en cualquier combinación de cliente,
+       atención y trámite.
+
+       Se conserva el marcado, el payload (Escenario, Subescenario,
+       Nombre_Escenario siguen viajando vacíos) y las funciones de carga, para
+       no alterar el contrato con Power Automate/SharePoint ni los reportes.
+       Al quedar el bloque con .hidden, la validación de data-cond-required
+       no lo exige — no bloquea el envío.
+
+       Regla anterior, por si se decide restaurarla:
+         cliente === "Banorte" && esQueja &&
+         (tramite === "Programación" || tramite === "Reembolso" || tramite === "Pago directo")
+       ---- */
+    const verEscenario = false;
     toggleBlock("escenario", verEscenario);
 
     if(verEscenario){
