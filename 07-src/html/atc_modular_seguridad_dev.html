@@ -8,6 +8,9 @@
        tras mover el honeypot a clase CSS y retirar Google Fonts remoto); connect-src
        amplía únicamente a login.microsoftonline.com para el intercambio de tokens MSAL;
        object-src y form-action agregados como endurecimiento adicional.
+       2026-08-17: frame-src suma login.microsoftonline.com. acquireTokenSilent
+       renueva el token mediante un iframe oculto hacia ese origen; sin la
+       directiva, el login funciona pero la renovación falla al expirar el token.
        frame-ancestors 'none' permanece sin cambio — declarada vía <meta>, por
        especificación CSP los navegadores la ignoran en ese contexto (no es protección
        anti-clickjacking real hoy; hallazgo documentado, no corregible sin encabezado
@@ -18,7 +21,7 @@
                 style-src 'self';
                 img-src 'self' data:;
                 connect-src 'self' https://*.powerplatform.com https://login.microsoftonline.com;
-                frame-src https://app.powerbi.com https://*.powerbi.com;
+                frame-src https://app.powerbi.com https://*.powerbi.com https://login.microsoftonline.com;
                 frame-ancestors 'none';
                 base-uri 'self';
                 object-src 'none';

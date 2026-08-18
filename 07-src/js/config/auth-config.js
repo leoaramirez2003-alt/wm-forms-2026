@@ -1,5 +1,5 @@
-  /* ConfiguraciÃ³n no secreta de autenticaciÃ³n (MIS-FOLIOS-CRM-ATC-01, Fase 1).
-     Client ID y Tenant ID no son secretos, pero no se inventan aquÃ­: quedan como
+  /* Configuración no secreta de autenticación (MIS-FOLIOS-CRM-ATC-01, Fase 1).
+     Client ID y Tenant ID no son secretos, pero no se inventan aquí: quedan como
      marcadores hasta que 07-src/tools/configurar-entra-dev.ps1 los sustituya. */
   (function (global) {
     "use strict";
@@ -7,13 +7,18 @@
     var ENTRA_CLIENT_ID = "f3a31ab8-a5f5-4a76-9211-4055c4ed7176";
     var ENTRA_TENANT_ID = "abb9b2bf-39d4-4621-8be8-53022aab1ab4";
 
-    /* Allowlist de hostname â†’ redirect URI exacta (nunca se construye desde query string). */
+    /* Allowlist de hostname → redirect URI exacta (nunca se construye desde query string). */
+    /* Cada URI debe estar registrada, carácter por carácter, como Redirect URI
+       de tipo SPA en el registro de aplicación de Entra. Si no coincide de forma
+       exacta, Microsoft rechaza el login con AADSTS50011. */
     var REDIRECT_URI_POR_HOSTNAME = {
-      "localhost": "http://localhost:8000/07-src/html/atc_modular_seguridad_dev.html"
+      "localhost": "http://localhost:8000/07-src/html/atc_modular_seguridad_dev.html",
+      "leoaramirez2003-alt.github.io": "https://leoaramirez2003-alt.github.io/wm-forms-2026/07-src/html/atc_modular_seguridad_dev.html"
     };
 
     var POST_LOGOUT_REDIRECT_URI_POR_HOSTNAME = {
-      "localhost": "http://localhost:8000/07-src/html/atc_modular_seguridad_dev.html"
+      "localhost": "http://localhost:8000/07-src/html/atc_modular_seguridad_dev.html",
+      "leoaramirez2003-alt.github.io": "https://leoaramirez2003-alt.github.io/wm-forms-2026/07-src/html/atc_modular_seguridad_dev.html"
     };
 
     function resolverUriPorHostname(tabla, hostname) {
@@ -33,7 +38,7 @@
            construye una redirect URI a partir de query string ni de location.href. */
         return {
           hostnameAutorizado: false,
-          errorConfiguracion: "Este entorno no estÃ¡ autorizado para iniciar sesiÃ³n. Contacta al administrador del CRM."
+          errorConfiguracion: "Este entorno no está autorizado para iniciar sesión. Contacta al administrador del CRM."
         };
       }
 
@@ -54,7 +59,7 @@
           }
         },
         loginRequest: {
-          /* Scopes mÃ­nimos â€” sin Microsoft Graph, sin `groups` (D-MF-01). */
+          /* Scopes mínimos — sin Microsoft Graph, sin `groups` (D-MF-01). */
           scopes: ["openid", "profile"]
         }
       };
