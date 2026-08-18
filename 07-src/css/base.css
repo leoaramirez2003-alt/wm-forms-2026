@@ -1,0 +1,22 @@
+
+    *{box-sizing:border-box;margin:0;padding:0}
+
+    /* Honeypot anti-bot — antes atributo style= inline, movido aquí para permitir
+       retirar 'unsafe-inline' de style-src (MIS-FOLIOS-CRM-ATC-01, Fase 1). */
+    .campo-oculto-honeypot{
+      position:absolute;left:-9999px;top:-9999px;height:0;width:0;overflow:hidden;
+    }
+
+    body{
+      font-family:"Segoe UI", Arial, sans-serif;
+      color:var(--ink);
+      line-height:1.5;
+      -webkit-font-smoothing:antialiased;
+      padding:0 0 70px;
+      background:
+        radial-gradient(900px 380px at 80% -120px, rgba(27,91,255,.10), transparent 60%),
+        radial-gradient(700px 320px at -5% 0%, rgba(27,91,255,.06), transparent 55%),
+        var(--bg);
+      min-height:100vh;
+    }
+

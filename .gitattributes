@@ -1,0 +1,41 @@
+# ============================================================
+# Normalización de saltos de línea — 2026-08-17
+# ============================================================
+# El árbol de trabajo está en LF. Sin esta configuración, Git en
+# Windows convertiría a CRLF al hacer checkout y cada archivo
+# aparecería como modificado por completo aunque el contenido
+# fuera idéntico, ensuciando cualquier diff contra el repo remoto.
+#
+# text=auto  → Git decide qué es texto y normaliza a LF al guardar.
+# eol=lf     → al hacer checkout se escribe LF, también en Windows.
+# ============================================================
+
+* text=auto eol=lf
+
+# ------------------------------------------------------------
+# Binarios: nunca se tocan. Normalizarlos los corrompe.
+# ------------------------------------------------------------
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.eot   binary
+*.pdf   binary
+*.zip   binary
+*.xlsx  binary
+*.xls   binary
+
+# ------------------------------------------------------------
+# SVG es texto (XML): se normaliza como los demás.
+# ------------------------------------------------------------
+*.svg   text eol=lf
+
+# ------------------------------------------------------------
+# Librería de terceros minificada: se versiona tal cual, y se
+# excluye de las estadísticas de lenguaje del repositorio.
+# ------------------------------------------------------------
+07-src/lib/msal-browser.min.js -diff linguist-vendored

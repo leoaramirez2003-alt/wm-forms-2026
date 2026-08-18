@@ -1,0 +1,332 @@
+/* ============================================================
+   Auth Shell — CSS visual definitivo (MIS-FOLIOS-CRM-ATC-01, Fase 1)
+   Misión: INT-MIS-FOLIOS-F1-AUTH-VISUAL-01
+   Fuente del diseño: artifact HTML/CSS construido y refinado en la sesión
+   de diseño de Claude Code (Sonnet 5), vía la herramienta de Artifacts —
+   NO "Fable" (Fable no fue usado ni está autorizado). Adaptado desde
+   03-verify/ejecuciones/mis-folios/fase-1/fable-preparacion/
+   auth-login-fable-extraido.css, extendiendo la cobertura a los 4 estados
+   reales del Auth Shell (el origen solo maquetó "no autenticado").
+
+   NAMESPACE OBLIGATORIO: todo selector vive bajo .atc-auth-shell.
+   Sin @import, sin URLs remotas, sin fuentes externas, sin CDN, sin data
+   URI, sin scripts, sin estilos inline, sin lógica de autenticación.
+   Pila tipográfica de sistema (Segoe UI), consistente con base.css.
+============================================================ */
+
+.atc-auth-shell{
+  --atc-ink-navy:  #071A3D;
+  --atc-cobalt:    #14349E;
+  --atc-electric:  #2F5DFF;
+  --atc-deep-blue: #0A2A66;
+  --atc-turquoise: #35D6C4;
+  --atc-sky:       #8FC7FF;
+  --atc-mist:      #E6EEFF;
+
+  --atc-font: "Segoe UI", "Segoe UI Variable", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+
+  /* Pantalla completa real: fixed + inset:0 cubre el viewport sin heredar el
+     padding inferior de body (base.css: padding:0 0 70px), sin depender de la
+     geometría del App Shell (sidebar/topbar) y sin recurrir a márgenes
+     negativos. Deja de ocupar espacio por completo cuando [hidden] aplica
+     display:none (ver regla autoritativa al final de este archivo). */
+  position:fixed;
+  inset:0;
+  z-index:60;
+  width:100%;
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:34% 66%;
+  overflow-x:hidden;
+  overflow-y:auto;
+  font-family:var(--atc-font);
+  color:var(--atc-mist);
+  background:var(--atc-ink-navy);
+  -webkit-font-smoothing:antialiased;
+}
+
+.atc-auth-shell *{ box-sizing:border-box; }
+
+@media (max-width:860px){
+  .atc-auth-shell{ grid-template-columns:1fr; min-height:100vh; }
+  .atc-auth-shell .atc-auth-visual{ min-height:38vh; }
+}
+
+/* ---------------- Panel izquierdo: acceso ---------------- */
+
+.atc-auth-shell .atc-auth-panel{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:48px 40px;
+  background:
+    radial-gradient(120% 90% at 30% -10%, rgba(255,255,255,.10), transparent 55%),
+    linear-gradient(190deg, var(--atc-electric) 0%, var(--atc-deep-blue) 100%);
+  z-index:2;
+}
+
+.atc-auth-shell .atc-auth-panel-contenido{
+  width:100%;
+  max-width:360px;
+  display:flex;
+  flex-direction:column;
+  gap:24px;
+}
+
+.atc-auth-shell .atc-auth-titulo{
+  margin:0;
+  font-size:clamp(32px, 4vw, 40px);
+  font-weight:600;
+  line-height:1.08;
+  text-wrap:balance;
+  color:#fff;
+}
+
+.atc-auth-shell .atc-auth-subtitulo{
+  margin:6px 0 0;
+  font-size:17px;
+  font-weight:600;
+  color:var(--atc-mist);
+  opacity:.92;
+}
+
+.atc-auth-shell .atc-auth-instruccion{
+  margin:0;
+  font-size:15px;
+  line-height:1.55;
+  color:rgba(230,238,255,.78);
+  max-width:32ch;
+}
+
+/* ---------------- Estados (mismos ids funcionales, alternados por app.js) ---------------- */
+
+.atc-auth-shell .atc-auth-estado{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:14px;
+}
+.atc-auth-shell .atc-auth-estado.hidden{ display:none !important; }
+
+.atc-auth-shell .atc-auth-carga{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-size:14.5px;
+  color:rgba(230,238,255,.85);
+}
+
+.atc-auth-shell .atc-auth-spinner{
+  width:18px; height:18px; flex:0 0 auto;
+  border-radius:50%;
+  border:2.5px solid rgba(230,238,255,.28);
+  border-top-color:var(--atc-turquoise);
+  animation:atc-auth-girar .8s linear infinite;
+}
+@media (prefers-reduced-motion:reduce){
+  .atc-auth-shell .atc-auth-spinner{ animation:none; opacity:.7; }
+}
+@keyframes atc-auth-girar{ to{ transform:rotate(360deg); } }
+
+.atc-auth-shell .atc-auth-mensaje-estado{
+  margin:0;
+  font-size:14.5px;
+  line-height:1.5;
+  color:rgba(230,238,255,.85);
+  max-width:32ch;
+}
+
+.atc-auth-shell .atc-auth-boton-ms{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  width:100%;
+  padding:14px 22px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.14);
+  background:#ffffff;
+  color:#1b1f27;
+  font-family:var(--atc-font);
+  font-size:15.5px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 10px 24px rgba(4,12,34,.28), 0 1px 0 rgba(255,255,255,.5) inset;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.atc-auth-shell .atc-auth-boton-ms:hover{
+  transform:translateY(-1px);
+  box-shadow:0 14px 30px rgba(4,12,34,.34), 0 1px 0 rgba(255,255,255,.5) inset;
+}
+.atc-auth-shell .atc-auth-boton-ms:focus-visible{
+  outline:3px solid var(--atc-turquoise);
+  outline-offset:3px;
+}
+.atc-auth-shell .atc-auth-boton-ms:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+  box-shadow:none;
+}
+
+.atc-auth-shell .atc-auth-ms-logo{ flex:0 0 auto; display:block; }
+
+.atc-auth-shell .atc-auth-mensaje{
+  margin:0;
+  min-height:1em;
+  font-size:13.5px;
+  color:rgba(230,238,255,.78);
+}
+.atc-auth-shell .atc-auth-mensaje:empty{ display:none; }
+
+.atc-auth-shell .atc-auth-panel::after{
+  /* Costura diagonal luminosa entre paneles, intensidad moderada. */
+  content:"";
+  position:absolute;
+  top:0; right:-60px; bottom:0;
+  width:120px;
+  background:linear-gradient(100deg, transparent, rgba(143,199,255,.25) 45%, transparent 70%);
+  transform:skewX(-8deg);
+  pointer-events:none;
+}
+@media (max-width:860px){
+  .atc-auth-shell .atc-auth-panel::after{ display:none; }
+}
+
+/* ---------------- Panel derecho: escena ATC (decorativo) ---------------- */
+
+.atc-auth-shell .atc-auth-visual{
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(70% 60% at 78% 18%, rgba(53,214,196,.14), transparent 60%),
+    radial-gradient(60% 50% at 15% 85%, rgba(47,93,255,.20), transparent 60%),
+    linear-gradient(160deg, var(--atc-cobalt) 0%, var(--atc-ink-navy) 78%);
+}
+
+.atc-auth-shell .atc-auth-visual-grid{
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(180,205,255,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(180,205,255,.07) 1px, transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(85% 75% at 60% 40%, #000 40%, transparent 90%);
+}
+
+.atc-auth-shell .atc-auth-marca{
+  position:relative;
+  z-index:3;
+  padding:44px 0 0 56px;
+}
+
+.atc-auth-shell .atc-auth-logo-slot{
+  display:inline-flex;
+  align-items:center;
+  padding:14px 22px;
+  background:#F4F8FF;
+  border-radius:12px;
+  box-shadow:0 10px 24px rgba(3,10,28,.28);
+}
+.atc-auth-shell .atc-auth-logo-slot img{
+  display:block;
+  height:34px;
+  width:auto;
+}
+
+.atc-auth-shell .atc-auth-tagline{
+  margin:14px 0 0;
+  font-size:14px;
+  color:rgba(230,238,255,.66);
+}
+
+.atc-auth-shell .atc-auth-escena{
+  position:absolute;
+  inset:0;
+  perspective:1400px;
+}
+
+.atc-auth-shell .atc-auth-lineas{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  z-index:1;
+}
+.atc-auth-shell .atc-auth-lineas path{
+  stroke:rgba(143,199,255,.34);
+  stroke-width:1.4;
+  fill:none;
+  stroke-dasharray:5 7;
+}
+.atc-auth-shell .atc-auth-lineas circle{
+  fill:var(--atc-turquoise);
+  opacity:.85;
+}
+
+.atc-auth-shell .atc-auth-card{
+  position:absolute;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:18px;
+  background:linear-gradient(160deg, rgba(255,255,255,.10), rgba(255,255,255,.02));
+  border:1px solid rgba(230,238,255,.16);
+  box-shadow:0 24px 48px rgba(2,8,26,.45), 0 1px 0 rgba(255,255,255,.10) inset;
+  backdrop-filter:blur(2px);
+  transform-style:preserve-3d;
+  animation:atc-auth-flotar 7s ease-in-out infinite;
+}
+@media (prefers-reduced-motion:reduce){
+  .atc-auth-shell .atc-auth-card{ animation:none; }
+}
+
+/* Zona segura: 5 tarjetas dentro del lienzo; solo .atc-auth-card--lupa
+   se ancla por "bottom" negativo para sangrar de forma controlada y
+   consistente, como único recurso de profundidad permitido. */
+.atc-auth-shell .atc-auth-card--carpeta { top:14%;  left:8%;   width:112px; height:96px;  transform:rotateY(14deg) rotateX(6deg)  translateZ(30px); animation-delay:.2s; }
+.atc-auth-shell .atc-auth-card--grafico { top:10%;  left:54%;  width:150px; height:118px; transform:rotateY(-10deg) rotateX(4deg) translateZ(60px); animation-delay:1.1s; }
+.atc-auth-shell .atc-auth-card--barras  { top:42%;  left:70%;  width:126px; height:104px; transform:rotateY(-16deg) rotateX(2deg) translateZ(10px); animation-delay:.6s; }
+.atc-auth-shell .atc-auth-card--check   { top:30%;  left:30%;  width:100px; height:88px;  transform:rotateY(-6deg)  rotateX(6deg)  translateZ(0px);  animation-delay:2.1s; }
+.atc-auth-shell .atc-auth-card--nodos   { top:60%;  left:42%;  width:130px; height:96px;  transform:rotateY(8deg)   rotateX(-6deg) translateZ(20px); animation-delay:.9s; }
+.atc-auth-shell .atc-auth-card--lupa    { bottom:-16px; left:11%; top:auto; width:96px; height:96px; transform:rotateY(10deg) rotateX(-4deg) translateZ(46px); animation-delay:1.6s; }
+
+@keyframes atc-auth-flotar{
+  0%,100%{ transform:translateY(0); }
+  50%{ transform:translateY(-10px); }
+}
+
+.atc-auth-shell .atc-auth-card svg{ width:56%; height:56%; }
+
+@media (max-width:860px){
+  .atc-auth-shell .atc-auth-marca{ padding:28px 0 0 28px; }
+  .atc-auth-shell .atc-auth-lineas{ display:none; }
+  .atc-auth-shell .atc-auth-card--grafico,
+  .atc-auth-shell .atc-auth-card--barras,
+  .atc-auth-shell .atc-auth-card--nodos{ display:none; }
+}
+
+/* Zoom / pantallas muy bajas: evita que el panel izquierdo empuje contenido
+   fuera de vista cuando el viewport es más bajo que alto (zoom alto). */
+@media (max-height:520px){
+  .atc-auth-shell{ min-height:auto; }
+  .atc-auth-shell .atc-auth-panel{ padding:28px 24px; }
+}
+
+/* ============================================================
+   REGLA AUTORITATIVA DE OCULTAMIENTO DE SHELLS
+   HF-MIS-FOLIOS-F1-AUTH-VISIBILITY-02
+
+   Causa de la regresión corregida aquí: `.atc-auth-shell{display:grid}` y
+   `.oculto-por-auth{display:none}` (components.css) tienen la MISMA
+   especificidad (0-1-0). El desempate es por orden de origen, y
+   auth-login.css se carga después de components.css — por lo que
+   `display:grid` ganaba y el Auth Shell seguía visible tras el login.
+
+   El atributo `hidden` pasa a ser el estado autoritativo de los shells raíz.
+   Al declararse con !important en la última hoja cargada, gana sobre
+   `display:grid`, sobre `display:flex` y sobre cualquier media query
+   posterior — ninguna consulta de medios puede reactivar un shell oculto.
+   El elemento oculto no conserva altura, margen, padding, posición, scroll,
+   foco ni elementos interactivos accesibles por teclado, porque display:none
+   los retira del flujo y del árbol de accesibilidad (a diferencia de
+   opacity:0, visibility:hidden o pointer-events:none, no usados aquí).
+============================================================ */
+[hidden]{ display:none !important; }

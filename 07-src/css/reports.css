@@ -1,0 +1,128 @@
+
+  /* ============================================================
+    VISTA DE REPORTE FILTRADO
+    Rediseño 2026-08-17. Centro de generación de reportes.
+
+    Los controles (`.field input`, `.field select`) heredan de
+    `registro-redesign.css` su alto mínimo de 44px, su tipografía y su foco
+    visible: aquí NO se redeclaran, para que Reportes y Registro no divergan.
+
+    Sin `transform: scale` y sin `zoom`. Ninguna medida está calibrada para una
+    resolución concreta: la rejilla es fluida y los cortes se justifican por el
+    ancho mínimo del control, no por el tamaño de una pantalla.
+    ============================================================ */
+  /* `registro-redesign.css:497` declara `.card{padding:18px 20px 20px}` con la
+     MISMA especificidad y se carga después, así que ganaría por orden. Se
+     califica con `.card` para superarlo sin `!important`. Misma lección que la
+     rejilla del Registro: en esta cascada el orden no basta. */
+  .card.report-filter-card{padding:24px 26px 22px}
+
+  /* ---------- Encabezado del módulo ---------- */
+  .report-page-title{
+    display:flex;align-items:center;gap:14px;
+    margin-bottom:26px;                 /* encabezado → filtros: 24–30px */
+  }
+  /* 44px reales: es un control interactivo y debe cumplir el objetivo táctil
+     mínimo igual que los demás. Medía 38px y la prueba REP-35 lo detectó. */
+  .back-link{
+    width:44px;height:44px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--wee);
+    background:var(--wee-tint);border:1px solid var(--line-2);
+    border-radius:10px;cursor:pointer;font-family:inherit;
+    transition:background .15s, color .15s, transform .12s;
+  }
+  /* No existe una flecha izquierda en el paquete Fluent local auditado. Se
+     reutiliza el galón de `ic-expandir` girado un cuarto de vuelta: es una
+     rotación de un icono, no una escala de layout. */
+  .back-ic{width:18px;height:18px;transform:rotate(90deg)}
+  .back-link:hover{background:var(--wee);color:#fff}
+  .back-link:focus-visible{outline:2px solid var(--wee);outline-offset:2px}
+
+  .report-title-ic{
+    width:42px;height:42px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:12px;
+    color:var(--wee);background:var(--wee-tint);
+    border:1px solid var(--line-2);
+  }
+  .report-title-ic svg{width:22px;height:22px}
+
+  .report-title-text{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .report-page-title h2{
+    font-size:1.125rem;font-weight:800;color:var(--ink);
+    letter-spacing:-.3px;line-height:1.2;margin:0;
+  }
+  .report-subtitle{
+    font-size:0.8125rem;color:var(--ink-soft);
+    font-weight:500;line-height:1.4;margin:0;
+  }
+
+  /* ---------- Cuadrícula de filtros ----------
+     Cuatro columnas en escritorio amplio. Fila conceptual 1: el alcance
+     (Cliente, Tipo de trámite, Tipo de solicitud, Prioridad). Fila conceptual 2:
+     el periodo y la salida (Fecha inicio, Fecha fin, Estatus interno, Tipo de
+     reporte). */
+  .report-filter-grid{
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    gap:22px;                            /* filas y columnas: 20–24px */
+  }
+  .report-filter-grid .field{margin:0;min-width:0}
+
+  /* ---------- Acciones ---------- */
+  .report-action-area{
+    display:flex;align-items:center;gap:16px;
+    margin-top:26px;padding-top:22px;    /* filtros → acciones: 24–30px */
+    border-top:1px solid var(--line);
+  }
+  .report-format{display:flex;align-items:center;gap:12px;min-width:0}
+  .excel-badge{
+    width:42px;height:42px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;border-radius:12px;
+    background:linear-gradient(135deg,var(--ok),#0c8a5f);
+    box-shadow:0 4px 10px rgba(14,159,110,.22);
+  }
+  /* El icono es Fluent y toma su color de CSS, no del activo. */
+  .excel-badge svg{width:21px;height:21px}
+  .excel-caption{display:flex;flex-direction:column;line-height:1.3;min-width:0}
+  .excel-caption b{font-size:0.8125rem;font-weight:800;color:var(--ink)}
+  .excel-caption span{font-size:0.75rem;color:var(--ink-soft);font-weight:500}
+
+  .report-action-area .btn-primary{
+    margin-left:auto;
+    min-height:48px;
+    min-width:180px;max-width:220px;
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    font-size:0.875rem;font-weight:600;
+    box-shadow:none;
+  }
+  .report-action-area .btn-primary .btn-ic{width:18px;height:18px;flex-shrink:0}
+  .report-action-area .btn-primary:focus-visible{outline:2px solid var(--wee);outline-offset:2px}
+  .report-action-area .btn-primary[disabled]{opacity:.6;cursor:not-allowed}
+
+  /* ---------- Responsive ----------
+     El corte a dos columnas no busca una resolución: por debajo de ~1200px un
+     control de cuatro columnas cae por debajo de un ancho legible una vez
+     descontados el menú, el relleno del lienzo y el de la tarjeta. */
+  @media(max-width:1200px){
+    .report-filter-grid{grid-template-columns:repeat(2, minmax(0, 1fr))}
+  }
+
+  @media(max-width:640px){
+    .card.report-filter-card{padding:18px 16px 16px}
+    .report-filter-grid{grid-template-columns:minmax(0, 1fr)}
+    .report-page-title{gap:11px;margin-bottom:22px}
+    .report-title-ic{width:38px;height:38px}
+    .report-title-ic svg{width:20px;height:20px}
+    /* Móvil: el bloque CSV queda ARRIBA y el botón toma el ancho completo. */
+    .report-action-area{
+      flex-direction:column;align-items:stretch;gap:16px;
+    }
+    .report-action-area .btn-primary{
+      margin-left:0;
+      width:100%;min-width:0;max-width:none;
+      min-height:48px;
+    }
+  }

@@ -1,0 +1,40 @@
+  /* Respeta a quien prefiere menos movimiento */
+  @media(prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+  }
+
+
+  /* Responsive (B-UX-08): sidebar colapsa a navegación superior */
+  @media(max-width:820px){
+    .sidebar{
+      position:static;width:100%;overflow:visible;
+      border-radius:var(--radius);border:1px solid var(--line);
+      box-shadow:var(--shadow-sm);padding:10px 12px;margin-bottom:14px;
+    }
+    .sidebar-brand{display:none}
+    .sidebar-group-secondary{display:none}
+    .sidebar-group{margin-bottom:0}
+    .sidebar-group .sidebar-nav{flex-direction:row}
+    .topbar{margin-left:0}
+    .layout{margin-left:0;padding:0 18px}
+  }
+
+  /* ============================================================
+    ESCALA VISUAL INICIAL 75 % (addendum 2026-07-14)
+    Estrategia ÚNICA: CSS zoom sobre <body> con variable central.
+    - No se manipula el zoom nativo del navegador.
+    - No se usa transform para la escala general (el transform:scale
+      de .powerbi-preview/--pbi-zoom es del iframe Power BI y es
+      independiente: NO se toca).
+    - En ≤820px la escala vuelve a 100% para preservar el responsive
+      (la media query evalúa el viewport físico, no el escalado).
+    ============================================================ */
+  :root{ --atc-ui-scale: 0.75; }
+  @media(max-width:820px){
+    :root{ --atc-ui-scale: 1; }
+  }
+  html{ background: var(--bg); }  /* evita franja blanca bajo el body escalado */
+  body{
+    zoom: var(--atc-ui-scale);
+    min-height: calc(100vh / var(--atc-ui-scale));  /* el fondo cubre el viewport visual completo */
+  }

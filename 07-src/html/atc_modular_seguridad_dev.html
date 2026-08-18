@@ -1,0 +1,1179 @@
+  <!DOCTYPE html>
+  <html lang="es">
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- CSP rectificada por etapas (MIS-FOLIOS-CRM-ATC-01, Fase 1, 2026-07-30):
+       unsafe-inline retirado de script-src y style-src (0 handlers/scripts/estilos inline
+       tras mover el honeypot a clase CSS y retirar Google Fonts remoto); connect-src
+       amplía únicamente a login.microsoftonline.com para el intercambio de tokens MSAL;
+       object-src y form-action agregados como endurecimiento adicional.
+       frame-ancestors 'none' permanece sin cambio — declarada vía <meta>, por
+       especificación CSP los navegadores la ignoran en ese contexto (no es protección
+       anti-clickjacking real hoy; hallazgo documentado, no corregible sin encabezado
+       HTTP real, fuera del alcance de esta fase). -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                script-src 'self';
+                style-src 'self';
+                img-src 'self' data:;
+                connect-src 'self' https://*.powerplatform.com https://login.microsoftonline.com;
+                frame-src https://app.powerbi.com https://*.powerbi.com;
+                frame-ancestors 'none';
+                base-uri 'self';
+                object-src 'none';
+                form-action 'self';">
+  <title>Sistema Integral ATC — Registro de atención (DEV multicliente)</title>
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/navigation.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/forms.css">
+  <link rel="stylesheet" href="../css/reports.css">
+  <link rel="stylesheet" href="../css/powerbi.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+  <link rel="stylesheet" href="../css/auth-login.css">
+  <!-- Mis Folios (MIS-FOLIOS-CRM-ATC-01, Fase 2): hoja aditiva, todo selector
+       bajo el prefijo .mf-. No redefine [hidden] ni .hidden, de modo que la
+       regla de ocultamiento autoritativa de auth-login.css sigue vigente. -->
+  <link rel="stylesheet" href="../css/mis-folios.css">
+  <!-- Rediseño visual del módulo Registro (2026-08-13). Se carga AL FINAL para
+       ganar en precedencia por orden, sin usar !important y reutilizando las
+       variables de tokens.css. Solo presentación: no altera ids ni reglas. -->
+  <link rel="stylesheet" href="../css/registro-redesign.css?v=20260816b">
+  </head>
+
+  <body>
+<!-- Iconos Fluent (Microsoft, MIT). Sprite EN LINEA: cero peticiones de red,
+     currentColor heredado del texto. Fuente y licencia en 07-src/assets/icons/fluent/ -->
+<svg xmlns="http://www.w3.org/2000/svg" class="ic-sprite" aria-hidden="true"><defs>
+<symbol id="ic-registro" viewBox="0 0 20 20"><path d="M12.8536 9.85355C13.0488 9.65829 13.0488 9.34171 12.8536 9.14645C12.6583 8.95118 12.3417 8.95118 12.1464 9.14645L9 12.2929L7.85355 11.1464C7.65829 10.9512 7.34171 10.9512 7.14645 11.1464C6.95118 11.3417 6.95118 11.6583 7.14645 11.8536L8.64645 13.3536C8.84171 13.5488 9.15829 13.5488 9.35355 13.3536L12.8536 9.85355ZM8.5 2C7.84689 2 7.29127 2.4174 7.08535 3H5.5C4.67157 3 4 3.67157 4 4.5V16.5C4 17.3284 4.67157 18 5.5 18H14.5C15.3284 18 16 17.3284 16 16.5V4.5C16 3.67157 15.3284 3 14.5 3H12.9146C12.7087 2.4174 12.1531 2 11.5 2H8.5ZM8 3.5C8 3.22386 8.22386 3 8.5 3H11.5C11.7761 3 12 3.22386 12 3.5C12 3.77614 11.7761 4 11.5 4H8.5C8.22386 4 8 3.77614 8 3.5ZM5.5 4H7.08535C7.29127 4.5826 7.84689 5 8.5 5H11.5C12.1531 5 12.7087 4.5826 12.9146 4H14.5C14.7761 4 15 4.22386 15 4.5V16.5C15 16.7761 14.7761 17 14.5 17H5.5C5.22386 17 5 16.7761 5 16.5V4.5C5 4.22386 5.22386 4 5.5 4Z" fill="currentColor"/></symbol>
+<symbol id="ic-registro-filled" viewBox="0 0 20 20"><path d="M8.5 2C7.84689 2 7.29127 2.4174 7.08535 3H5.5C4.67157 3 4 3.67157 4 4.5V16.5C4 17.3284 4.67157 18 5.5 18H14.5C15.3284 18 16 17.3284 16 16.5V4.5C16 3.67157 15.3284 3 14.5 3H12.9146C12.7087 2.4174 12.1531 2 11.5 2H8.5ZM8 3.5C8 3.22386 8.22386 3 8.5 3H11.5C11.7761 3 12 3.22386 12 3.5C12 3.77614 11.7761 4 11.5 4H8.5C8.22386 4 8 3.77614 8 3.5ZM12.8536 9.85355L9.35355 13.3536C9.15829 13.5488 8.84171 13.5488 8.64645 13.3536L7.14645 11.8536C6.95118 11.6583 6.95118 11.3417 7.14645 11.1464C7.34171 10.9512 7.65829 10.9512 7.85355 11.1464L9 12.2929L12.1464 9.14645C12.3417 8.95118 12.6583 8.95118 12.8536 9.14645C13.0488 9.34171 13.0488 9.65829 12.8536 9.85355Z" fill="currentColor"/></symbol>
+<symbol id="ic-reportes" viewBox="0 0 20 20"><path d="M16.5176 9C16.7791 9 16.9984 8.7985 16.9999 8.53707L17 8.5C17 4.91015 14.0899 2 10.5 2L10.4629 2.0001C10.2015 2.00156 10 2.22092 10 2.48235V8.5C10 8.77614 10.2239 9 10.5 9H16.5176ZM11 3.02242C13.6386 3.2602 15.7398 5.36143 15.9776 8H11V3.02242ZM8 9.00009V5.09996C5.71814 5.56288 4 7.58128 4 10.0001C4 12.7615 6.23858 15.0001 9 15.0001V16.0001C5.68629 16.0001 3 13.3138 3 10.0001C3 6.85471 5.42031 4.27462 8.50015 4.02062C8.77536 3.99792 9 4.22395 9 4.50009V9.00009C9 9.55237 9.44772 10.0001 10 10.0001L14.5 10.0001C14.7761 10.0001 15.0022 10.2247 14.9795 10.4999C14.9656 10.6687 14.9447 10.8355 14.9171 11H14C13.9663 11 13.9329 11.0008 13.8997 11.0025L13.9001 11.0001L10 11.0001C8.89543 11.0001 8 10.1047 8 9.00009ZM17 10C16.4477 10 16 10.4477 16 11V18C16 18.5523 16.4477 19 17 19C17.5523 19 18 18.5523 18 18V11C18 10.4477 17.5523 10 17 10ZM14 12C13.4477 12 13 12.4477 13 13V18C13 18.5523 13.4477 19 14 19C14.5523 19 15 18.5523 15 18V13C15 12.4477 14.5523 12 14 12ZM10 15C10 14.4477 10.4477 14 11 14C11.5523 14 12 14.4477 12 15V18C12 18.5523 11.5523 19 11 19C10.4477 19 10 18.5523 10 18V15Z" fill="currentColor"/></symbol>
+<symbol id="ic-powerbi" viewBox="0 0 20 20"><path d="M5 3C3.89543 3 3 3.89543 3 5V15C3 16.1046 3.89543 17 5 17C6.10457 17 7 16.1046 7 15V5C7 3.89543 6.10457 3 5 3ZM4 5C4 4.44772 4.44772 4 5 4C5.55228 4 6 4.44772 6 5V15C6 15.5523 5.55228 16 5 16C4.44772 16 4 15.5523 4 15V5ZM8 8C8 6.89543 8.89543 6 10 6C11.1046 6 12 6.89543 12 8V15C12 16.1046 11.1046 17 10 17C8.89543 17 8 16.1046 8 15V8ZM10 7C9.44772 7 9 7.44772 9 8V15C9 15.5523 9.44772 16 10 16C10.5523 16 11 15.5523 11 15V8C11 7.44772 10.5523 7 10 7ZM13 11C13 9.89543 13.8954 9 15 9C16.1046 9 17 9.89543 17 11V15C17 16.1046 16.1046 17 15 17C13.8954 17 13 16.1046 13 15V11ZM15 10C14.4477 10 14 10.4477 14 11V15C14 15.5523 14.4477 16 15 16C15.5523 16 16 15.5523 16 15V11C16 10.4477 15.5523 10 15 10Z" fill="currentColor"/></symbol>
+<symbol id="ic-folios" viewBox="0 0 20 20"><path d="M4.5 3C3.11929 3 2 4.11929 2 5.5V14.5C2 15.8807 3.11929 17 4.5 17H15.5C16.8807 17 18 15.8807 18 14.5V7.5C18 6.11929 16.8807 5 15.5 5H9.70711L8.21967 3.51256C7.89148 3.18437 7.44636 3 6.98223 3H4.5ZM3 5.5C3 4.67157 3.67157 4 4.5 4H6.98223C7.18115 4 7.37191 4.07902 7.51256 4.21967L8.79289 5.5L7.43934 6.85355C7.34557 6.94732 7.21839 7 7.08579 7H3V5.5ZM3 8H7.08579C7.48361 8 7.86514 7.84196 8.14645 7.56066L9.70711 6H15.5C16.3284 6 17 6.67157 17 7.5V14.5C17 15.3284 16.3284 16 15.5 16H4.5C3.67157 16 3 15.3284 3 14.5V8Z" fill="currentColor"/></symbol>
+<symbol id="ic-bitacora" viewBox="0 0 20 20"><path d="M10 4C13.3137 4 16 6.68629 16 10C16 13.3137 13.3137 16 10 16C6.68629 16 4 13.3137 4 10C4 9.84443 4.00591 9.69034 4.0175 9.53793C4.03845 9.26258 3.83222 9.02239 3.55687 9.00144C3.28152 8.98049 3.04133 9.18673 3.02038 9.46207C3.00687 9.6397 3 9.8191 3 10C3 13.866 6.13401 17 10 17C13.866 17 17 13.866 17 10C17 6.13401 13.866 3 10 3C8.04094 3 6.27012 3.80499 5 5.10109V3.5C5 3.22386 4.77614 3 4.5 3C4.22386 3 4 3.22386 4 3.5V6.5C4 6.77614 4.22386 7 4.5 7H7.5C7.77614 7 8 6.77614 8 6.5C8 6.22386 7.77614 6 7.5 6H5.52772C6.62683 4.77191 8.2234 4 10 4ZM10 6.5C10 6.22386 9.77614 6 9.5 6C9.22386 6 9 6.22386 9 6.5V10.5C9 10.7761 9.22386 11 9.5 11H12.5C12.7761 11 13 10.7761 13 10.5C13 10.2239 12.7761 10 12.5 10H10V6.5Z" fill="currentColor"/></symbol>
+<symbol id="ic-evidencias" viewBox="0 0 20 20"><path d="M6 2C4.89543 2 4 2.89543 4 4V9.20703C4.32228 9.11588 4.65659 9.05337 5 9.02242V4C5 3.44772 5.44772 3 6 3H10V6.5C10 7.32843 10.6716 8 11.5 8H15V16C15 16.5523 14.5523 17 14 17H10.4003C10.2174 17.3578 9.99647 17.6929 9.74284 18H14C15.1046 18 16 17.1046 16 16V7.41421C16 7.01639 15.842 6.63486 15.5607 6.35355L11.6464 2.43934C11.3651 2.15804 10.9836 2 10.5858 2H6ZM14.7929 7H11.5C11.2239 7 11 6.77614 11 6.5V3.20711L14.7929 7ZM10 14.5C10 16.9853 7.98528 19 5.5 19C3.01472 19 1 16.9853 1 14.5C1 12.0147 3.01472 10 5.5 10C7.98528 10 10 12.0147 10 14.5ZM6 12.5C6 12.2239 5.77614 12 5.5 12C5.22386 12 5 12.2239 5 12.5V14H3.5C3.22386 14 3 14.2239 3 14.5C3 14.7761 3.22386 15 3.5 15H5L5 16.5C5 16.7761 5.22386 17 5.5 17C5.77614 17 6 16.7761 6 16.5V15H7.5C7.77614 15 8 14.7761 8 14.5C8 14.2239 7.77614 14 7.5 14H6V12.5Z" fill="currentColor"/></symbol>
+<symbol id="ic-configuracion" viewBox="0 0 20 20"><path d="M1.91099 7.38266C2.28028 6.24053 2.88863 5.19213 3.69133 4.30364C3.82707 4.15339 4.04002 4.09984 4.23069 4.16802L6.14897 4.85392C6.66905 5.03977 7.24131 4.76883 7.42716 4.24875C7.44544 4.19762 7.45952 4.14507 7.46925 4.09173L7.83471 2.08573C7.87104 1.88627 8.02422 1.7285 8.22251 1.6863C8.8027 1.5628 9.39758 1.5 10.0003 1.5C10.6026 1.5 11.1971 1.56273 11.7769 1.68607C11.9752 1.72824 12.1284 1.88591 12.1648 2.08529L12.5313 4.09165C12.6303 4.63497 13.1511 4.9951 13.6944 4.89601C13.7479 4.88627 13.8004 4.87219 13.8515 4.85395L15.7698 4.16802C15.9605 4.09984 16.1734 4.15339 16.3092 4.30364C17.1119 5.19213 17.7202 6.24053 18.0895 7.38266C18.1518 7.57534 18.0918 7.78658 17.9374 7.91764L16.3825 9.23773C15.9615 9.5952 15.9101 10.2263 16.2675 10.6473C16.3027 10.6887 16.3411 10.7271 16.3825 10.7623L17.9374 12.0824C18.0918 12.2134 18.1518 12.4247 18.0895 12.6173C17.7202 13.7595 17.1119 14.8079 16.3092 15.6964C16.1734 15.8466 15.9605 15.9002 15.7698 15.832L13.8515 15.1461C13.3315 14.9602 12.7592 15.2312 12.5733 15.7512C12.5551 15.8024 12.541 15.8549 12.5312 15.9085L12.1648 17.9147C12.1284 18.1141 11.9752 18.2718 11.7769 18.3139C11.1971 18.4373 10.6026 18.5 10.0003 18.5C9.39758 18.5 8.8027 18.4372 8.22251 18.3137C8.02422 18.2715 7.87104 18.1137 7.83471 17.9143L7.46926 15.9084C7.37018 15.365 6.8494 15.0049 6.30608 15.104C6.25265 15.1137 6.20011 15.1278 6.14906 15.1461L4.23069 15.832C4.04002 15.9002 3.82707 15.8466 3.69133 15.6964C2.88863 14.8079 2.28028 13.7595 1.91099 12.6173C1.84869 12.4247 1.90876 12.2134 2.06313 12.0824L3.61798 10.7623C4.03897 10.4048 4.09046 9.77373 3.73299 9.35274C3.69784 9.31135 3.65937 9.27288 3.618 9.23775L2.06313 7.91764C1.90876 7.78658 1.84869 7.57534 1.91099 7.38266ZM2.97154 7.37709L4.26523 8.47546C4.34803 8.54576 4.42496 8.62269 4.49526 8.70548C5.2102 9.54746 5.10721 10.8096 4.26521 11.5246L2.97154 12.6229C3.26359 13.4051 3.68504 14.1322 4.21648 14.7751L5.81246 14.2044C5.91473 14.1679 6.01982 14.1397 6.12667 14.1202C7.21332 13.922 8.25487 14.6423 8.45305 15.729L8.75702 17.3975C9.16489 17.4655 9.58024 17.5 10.0003 17.5C10.42 17.5 10.8351 17.4656 11.2427 17.3976L11.5475 15.7289C11.567 15.6221 11.5951 15.517 11.6317 15.4147C12.0034 14.3746 13.1479 13.8327 14.1881 14.2044L15.784 14.7751C16.3155 14.1322 16.7369 13.4051 17.029 12.6229L15.7353 11.5245C15.6525 11.4542 15.5756 11.3773 15.5053 11.2945C14.7903 10.4525 14.8933 9.1904 15.7353 8.47544L17.029 7.37709C16.7369 6.59486 16.3155 5.86783 15.784 5.22494L14.1881 5.79559C14.0858 5.83214 13.9807 5.8603 13.8738 5.87979C12.7872 6.07796 11.7456 5.3577 11.5475 4.27119L11.2427 2.60235C10.8351 2.53443 10.42 2.5 10.0003 2.5C9.58024 2.5 9.16489 2.53448 8.75702 2.60249L8.45304 4.27105C8.43355 4.37791 8.40539 4.48299 8.36884 4.58527C7.99714 5.62542 6.8526 6.1673 5.81237 5.79556L4.21648 5.22494C3.68504 5.86783 3.26359 6.59486 2.97154 7.37709ZM7.50026 10C7.50026 8.61929 8.61954 7.5 10.0003 7.5C11.381 7.5 12.5003 8.61929 12.5003 10C12.5003 11.3807 11.381 12.5 10.0003 12.5C8.61954 12.5 7.50026 11.3807 7.50026 10ZM8.50026 10C8.50026 10.8284 9.17183 11.5 10.0003 11.5C10.8287 11.5 11.5003 10.8284 11.5003 10C11.5003 9.17157 10.8287 8.5 10.0003 8.5C9.17183 8.5 8.50026 9.17157 8.50026 10Z" fill="currentColor"/></symbol>
+<symbol id="ic-ayuda" viewBox="0 0 20 20"><path d="M10 2C14.4183 2 18 5.58172 18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2ZM10 3C6.13401 3 3 6.13401 3 10C3 13.866 6.13401 17 10 17C13.866 17 17 13.866 17 10C17 6.13401 13.866 3 10 3ZM10 13.5C10.4142 13.5 10.75 13.8358 10.75 14.25C10.75 14.6642 10.4142 15 10 15C9.58579 15 9.25 14.6642 9.25 14.25C9.25 13.8358 9.58579 13.5 10 13.5ZM10 5.5C11.3807 5.5 12.5 6.61929 12.5 8C12.5 8.72959 12.1848 9.40774 11.6513 9.8771L11.4967 10.0024L11.2782 10.1655L11.1906 10.2372C11.1348 10.2851 11.0835 10.3337 11.0346 10.3859C10.6963 10.7464 10.5 11.2422 10.5 12C10.5 12.2761 10.2761 12.5 10 12.5C9.72386 12.5 9.5 12.2761 9.5 12C9.5 10.988 9.79312 10.2475 10.3054 9.70162C10.4165 9.5832 10.532 9.47988 10.6609 9.37874L10.9076 9.19439L11.0256 9.09468C11.325 8.81435 11.5 8.42206 11.5 8C11.5 7.17157 10.8284 6.5 10 6.5C9.17157 6.5 8.5 7.17157 8.5 8C8.5 8.27614 8.27614 8.5 8 8.5C7.72386 8.5 7.5 8.27614 7.5 8C7.5 6.61929 8.61929 5.5 10 5.5Z" fill="currentColor"/></symbol>
+<symbol id="ic-resumen" viewBox="0 0 20 20"><path d="M6.5 8C6.22386 8 6 8.22386 6 8.5C6 8.77614 6.22386 9 6.5 9H13.5C13.7761 9 14 8.77614 14 8.5C14 8.22386 13.7761 8 13.5 8H6.5ZM6 11.5C6 11.2239 6.22386 11 6.5 11H9.5C9.77614 11 10 11.2239 10 11.5C10 11.7761 9.77614 12 9.5 12H6.5C6.22386 12 6 11.7761 6 11.5ZM6.5 14C6.22386 14 6 14.2239 6 14.5C6 14.7761 6.22386 15 6.5 15H11.5C11.7761 15 12 14.7761 12 14.5C12 14.2239 11.7761 14 11.5 14H6.5ZM8.5 2C7.84689 2 7.29127 2.4174 7.08535 3H5.5C4.67157 3 4 3.67157 4 4.5V16.5C4 17.3284 4.67157 18 5.5 18H14.5C15.3284 18 16 17.3284 16 16.5V4.5C16 3.67157 15.3284 3 14.5 3H12.9146C12.7087 2.4174 12.1531 2 11.5 2H8.5ZM11.5 3C11.7761 3 12 3.22386 12 3.5C12 3.77614 11.7761 4 11.5 4H8.5C8.22386 4 8 3.77614 8 3.5C8 3.22386 8.22386 3 8.5 3H11.5ZM5.5 4H7.08535C7.29127 4.5826 7.84689 5 8.5 5H11.5C12.1531 5 12.7087 4.5826 12.9146 4H14.5C14.7761 4 15 4.22386 15 4.5V16.5C15 16.7761 14.7761 17 14.5 17H5.5C5.22386 17 5 16.7761 5 16.5V4.5C5 4.22386 5.22386 4 5.5 4Z" fill="currentColor"/></symbol>
+<symbol id="ic-gestor" viewBox="0 0 20 20"><path d="M8 7C8 5.89543 8.89543 5 10 5C11.1046 5 12 5.89543 12 7C12 8.10457 11.1046 9 10 9C8.89543 9 8 8.10457 8 7ZM7.49998 10L12.5 10C13.3284 10 14 10.6716 14 11.5C14 12.6161 13.541 13.5103 12.7879 14.1148C12.0466 14.7098 11.0531 15 10 15C8.94692 15 7.95342 14.7098 7.21215 14.1148C6.45897 13.5103 6 12.6161 6 11.5C6 10.6716 6.67156 10 7.49998 10ZM10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2ZM3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10Z" fill="currentColor"/></symbol>
+<symbol id="ic-identidad" viewBox="0 0 20 20"><path d="M10 1C12.2091 1 14 2.79086 14 5V7.0498C15.1411 7.28142 16 8.29051 16 9.5V15.5C16 16.8807 14.8807 18 13.5 18H6.5C5.11929 18 4 16.8807 4 15.5V9.5C4 8.29051 4.85886 7.28142 6 7.0498V5C6 2.79086 7.79086 1 10 1ZM6.5 8C5.67157 8 5 8.67157 5 9.5V15.5C5 16.3284 5.67157 17 6.5 17H13.5C14.3284 17 15 16.3284 15 15.5V9.5C15 8.67157 14.3284 8 13.5 8H6.5ZM10 11.5C10.5523 11.5 11 11.9477 11 12.5C11 13.0523 10.5523 13.5 10 13.5C9.44772 13.5 9 13.0523 9 12.5C9 11.9477 9.44772 11.5 10 11.5ZM10 2C8.34315 2 7 3.34315 7 5V7H13V5C13 3.34315 11.6569 2 10 2Z" fill="currentColor"/></symbol>
+<symbol id="ic-adjuntos" viewBox="0 0 20 20"><path d="M4.82816 10.4848L10.485 4.8279C11.6566 3.65633 13.5561 3.65633 14.7277 4.8279C15.8992 5.99947 15.8992 7.89897 14.7277 9.07054L8.01014 15.7881C7.42436 16.3738 6.47461 16.3738 5.88882 15.7881C5.30304 15.2023 5.30304 14.2525 5.88882 13.6667L11.8992 7.65633C12.0945 7.46106 12.0945 7.14448 11.8992 6.94922C11.704 6.75396 11.3874 6.75396 11.1921 6.94922L5.18172 12.9596C4.20541 13.9359 4.20541 15.5189 5.18172 16.4952C6.15803 17.4715 7.74094 17.4715 8.71725 16.4952L15.4348 9.77765C16.9969 8.21555 16.9969 5.68289 15.4348 4.12079C13.8727 2.55869 11.34 2.55869 9.77791 4.12079L4.12106 9.77765C3.92579 9.97291 3.92579 10.2895 4.12106 10.4848C4.31632 10.68 4.6329 10.68 4.82816 10.4848Z" fill="currentColor"/></symbol>
+<symbol id="ic-tiempo" viewBox="0 0 20 20"><path d="M10 2C14.4183 2 18 5.58172 18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2ZM10 3C6.13401 3 3 6.13401 3 10C3 13.866 6.13401 17 10 17C13.866 17 17 13.866 17 10C17 6.13401 13.866 3 10 3ZM9.5 5C9.74546 5 9.94961 5.17688 9.99194 5.41012L10 5.5V10H12.5C12.7761 10 13 10.2239 13 10.5C13 10.7455 12.8231 10.9496 12.5899 10.9919L12.5 11H9.5C9.25454 11 9.05039 10.8231 9.00806 10.5899L9 10.5V5.5C9 5.22386 9.22386 5 9.5 5Z" fill="currentColor"/></symbol>
+<symbol id="ic-cancelar" viewBox="0 0 20 20"><path d="M10 2C14.4183 2 18 5.58172 18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2ZM10 3C6.13401 3 3 6.13401 3 10C3 13.866 6.13401 17 10 17C13.866 17 17 13.866 17 10C17 6.13401 13.866 3 10 3ZM7.80943 7.11372L7.87868 7.17157L10 9.29289L12.1213 7.17157C12.2949 6.99801 12.5643 6.97872 12.7592 7.11372L12.8284 7.17157C13.002 7.34514 13.0213 7.61456 12.8863 7.80943L12.8284 7.87868L10.7071 10L12.8284 12.1213C13.002 12.2949 13.0213 12.5643 12.8863 12.7592L12.8284 12.8284C12.6549 13.002 12.3854 13.0213 12.1906 12.8863L12.1213 12.8284L10 10.7071L7.87868 12.8284C7.70511 13.002 7.43569 13.0213 7.24082 12.8863L7.17157 12.8284C6.99801 12.6549 6.97872 12.3854 7.11372 12.1906L7.17157 12.1213L9.29289 10L7.17157 7.87868C6.99801 7.70511 6.97872 7.43569 7.11372 7.24082L7.17157 7.17157C7.34514 6.99801 7.61456 6.97872 7.80943 7.11372Z" fill="currentColor"/></symbol>
+<symbol id="ic-guardar" viewBox="0 0 20 20"><path d="M3 5C3 3.89543 3.89543 3 5 3H6L6 6.5C6 7.32843 6.67157 8 7.5 8L11.5 8C12.3284 8 13 7.32843 13 6.5V3H13.3787C13.9091 3 14.4178 3.21071 14.7929 3.58579L16.4142 5.20711C16.7893 5.58218 17 6.09089 17 6.62132V15C17 16.1046 16.1046 17 15 17V11.5C15 10.6716 14.3284 10 13.5 10H6.5C5.67157 10 5 10.6716 5 11.5L5 17C3.89543 17 3 16.1046 3 15V5ZM12 3H7L7 6.5C7 6.77614 7.22386 7 7.5 7L11.5 7C11.7761 7 12 6.77614 12 6.5V3ZM14 11.5V17H6V11.5C6 11.2239 6.22386 11 6.5 11H13.5C13.7761 11 14 11.2239 14 11.5Z" fill="currentColor"/></symbol>
+<symbol id="ic-expandir" viewBox="0 0 20 20"><path d="M15.8537 7.64582C16.0493 7.84073 16.0499 8.15731 15.855 8.35292L10.39 13.8374C10.1751 14.0531 9.82574 14.0531 9.6108 13.8374L4.14582 8.35292C3.9509 8.15731 3.95147 7.84073 4.14708 7.64582C4.34269 7.4509 4.65927 7.45147 4.85418 7.64708L10.0004 12.8117L15.1466 7.64708C15.3415 7.45147 15.6581 7.4509 15.8537 7.64582Z" fill="currentColor"/></symbol>
+<symbol id="ic-error" viewBox="0 0 20 20"><path d="M9.99766 2C13.1466 2 15.7416 4.33488 15.9821 7.3554L15.9955 7.57762L16 7.80214L15.999 11.398L16.9244 13.6202C16.947 13.6743 16.9647 13.7302 16.9774 13.7871L16.9926 13.8733L17.0013 14.0046C17.0013 14.4526 16.7048 14.8387 16.2521 14.9677L16.1358 14.9945L16.0013 15.0046L12.4996 15.004L12.4946 15.1653C12.4095 16.469 11.3252 17.5 10 17.5C8.67453 17.5 7.58998 16.4685 7.50533 15.1644L7.49962 15.004L3.99891 15.0046C3.91096 15.0046 3.82358 14.993 3.73902 14.9702L3.61456 14.9277C3.20378 14.7567 2.96181 14.3392 3.01221 13.8757L3.0333 13.7483L3.07572 13.6202L3.99902 11.401L4.0001 7.79281L4.0044 7.56824C4.12702 4.45115 6.77104 2 9.99766 2ZM11.4996 15.004H8.49962L8.50697 15.1454C8.57552 15.8581 9.14275 16.425 9.85556 16.4931L10 16.5C10.7797 16.5 11.4205 15.9051 11.4931 15.1445L11.4996 15.004ZM9.99766 3C7.37511 3 5.22717 4.92372 5.01715 7.38498L5.00393 7.59723L5.00002 7.80214V11.5L4.96161 11.6922L3.9989 14.0046L15.9566 14.0066L16.0019 14.0045L15.0384 11.6922L15 11.5L15.0001 7.81241L14.996 7.60831C14.8909 5.0349 12.6947 3 9.99766 3Z" fill="currentColor"/></symbol>
+<symbol id="ic-exito" viewBox="0 0 20 20"><path d="M10 2C14.4183 2 18 5.58172 18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2ZM10 3C6.13401 3 3 6.13401 3 10C3 13.866 6.13401 17 10 17C13.866 17 17 13.866 17 10C17 6.13401 13.866 3 10 3ZM13.3584 7.64645C13.532 7.82001 13.5513 8.08944 13.4163 8.28431L13.3584 8.35355L9.35355 12.3584C9.17999 12.532 8.91056 12.5513 8.71569 12.4163L8.64645 12.3584L6.64645 10.3584C6.45118 10.1632 6.45118 9.84658 6.64645 9.65131C6.82001 9.47775 7.08944 9.45846 7.28431 9.59346L7.35355 9.65131L9 11.298L12.6513 7.64645C12.8466 7.45118 13.1632 7.45118 13.3584 7.64645Z" fill="currentColor"/></symbol>
+</defs></svg>
+
+  <div aria-hidden="true" class="campo-oculto-honeypot">
+    <label for="website_url">Sitio web (no llenar)</label>
+    <input type="text" id="website_url" name="website_url" tabindex="-1" autocomplete="off">
+  </div>
+
+  <!-- ============ Auth Shell (MIS-FOLIOS-CRM-ATC-01, Fase 1) ============
+       Las guardas de este panel son mejoras de UX, no controles de autorización:
+       la autorización real vive en el backend/flujo (fases posteriores). Raíz
+       independiente del App Shell (ver #appShellRoot) para que ambos sean
+       mutuamente excluyentes sin anidamiento — alternados únicamente por la
+       función de render de app.js. Diseño visual definitivo integrado en
+       INT-MIS-FOLIOS-F1-AUTH-VISUAL-01, adaptado desde
+       fable-preparacion/auth-shell-fable-extraido.html. Todos los ids
+       funcionales existentes se conservaron sin cambio. -->
+  <div class="atc-auth-shell" id="panelAutenticacion" data-auth-panel>
+
+    <section class="atc-auth-panel" aria-label="Acceso al sistema">
+      <div class="atc-auth-panel-contenido">
+        <div>
+          <h1 class="atc-auth-titulo">Bienvenido</h1>
+          <p class="atc-auth-subtitulo">Sistema Integral ATC</p>
+        </div>
+
+        <p class="atc-auth-instruccion">Ingresa con tu cuenta corporativa para continuar</p>
+
+        <div id="authEstadoCargando" class="atc-auth-estado hidden">
+          <div class="atc-auth-carga">
+            <span class="atc-auth-spinner" aria-hidden="true"></span>
+            <span id="authTextoCarga">Comprobando sesión…</span>
+          </div>
+        </div>
+
+        <div id="authEstadoNoAutenticado" class="atc-auth-estado hidden">
+          <button type="button" class="atc-auth-boton-ms" id="btnIniciarSesion">
+            <svg class="atc-auth-ms-logo" width="20" height="20" viewBox="0 0 21 21" aria-hidden="true">
+              <rect x="1"  y="1"  width="9" height="9" fill="#F25022"/>
+              <rect x="11" y="1"  width="9" height="9" fill="#7FBA00"/>
+              <rect x="1"  y="11" width="9" height="9" fill="#00A4EF"/>
+              <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+            </svg>
+            Iniciar sesión con Microsoft
+          </button>
+        </div>
+
+        <div id="authEstadoSesionExpirada" class="atc-auth-estado hidden">
+          <p class="atc-auth-mensaje-estado">Tu sesión terminó. Inicia sesión nuevamente.</p>
+          <button type="button" class="atc-auth-boton-ms" id="btnReautenticar">
+            <svg class="atc-auth-ms-logo" width="20" height="20" viewBox="0 0 21 21" aria-hidden="true">
+              <rect x="1"  y="1"  width="9" height="9" fill="#F25022"/>
+              <rect x="11" y="1"  width="9" height="9" fill="#7FBA00"/>
+              <rect x="1"  y="11" width="9" height="9" fill="#00A4EF"/>
+              <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+            </svg>
+            Iniciar sesión con Microsoft
+          </button>
+        </div>
+
+        <div id="authEstadoErrorConfiguracion" class="atc-auth-estado hidden">
+          <p class="atc-auth-mensaje-estado" id="authMensajeError">No fue posible iniciar sesión. Intenta nuevamente.</p>
+        </div>
+
+        <p class="atc-auth-mensaje" id="authMensajes" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="atc-auth-visual" aria-hidden="true">
+      <div class="atc-auth-visual-grid"></div>
+
+      <div class="atc-auth-marca">
+        <div class="atc-auth-logo-slot">
+          <img src="../assets/logos/weemedic-logo.png" alt="WeeMedic" width="360" height="67">
+        </div>
+        <p class="atc-auth-tagline">Administración de salud con inteligencia</p>
+      </div>
+
+      <div class="atc-auth-escena">
+
+        <svg class="atc-auth-lineas" viewBox="0 0 1000 700" preserveAspectRatio="none">
+          <path d="M150 145 C 220 190, 280 220, 340 250" />
+          <path d="M600 125 C 660 190, 700 240, 730 335" />
+          <path d="M340 250 C 380 320, 420 380, 450 475" />
+          <circle cx="150" cy="145" r="3.4"/>
+          <circle cx="340" cy="250" r="3.4"/>
+          <circle cx="730" cy="335" r="3.4"/>
+          <circle cx="450" cy="475" r="3.4"/>
+        </svg>
+
+        <div class="atc-auth-card atc-auth-card--carpeta">
+          <svg viewBox="0 0 64 64" fill="none">
+            <path d="M6 18a4 4 0 0 1 4-4h12l5 6h27a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4V18Z" fill="url(#atc-gf)" stroke="#BFE0FF" stroke-width="1.2"/>
+            <rect x="16" y="30" width="24" height="2.6" rx="1.3" fill="#DCEBFF"/>
+            <rect x="16" y="37" width="18" height="2.6" rx="1.3" fill="#9FC7FF"/>
+            <defs><linearGradient id="atc-gf" x1="0" y1="0" x2="64" y2="64"><stop stop-color="#3E6BFF"/><stop offset="1" stop-color="#1A3EC9"/></linearGradient></defs>
+          </svg>
+        </div>
+
+        <div class="atc-auth-card atc-auth-card--grafico">
+          <svg viewBox="0 0 64 64" fill="none">
+            <path d="M8 46 L22 34 L32 40 L48 20 L58 24" stroke="#35D6C4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M48 20 L58 24 L54 33" stroke="#35D6C4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="22" cy="34" r="2.6" fill="#DCEBFF"/>
+            <circle cx="32" cy="40" r="2.6" fill="#DCEBFF"/>
+          </svg>
+        </div>
+
+        <div class="atc-auth-card atc-auth-card--barras">
+          <svg viewBox="0 0 64 64" fill="none">
+            <rect x="10" y="34" width="9" height="20" rx="2" fill="#8FC7FF"/>
+            <rect x="24" y="22" width="9" height="32" rx="2" fill="#35D6C4"/>
+            <rect x="38" y="14" width="9" height="40" rx="2" fill="#3E6BFF"/>
+            <rect x="52" y="27" width="9" height="27" rx="2" fill="#8FC7FF"/>
+          </svg>
+        </div>
+
+        <div class="atc-auth-card atc-auth-card--lupa">
+          <svg viewBox="0 0 64 64" fill="none">
+            <circle cx="27" cy="27" r="15" stroke="#DCEBFF" stroke-width="3.2"/>
+            <line x1="38" y1="38" x2="52" y2="52" stroke="#35D6C4" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <div class="atc-auth-card atc-auth-card--check">
+          <svg viewBox="0 0 64 64" fill="none">
+            <rect x="14" y="10" width="36" height="46" rx="5" fill="url(#atc-gc)" stroke="#BFE0FF" stroke-width="1.2"/>
+            <rect x="22" y="6" width="20" height="8" rx="3" fill="#DCEBFF"/>
+            <path d="M22 33 L29 40 L44 24" stroke="#35D6C4" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs><linearGradient id="atc-gc" x1="14" y1="10" x2="50" y2="56"><stop stop-color="#1A3EC9"/><stop offset="1" stop-color="#0A2A66"/></linearGradient></defs>
+          </svg>
+        </div>
+
+        <div class="atc-auth-card atc-auth-card--nodos">
+          <svg viewBox="0 0 64 64" fill="none">
+            <line x1="16" y1="20" x2="32" y2="34" stroke="#8FC7FF" stroke-width="2"/>
+            <line x1="48" y1="18" x2="32" y2="34" stroke="#8FC7FF" stroke-width="2"/>
+            <line x1="32" y1="34" x2="24" y2="50" stroke="#8FC7FF" stroke-width="2"/>
+            <line x1="32" y1="34" x2="44" y2="48" stroke="#8FC7FF" stroke-width="2"/>
+            <circle cx="16" cy="20" r="5" fill="#3E6BFF"/>
+            <circle cx="48" cy="18" r="5" fill="#3E6BFF"/>
+            <circle cx="32" cy="34" r="6.5" fill="#35D6C4"/>
+            <circle cx="24" cy="50" r="5" fill="#3E6BFF"/>
+            <circle cx="44" cy="48" r="5" fill="#3E6BFF"/>
+          </svg>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ App Shell (MIS-FOLIOS-CRM-ATC-01, Fase 1) ============
+       Contenido operativo completo (topbar de navegación, menú lateral y las 3
+       vistas). Oculto por defecto en el HTML para que no exista parpadeo de
+       contenido operativo antes de confirmar la sesión. -->
+  <div id="appShellRoot" data-app-shell hidden>
+    <a class="skip-link" href="#contenidoPrincipal">Saltar al contenido principal</a>
+
+  <div class="topbar">
+    <div class="brand brand-logo-only">
+      <img class="brand-full-logo" src="data:image/png;base64,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" alt="WeeMedic Health administration">
+      <div class="brand-sys">Sistema Integral ATC</div>
+    </div>
+
+    <!-- Identidad y cierre de sesión (MIS-FOLIOS-CRM-ATC-01, Fase 1). Solo visible
+         en el estado autenticado (App Shell); alternado por app.js, nunca por CSS
+         de estado por sí sola. No muestra oid/tid/token/claims/Client ID/Tenant ID. -->
+    <div class="topbar-auth" id="topbarAuth" hidden>
+      <span id="authIdentidadVisible" class="auth-identidad"></span>
+      <button type="button" class="btn btn-ghost" id="btnCerrarSesion">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <aside class="sidebar">
+      <div class="sidebar-brand">Sistema Integral ATC</div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-title">Principal</div>
+        <nav class="sidebar-nav">
+          <button type="button" class="nav-item active" data-view="registro" aria-current="page">
+            <svg class="nav-ic" aria-hidden="true"><use href="#ic-registro-filled"></use></svg>
+            <span class="nav-label">Registro</span>
+          </button>
+          <button type="button" class="nav-item" data-view="reportes">
+            <svg class="nav-ic" aria-hidden="true"><use href="#ic-reportes"></use></svg>
+            <span class="nav-label">Reportes</span>
+          </button>
+          <button type="button" class="nav-item" data-view="powerbi">
+            <svg class="nav-ic" aria-hidden="true"><use href="#ic-powerbi"></use></svg>
+            <span class="nav-label">Power BI</span>
+          </button>
+          <!-- Mis Folios (MIS-FOLIOS-CRM-ATC-01, Fase 2). Botón real, no
+               marcador "Pend.": el módulo está implementado y opera con
+               datos simulados hasta que se cierren los gates de conectividad. -->
+          <button type="button" class="nav-item" data-view="misfolios">
+            <svg class="nav-ic" aria-hidden="true"><use href="#ic-folios"></use></svg>
+            <span class="nav-label">Mis Folios</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Grupo CATÁLOGOS eliminado (addendum 2026-07-14). Accesos de Administración: solo visuales, no enlazados (B-UX-03) -->
+      <div class="sidebar-group sidebar-group-secondary">
+        <div class="sidebar-title">Administración</div>
+        <nav class="sidebar-nav">
+          <span class="nav-item pending"><svg class="nav-ic" aria-hidden="true"><use href="#ic-bitacora"></use></svg><span class="nav-label">Bitácora del sistema</span><span class="pend-tag">Pend.</span></span>
+          <span class="nav-item pending"><svg class="nav-ic" aria-hidden="true"><use href="#ic-evidencias"></use></svg><span class="nav-label">Evidencias (Biblioteca)</span><span class="pend-tag">Pend.</span></span>
+          <span class="nav-item pending"><svg class="nav-ic" aria-hidden="true"><use href="#ic-configuracion"></use></svg><span class="nav-label">Configuración</span><span class="pend-tag">Pend.</span></span>
+        </nav>
+      </div>
+
+      <!-- Tarjeta de ayuda. El botón queda deshabilitado a propósito: no existe
+           todavía una guía publicada y no se inventa una URL de destino. -->
+      <div class="sidebar-help" id="sidebarAyuda">
+        <div class="help-title">¿Necesitas ayuda?</div>
+        <p class="help-text">Consulta la guía rápida del sistema.</p>
+        <button type="button" class="btn btn-ghost help-btn" id="btnVerGuia" disabled
+                aria-disabled="true" title="Guía pendiente de publicación">
+          <svg class="btn-ic" aria-hidden="true"><use href="#ic-ayuda"></use></svg> Ver guía
+        </button>
+      </div>
+    </aside>
+
+    <main id="contenidoPrincipal" class="canvas">
+
+    <nav class="breadcrumb" aria-label="Ruta de navegación">
+      <span>Inicio</span><span class="bc-sep">›</span><span>Sistema Integral ATC</span><span class="bc-sep">›</span><b id="breadcrumbActual">Registro de atención</b>
+    </nav>
+
+    <div class="view" data-view-panel="registro" id="viewRegistro">
+
+    <div class="form-col">
+
+    <div class="progress-hint">
+      <span class="hint-dot" aria-hidden="true"></span>
+      <span class="hint-text"><strong>Sistema Integral ATC</strong> · Los campos marcados con <strong>*</strong> son obligatorios. Las secciones aparecen según el tipo de atención.</span>
+    </div>
+
+    <div class="wee-progress" id="weeProgress" role="progressbar" aria-label="Progreso del formulario">
+      <div class="wp-track"><div class="wp-fill" id="wpFill"></div></div>
+      <span class="wp-label" id="wpLabel">0%</span>
+      <span class="wp-count" id="wpCount">0 de 0 campos</span>
+    </div>
+
+    <!-- ============ SECCIÓN 1: Datos generales ============ -->
+    <div class="card sec-azul atc-section atc-section-general is-expanded" data-section="general">
+      <button type="button" class="card-head atc-section-toggle" id="secTogGeneral"
+              aria-expanded="true" aria-controls="secContGeneral">
+        <span class="card-num atc-section-icon">1</span>
+        <span class="card-title atc-section-title">Datos generales</span>
+        <span class="atc-section-chevron" aria-hidden="true"></span>
+      </button>
+
+      <div class="atc-section-content" id="secContGeneral">
+      <div class="grid">
+        <!-- Gestor que registra: la identidad proviene de la sesión autenticada de
+             Microsoft Entra, no de una selección manual. El selector se conserva
+             oculto y sin obligatoriedad para no romper referencias existentes; su
+             valor NO alimenta el payload. No es posible elegir otro gestor. -->
+        <div class="field full hidden" data-block="gestor_manual" aria-hidden="true">
+          <label for="gestor">Gestor que registra</label>
+          <select id="gestor" tabindex="-1">
+            <option value="">Selecciona tu nombre…</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label for="Gestor_Identidad">Gestor que registra</label>
+          <input aria-describedby="hint_Gestor_Identidad" type="text" id="Gestor_Identidad" value="" readonly disabled aria-readonly="true" autocomplete="off">
+          <span class="hint" id="hint_Gestor_Identidad">Se toma de tu sesión corporativa. No es editable.</span>
+        </div>
+
+        <div class="field full" data-block="tipo_gestion">
+          <label for="Tipo_Gestion">Cliente <span class="req">*</span></label>
+          <select aria-describedby="hint_Tipo_Gestion" id="Tipo_Gestion" data-required>
+            <option value="">Selecciona el cliente…</option>
+          </select>
+          <span class="hint" id="hint_Tipo_Gestion">Cliente / campaña del registro. Define catálogos y campos específicos.</span>
+        </div>
+
+        <div class="field hidden" data-block="cuenta_con_folio">
+          <label for="Cuenta_Con_Folio">¿Cuenta con folio? <span class="req">*</span></label>
+          <select aria-describedby="hint_Cuenta_Con_Folio" id="Cuenta_Con_Folio" data-cond-required="cuenta_con_folio">
+            <option value="">Selecciona…</option>
+            <option>Sí</option>
+            <option>No</option>
+          </select>
+          <span class="hint" id="hint_Cuenta_Con_Folio">Si no hay folio, el registro se identificará con el ID interno de SharePoint.</span>
+        </div>
+
+        <div class="field" data-block="folio">
+          <label for="Folio">Folio <span class="req">*</span></label>
+          <input aria-describedby="hint_Folio" type="text" id="Folio" data-cond-required="folio" placeholder="Ej. 13796449" autocomplete="off">
+          <span class="hint" id="hint_Folio">Identificador del trámite en el sistema del cliente</span>
+        </div>
+
+        <div class="field">
+          <label for="Poliza">Póliza</label>
+          <input aria-describedby="hint_Poliza" type="text" id="Poliza" placeholder="Número de póliza (opcional)" autocomplete="off">
+          <span class="hint" id="hint_Poliza">Opcional para todos los clientes.</span>
+        </div>
+
+        <div class="field">
+          <label for="Fecha_Recepcion_ATC">Fecha de recepción ATC <span class="req">*</span></label>
+          <input type="datetime-local" id="Fecha_Recepcion_ATC" data-required>
+        </div>
+
+        <div class="field">
+          <label for="Fecha_Primera_Atencion_ATC">Fecha y hora de primera atención ATC <span class="req">*</span></label>
+          <input aria-describedby="hint_Fecha_Primera_Atencion_ATC" type="datetime-local" id="Fecha_Primera_Atencion_ATC" data-required>
+          <span class="hint" id="hint_Fecha_Primera_Atencion_ATC">No puede ser anterior a la fecha de recepción.</span>
+        </div>
+
+        <div class="field">
+          <label for="Tipo_Tramite">Tipo de trámite <span class="req">*</span></label>
+          <select aria-describedby="hint_Tipo_Tramite" id="Tipo_Tramite" data-required>
+            <option value="">Selecciona…</option>
+          </select>
+          <span class="hint" id="hint_Tipo_Tramite">Catálogo general de trámites aplicable a todos los clientes.</span>
+        </div>
+
+        <div class="field full hidden" data-block="tipo_tramite_otro">
+          <label for="Tipo_Tramite_Otro">Especifica el trámite <span class="req">*</span></label>
+          <input type="text" id="Tipo_Tramite_Otro" data-cond-required="tipo_tramite_otro" placeholder="Describe el trámite…" autocomplete="off">
+        </div>
+
+        <div class="field">
+          <!-- Etiqueta visible "Tipo de solicitud" (2026-08-16). El id, la clave
+               del payload y la columna SharePoint siguen siendo Tipo_Atencion. -->
+          <label for="Tipo_Atencion">Tipo de solicitud <span class="req">*</span></label>
+          <select aria-describedby="hint_Tipo_Atencion" id="Tipo_Atencion" data-required>
+            <option value="">Selecciona…</option>
+          </select>
+          <span class="hint" id="hint_Tipo_Atencion">Catálogo general de solicitudes aplicable a todos los clientes.</span>
+        </div>
+
+        <div class="field full hidden" data-block="tipo_atencion_otro">
+          <label for="Tipo_Atencion_Otro">Especifique el tipo de atención <span class="req">*</span></label>
+          <input type="text" id="Tipo_Atencion_Otro" data-cond-required="tipo_atencion_otro" placeholder="Describe la atención…" autocomplete="off">
+        </div>
+
+        <div class="field hidden" data-block="subtipo_requerimiento">
+          <label for="SubtipoRequerimiento">Tipo de requerimiento <span class="req">*</span></label>
+          <select aria-describedby="hint_SubtipoRequerimiento" id="SubtipoRequerimiento" data-cond-required="subtipo_requerimiento">
+            <option value="">Selecciona…</option>
+          </select>
+          <span class="hint" id="hint_SubtipoRequerimiento">Solo aplica cuando el tipo de atención es Requerimiento.</span>
+        </div>
+
+        <div class="field full hidden" data-block="subtipo_requerimiento_otro">
+          <label for="SubtipoRequerimientoOtro">Especifica el requerimiento <span class="req">*</span></label>
+          <input type="text" id="SubtipoRequerimientoOtro" data-cond-required="subtipo_requerimiento_otro" placeholder="Describe el requerimiento…" autocomplete="off" maxlength="255">
+        </div>
+
+        <div class="field hidden" data-block="asegurado">
+          <label for="Asegurado">Asegurado <span class="req">*</span></label>
+          <input type="text" id="Asegurado" data-cond-required="asegurado" placeholder="Nombre del asegurado…" autocomplete="off">
+        </div>
+
+        <div class="field hidden" data-block="agente">
+          <label for="Agente">Agente <span class="req">*</span></label>
+          <input type="text" id="Agente" data-cond-required="agente" placeholder="Nombre del agente…" autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label for="AreaResponsable">Área responsable <span class="req">*</span></label>
+          <select aria-describedby="hint_AreaResponsable" id="AreaResponsable" data-required>
+            <option value="">Selecciona…</option>
+          </select>
+          <span class="hint" id="hint_AreaResponsable">Área que debe resolver el caso. No identifica a una persona.</span>
+        </div>
+
+        <div class="field full hidden" data-block="area_responsable_otro">
+          <label for="AreaResponsableOtro">Especifica el área responsable <span class="req">*</span></label>
+          <input type="text" id="AreaResponsableOtro" data-cond-required="area_responsable_otro" placeholder="Describe el área…" autocomplete="off" maxlength="255">
+        </div>
+
+        <div class="field">
+          <label for="Fecha_Activacion_Area">Fecha y hora de activación con el área correspondiente <span class="req">*</span></label>
+          <input type="datetime-local" id="Fecha_Activacion_Area" data-required>
+        </div>
+
+        <div class="field">
+          <label for="Cuenta_Con_Respuesta_Area_Interna">¿Ya se cuenta con respuesta del área interna? <span class="req">*</span></label>
+          <select id="Cuenta_Con_Respuesta_Area_Interna" data-required>
+            <option value="">Selecciona…</option>
+            <option>Sí</option>
+            <option>No</option>
+          </select>
+        </div>
+
+        <!-- Visible y obligatoria solo si ya se cuenta con respuesta del área
+             interna (2026-08-16). Al responder "No" se oculta y se limpia. -->
+        <div class="field hidden" data-block="fecha_respuesta_area">
+          <label for="Fecha_Respuesta_Area_Interna">Fecha y hora en que ATC recibe respuesta del área interna <span class="req">*</span></label>
+          <input aria-describedby="hint_Fecha_Respuesta_Area_Interna" type="datetime-local" id="Fecha_Respuesta_Area_Interna" data-cond-required="fecha_respuesta_area">
+          <span class="hint" id="hint_Fecha_Respuesta_Area_Interna">No puede ser anterior a la fecha de activación con el área.</span>
+        </div>
+
+        <div class="field">
+          <label for="Fecha_Compromiso_Respuesta">Fecha y hora de compromiso de respuesta</label>
+          <input aria-describedby="hint_Fecha_Compromiso_Respuesta" type="datetime-local" id="Fecha_Compromiso_Respuesta">
+          <span class="hint" id="hint_Fecha_Compromiso_Respuesta">Opcional. No puede ser anterior a la fecha de recepción.</span>
+        </div>
+      </div>
+      </div><!-- /atc-section-content general -->
+    </div>
+
+    <!-- ============ Prioridad, contacto y evidencia (siempre visible) ============ -->
+    <div class="card sec-coral atc-section atc-section-priority is-collapsed" data-section="priority">
+      <button type="button" class="card-head atc-section-toggle" id="secTogPriority"
+              aria-expanded="false" aria-controls="secContPriority">
+        <span class="card-num atc-section-icon">2</span>
+        <span class="card-title atc-section-title">Prioridad, contacto y evidencia</span>
+        <span class="atc-section-chevron" aria-hidden="true"></span>
+      </button>
+      <div class="atc-section-content" id="secContPriority">
+      <div class="grid">
+        <div class="field">
+          <label for="Prioridad_Atencion">Prioridad de atención <span class="req">*</span></label>
+          <select aria-describedby="hint_Prioridad_Atencion" id="Prioridad_Atencion" data-required>
+            <option value="">Selecciona…</option>
+          </select>
+          <span class="hint" id="hint_Prioridad_Atencion">Crítica: reputacional / DG / VIP / UNE / jurídico. Alta: quejas / escalaciones. Media: seguimiento normal. Baja: consultas / aclaraciones.</span>
+        </div>
+
+        <div class="field">
+          <label for="Estatus_Interno">Estatus interno <span class="req">*</span></label>
+          <select id="Estatus_Interno" data-required>
+            <option value="">Selecciona…</option>
+          </select>
+        </div>
+
+        <!-- Medio de contacto reincorporado (2026-08-13). Opcional para los cuatro
+             clientes. Reutiliza la clave y la columna existentes: no es CanalEntrada. -->
+        <div class="field">
+          <label for="Medio_Contacto">Medio de contacto</label>
+          <select aria-describedby="hint_Medio_Contacto" id="Medio_Contacto">
+            <option value="">Selecciona…</option>
+          </select>
+          <span class="hint" id="hint_Medio_Contacto">Opcional. Por dónde llegó la atención.</span>
+        </div>
+
+        <div class="field">
+          <label for="Cuenta_Con_Pruebas">¿Cuenta con pruebas? <span class="req">*</span></label>
+          <select aria-describedby="hint_Cuenta_Con_Pruebas" id="Cuenta_Con_Pruebas" data-required>
+            <option value="">Selecciona…</option>
+            <option>Sí</option>
+            <option>No</option>
+          </select>
+          <span class="hint" id="hint_Cuenta_Con_Pruebas">Dato independiente. No gobierna el control de evidencia.</span>
+        </div>
+
+        <!-- Adjuntar evidencia: DESACOPLADO de "¿Cuenta con pruebas?" (2026-08-13).
+             Siempre disponible y no obligatorio por esa respuesta. La regla
+             definitiva D-EVID-01 queda pendiente y no se implementa aquí. -->
+        <div class="field full" data-block="adjuntos">
+          <label for="Adjuntos_Files">Adjuntar evidencia</label>
+          <input aria-describedby="hint_Adjuntos_Files" type="file" id="Adjuntos_Files" multiple>
+          <span class="hint" id="hint_Adjuntos_Files">Adjunta uno o varios archivos de evidencia cuando corresponda.</span>
+        </div>
+      </div>
+      </div><!-- /atc-section-content priority -->
+    </div>
+
+    <!-- ============ SECCIÓN 3: Seguimiento y resolución ============
+         Agrupa los bloques condicionales existentes. Cada uno conserva su
+         `data-block`, su id y su regla: el acordeón solo los envuelve. -->
+    <div class="card sec-verde atc-section atc-section-resolution is-collapsed" data-section="resolution">
+      <button type="button" class="card-head atc-section-toggle" id="secTogResolution"
+              aria-expanded="false" aria-controls="secContResolution">
+        <span class="card-num atc-section-icon">3</span>
+        <span class="card-title atc-section-title">Seguimiento y resolución</span>
+        <span class="atc-section-chevron" aria-hidden="true"></span>
+      </button>
+      <div class="atc-section-content" id="secContResolution">
+
+    <!-- ============ Escenario ============ -->
+    <div class="card hidden" data-block="escenario">
+      <div class="sub-head">
+        <svg class="sub-ic" aria-hidden="true"><use href="#ic-resumen"></use></svg>
+        <h3 class="sub-title">Escenario</h3>
+        <div class="card-sub" data-tramite-label></div>
+      </div>
+
+      <div class="grid">
+        <div class="field full">
+          <label for="Escenario">Escenario <span class="req">*</span></label>
+          <select aria-describedby="hint_Escenario" id="Escenario" data-cond-required="escenario">
+            <option value="">Selecciona…</option>
+          </select>
+          <span class="hint" id="hint_Escenario">Las opciones cambian según el tipo de trámite seleccionado.</span>
+        </div>
+
+        <div class="field full hidden" data-block="subescenario">
+          <label for="Subescenario">Subescenario <span class="req">*</span></label>
+          <select aria-describedby="hint_Subescenario" id="Subescenario" data-cond-required="subescenario">
+            <option value="">Selecciona…</option>
+          </select>
+          <span class="hint" id="hint_Subescenario">Solo aplica cuando el escenario es Servicios de apoyo.</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============ SECCIÓN 2A: Nombre dictaminador / colaborador (SGS) ============ -->
+    <div class="card hidden" data-block="dictaminador">
+      <div class="sub-head">
+        <svg class="sub-ic" aria-hidden="true"><use href="#ic-gestor"></use></svg>
+        <h3 class="sub-title" id="dictaminadorTitulo">Dictaminador</h3>
+      </div>
+      <div class="grid">
+        <div class="field full">
+          <!-- RETIRADO DE LA CAPTURA (2026-08-16). Se conservan marcado, id y
+               clave de payload; se retira la obligatoriedad condicional para que
+               su ausencia no pueda bloquear el envío en ningún escenario. -->
+          <label for="Nombre_Dictaminador"><span id="dictaminadorLabel">Nombre dictaminador</span></label>
+          <select aria-describedby="dictaminadorHint" id="Nombre_Dictaminador" tabindex="-1">
+            <option value="">Selecciona…</option>
+          </select>
+          <span class="hint" id="dictaminadorHint">Lista filtrada según el tipo de trámite seleccionado.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SECCIÓN 2B: Siniestralidad ============ -->
+    <div class="card hidden" data-block="siniestralidad">
+      <div class="sub-head">
+        <svg class="sub-ic" aria-hidden="true"><use href="#ic-error"></use></svg>
+        <h3 class="sub-title">Siniestralidad</h3>
+        <div class="card-sub">Pago Reembolso</div>
+      </div>
+
+      <div class="grid">
+        <fieldset class="field full" data-error-toggle>
+          <legend>¿Es error del analista? <span class="req">*</span></legend>
+
+          
+
+          <input type="hidden" id="Es_Error_Analista" data-cond-required="siniestralidad">
+
+          <div class="impact-switch">
+            <button type="button" class="impact-option" data-impact-value="Sí" aria-pressed="false">Sí</button>
+            <button type="button" class="impact-option" data-impact-value="No" aria-pressed="false">No</button>
+          </div>
+
+          <span class="hint">Indica si la siniestralidad se debe a un error del analista.</span>
+                </fieldset>
+
+        <div class="field full hidden" data-block="hc_siniestralidad">
+          <label for="HC_Siniestralidad">Analista responsable del error <span class="req">*</span></label>
+  <select aria-describedby="hint_HC_Siniestralidad" id="HC_Siniestralidad" data-cond-required="hc_siniestralidad">
+    <option value="">Selecciona…</option>
+  </select>
+  <span class="hint" id="hint_HC_Siniestralidad">Selecciona el analista de Pago Reembolso / Reclamos Reembolso que generó el error.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ Corrección: Tipo de condición ============ -->
+    <div class="card hidden" data-block="correccion">
+      <div class="sub-head">
+        <svg class="sub-ic" aria-hidden="true"><use href="#ic-exito"></use></svg>
+        <h3 class="sub-title">Corrección</h3>
+      </div>
+
+      <div class="grid">
+        <div class="field full">
+          <label for="Tipo_Condicion">Tipo de condición <span class="req">*</span></label>
+          <select id="Tipo_Condicion" data-cond-required="correccion">
+            <option value="">Selecciona…</option>
+            <option>Cambio de proveedor</option>
+            <option>Renegociación de precio</option>
+            <option>Exclusión</option>
+            <option>Otra condición</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SECCIÓN 3: Detalle (queja / corrección) ============ -->
+    <div class="card hidden" data-block="queja">
+      <div class="sub-head">
+        <svg class="sub-ic" aria-hidden="true"><use href="#ic-resumen"></use></svg>
+        <h3 class="sub-title" id="detalleTitulo">Detalle de la queja</h3>
+      </div>
+
+      <div class="grid">
+        <!-- Causa raíz encabeza el detalle (2026-08-16). Id, clave de payload y
+             columna siguen siendo Solicitud_Relacionada. -->
+        <div class="field">
+          <label for="Solicitud_Relacionada">Causa raíz <span class="req">*</span></label>
+          <select aria-describedby="hint_Solicitud_Relacionada" id="Solicitud_Relacionada" data-cond-required="queja">
+            <option value="">Selecciona…</option>
+          </select>
+          <span class="hint" id="hint_Solicitud_Relacionada">Selecciona la causa principal que originó el caso.</span>
+        </div>
+
+        <div class="field hidden" data-block="solicitud_relacionada_otro">
+          <label for="Solicitud_Relacionada_Otro">Especifica la causa raíz <span class="req">*</span></label>
+          <input type="text" id="Solicitud_Relacionada_Otro" data-cond-required="solicitud_relacionada_otro" placeholder="Describe la causa raíz…" autocomplete="off">
+        </div>
+
+        <!-- Imputable y Resultado son EXCLUSIVOS de Queja (2026-08-16): no se
+             muestran en Corrección. Se conservan ids, claves y columnas. -->
+        <div class="field" data-block="queja_imputable">
+          <label for="Imputable_Gral">¿A quién es imputable? <span class="req">*</span></label>
+          <select id="Imputable_Gral" data-cond-required="queja_imputable">
+            <option value="">Selecciona…</option>
+            <option>Banorte</option>
+            <option>Weemedic</option>
+            <option>No aplica</option>
+          </select>
+        </div>
+
+        <div class="field" data-block="queja_resultado">
+          <label for="Resultado_Queja">Resultado <span class="req">*</span></label>
+          <select id="Resultado_Queja" data-cond-required="queja_resultado">
+            <option value="">Selecciona…</option>
+            <option>Procede</option>
+            <option>No procede</option>
+          </select>
+        </div>
+
+        <!-- El análisis se movió al subbloque siguiente, INMEDIATAMENTE debajo
+             de "¿Se realizó acción correctiva?" (2026-08-16). El orden es del
+             DOM, no de CSS order: se preserva tabulación, foco y lectura. -->
+
+        <fieldset class="field full" data-impact-toggle>
+          <legend>¿Tiene impacto económico? <span class="req">*</span></legend>
+
+          
+
+          <input type="hidden" id="Tiene_Impacto_Economico" data-cond-required="queja">
+
+          <div class="impact-switch">
+            <button type="button" class="impact-option" data-impact-value="Sí" aria-pressed="false">Sí</button>
+            <button type="button" class="impact-option" data-impact-value="No" aria-pressed="false">No</button>
+          </div>
+
+          <span class="hint">Indica si la queja genera un monto económico asociado.</span>
+                </fieldset>
+
+        <div class="field hidden" data-block="impacto_economico">
+          <label for="Impacto_Economico">Impacto económico ($) <span class="req">*</span></label>
+          <input aria-describedby="hint_Impacto_Economico" type="number" id="Impacto_Economico" ... min="0.01" step="0.01">
+          <span class="hint" id="hint_Impacto_Economico">Captura el monto solo si seleccionaste "Sí".</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ Implicación y acción correctiva — GENERALES (2026-08-13) ============
+         Ambas dejan de depender de Corrección, Resultado_Queja, Solicitud VIP,
+         Tipo_Atencion, cliente o campaña. Se conservan ids, claves y catálogos. -->
+    <!-- Acción correctiva: EXCLUSIVA DEL FLUJO DE CORRECCIÓN (2026-08-16).
+         Deja de ser un campo general: la tarjeta sólo aparece con
+         Tipo_Atencion = "Corrección". "Aplica" abre el análisis de la
+         corrección, que es Analisis_Queja reetiquetado. -->
+    <!-- Subbloque B. La pregunta va SIEMPRE antes del análisis, por orden del
+         DOM. En Queja el subbloque conserva sólo el análisis y el encabezado se
+         reetiqueta, para no dejar un título huérfano. -->
+    <div class="card hidden" data-block="analisis_card">
+      <div class="sub-head">
+        <svg class="sub-ic" aria-hidden="true"><use href="#ic-exito"></use></svg>
+        <h3 class="sub-title" id="acTitulo">Acción correctiva</h3>
+      </div>
+      <div class="grid">
+        <div class="field" data-block="accion_correctiva">
+          <label for="Se_Realizo_Accion_Correctiva">¿Se realizó acción correctiva? <span class="req">*</span></label>
+          <select id="Se_Realizo_Accion_Correctiva" data-cond-required="accion_correctiva">
+            <option value="">Selecciona…</option>
+            <option>Aplica</option>
+            <option>No aplica</option>
+          </select>
+        </div>
+
+        <div class="field full" data-block="analisis">
+          <label for="Analisis_Queja"><span id="analisisLabel">Análisis de la queja</span> <span class="req">*</span></label>
+          <textarea id="Analisis_Queja" data-cond-required="analisis" maxlength="2000" placeholder="Describe el análisis del caso…"></textarea>
+          <span class="char-counter" id="Analisis_Queja_counter" aria-live="polite"><b>0</b> / 2000 caracteres</span>
+        </div>
+
+        <!-- Retirados del modelo nuevo (2026-08-16). Se conservan ids, claves y
+             columnas; viajan vacíos. TipoAccionCorrectiva sale del payload por
+             decisión final: ya no es una clave nueva. -->
+        <div class="field hidden" data-block="accion_correctiva_tipo" aria-hidden="true">
+          <label for="TipoAccionCorrectiva">Tipo de acción correctiva</label>
+          <select id="TipoAccionCorrectiva" tabindex="-1">
+            <option value="">Selecciona…</option>
+          </select>
+        </div>
+
+        <div class="field full hidden" data-block="accion_correctiva_detalle" aria-hidden="true">
+          <label for="Accion_Correctiva_Detalle">Detalle de la acción correctiva</label>
+          <textarea id="Accion_Correctiva_Detalle" tabindex="-1"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Implicación: sólo Corrección DE BANORTE (2026-08-16). Tarjeta propia
+         para que no quede un encabezado huérfano cuando no aplique. -->
+    <div class="card hidden" data-block="implicacion">
+      <div class="sub-head">
+        <svg class="sub-ic" aria-hidden="true"><use href="#ic-identidad"></use></svg>
+        <h3 class="sub-title">Implicación</h3>
+      </div>
+      <div class="grid">
+        <div class="field">
+          <label for="Implicacion">Implicación <span class="req">*</span></label>
+          <select aria-describedby="hint_Implicacion" id="Implicacion" data-cond-required="implicacion">
+            <option value="">Selecciona…</option>
+          </select>
+          <span class="hint" id="hint_Implicacion">Sólo Corrección de Banorte. UNE / CONDUSEF / DEMANDA registran una implicación legal o regulatoria.</span>
+        </div>
+
+        <div class="field hidden" data-block="implicacion_detalle">
+          <label for="Cargo_Persona_Implicada">Cargo de la persona implicada <span class="req">*</span></label>
+          <input type="text" id="Cargo_Persona_Implicada" data-cond-required="implicacion_detalle" placeholder="Ej. Coordinador de…" autocomplete="off">
+        </div>
+
+        <div class="field hidden" data-block="implicacion_detalle">
+          <label for="Partida_Subgrupo">Partida / Subgrupo <span class="req">*</span></label>
+          <input type="text" id="Partida_Subgrupo" data-cond-required="implicacion_detalle" placeholder="Ej. partida / subgrupo…" autocomplete="off">
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SECCIÓN 4: Clasificación y seguimiento ============ -->
+    <div class="card hidden" data-block="clasificacion">
+      <div class="sub-head">
+        <svg class="sub-ic" aria-hidden="true"><use href="#ic-folios"></use></svg>
+        <h3 class="sub-title" id="clasificacionTitulo">Clasificación</h3>
+      </div>
+
+      <div class="grid">
+        <!-- Causa raíz y su detalle se movieron al subbloque "Detalle de la
+             corrección" (2026-08-16). El control existe UNA sola vez en el DOM:
+             aquí ya no hay copia. -->
+
+
+        <!-- RETIRADOS DE LA CAPTURA (2026-08-16). "Seguimiento con" y el
+             selector de persona que gobernaba dejan de mostrarse para todos los
+             clientes, trámites y solicitudes. Se conservan marcado, ids y claves
+             de payload para no romper histórico, reportes ni descargas; se retira
+             la obligatoriedad condicional para que no puedan bloquear el envío. -->
+        <div class="field hidden" data-block="seguimiento_con" aria-hidden="true">
+          <label for="Seguimiento_Con">Seguimiento con</label>
+          <select id="Seguimiento_Con" tabindex="-1">
+            <option value="">Selecciona…</option>
+          </select>
+        </div>
+
+        <div class="field hidden" data-block="hc" aria-hidden="true">
+          <label for="HC">HC / persona de seguimiento</label>
+          <select id="HC" tabindex="-1">
+            <option value="">Selecciona…</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="Quien_Activa">¿Quién activa? <span class="req">*</span></label>
+          <select id="Quien_Activa" data-cond-required="clasificacion">
+            <option value="">Selecciona…</option>
+          </select>
+        </div>
+
+        <div class="field hidden" data-block="quien_activa_otro">
+          <label for="Quien_Activa_Otro">Especifica quién activa <span class="req">*</span></label>
+          <input type="text" id="Quien_Activa_Otro" data-cond-required="quien_activa_otro" placeholder="Describe quién activa…" autocomplete="off">
+        </div>
+
+        <div class="field hidden" data-block="activacion_interna">
+          <label for="Tipo_Activacion_Interna">Tipo de activación interna</label>
+          <select id="Tipo_Activacion_Interna">
+            <option value="">Selecciona…</option>
+          </select>
+        </div>
+
+        <div class="field hidden" data-block="activacion_interna_otro">
+          <label for="Tipo_Activacion_Interna_Otro">Especifica el tipo de activación interna</label>
+          <input type="text" id="Tipo_Activacion_Interna_Otro" placeholder="Describe el tipo…" autocomplete="off">
+        </div>
+
+        <div class="field full hidden" data-block="activacion_interna">
+          <label for="Detalle_Activacion_Interna">Detalle de la activación interna</label>
+          <textarea id="Detalle_Activacion_Interna" placeholder="Describe el seguimiento con el área interna…"></textarea>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============ SECCIÓN 6: Contratante ============ -->
+    <div class="card hidden" data-block="contratante">
+      <div class="sub-head">
+        <svg class="sub-ic" aria-hidden="true"><use href="#ic-evidencias"></use></svg>
+        <h3 class="sub-title">Contratante y cierre</h3>
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label for="Contratante">Contratante <span class="req">*</span></label>
+          <input aria-describedby="Contratante_Hint" type="text" id="Contratante" list="Contratante_List" data-cond-required="contratante" placeholder="Busca o captura contratante…" autocomplete="off">
+          <datalist id="Contratante_List"></datalist>
+          <span class="hint" id="Contratante_Hint">Selecciona o captura el contratante según la campaña.</span>
+        </div>
+
+        <div class="field hidden" data-block="contratante_otro">
+          <label for="Contratante_Otro">Especifica el contratante <span class="req">*</span></label>
+          <input type="text" id="Contratante_Otro" data-cond-required="contratante_otro" placeholder="Describe el contratante…" autocomplete="off">
+        </div>
+
+        <div class="field hidden" data-block="catalogo">
+          <label for="Catalogo">Catálogo <span class="req">*</span></label>
+          <select id="Catalogo" data-cond-required="catalogo">
+            <option value="">Selecciona…</option>
+            <option>Plan médico total</option>
+            <option>Colectivo</option>
+            <option>Segumedic</option>  
+            <option>Transforma</option>
+            <option>Otra</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="Fecha_Respuesta_Final">Fecha de respuesta final</label>
+          <input aria-describedby="hint_Fecha_Respuesta_Final" type="datetime-local" id="Fecha_Respuesta_Final">
+          <span class="hint" id="hint_Fecha_Respuesta_Final">Opcional — déjalo vacío si el caso sigue abierto</span>
+        </div>
+
+        <!-- Campo distinto de Fecha_Respuesta_Final: la resolución operativa y la
+             comunicación al cliente son dos momentos separados. No sustituye a la
+             anterior ni la reemplaza en el payload. -->
+        <div class="field">
+          <label for="Fecha_Comunicacion_Cliente">Fecha y hora de comunicación al cliente</label>
+          <input aria-describedby="hint_Fecha_Comunicacion_Cliente" type="datetime-local" id="Fecha_Comunicacion_Cliente">
+          <span class="hint" id="hint_Fecha_Comunicacion_Cliente">Momento en que se informó al cliente. No sustituye la fecha de respuesta final.</span>
+        </div>
+      </div>
+    </div>
+
+      </div><!-- /atc-section-content resolution -->
+    </div><!-- /atc-section-resolution -->
+
+    <!-- Barra de acciones sticky — DOS acciones (2026-08-16). El bloque de
+         borrador se retiró por completo: no existía contrato funcional y ocupaba
+         un tercio de la barra. #submitBtn y #resetBtn conservan sus ids y su
+         comportamiento; sólo cambia el rótulo del principal. -->
+    <div class="actions actions-sticky" role="group" aria-label="Acciones del registro">
+      <div class="act-zone act-center">
+        <button class="btn btn-ghost" id="resetBtn" type="button">
+          <svg class="btn-ic" aria-hidden="true"><use href="#ic-cancelar"></use></svg>
+          Cancelar
+        </button>
+      </div>
+
+      <div class="act-zone act-right">
+        <button class="btn btn-primary" id="submitBtn" type="button">
+          <svg class="btn-ic" aria-hidden="true"><use href="#ic-guardar"></use></svg>
+          Guardar registro
+        </button>
+      </div>
+    </div>
+
+    </div><!-- /form-col -->
+
+    <!-- Panel derecho de resumen — solo informativo, campos existentes (B-UX-04 / B-UX-05) -->
+    <aside class="atc-summary" aria-label="Resumen de la atención">
+      <div class="card sum-card">
+        <div class="sum-head"><svg class="sum-ic" aria-hidden="true"><use href="#ic-resumen"></use></svg> Resumen de la atención</div>
+        <div class="sum-item"><span class="sum-label">Campaña / Gestión</span><b id="sum_campania">--</b></div>
+        <div class="sum-item"><span class="sum-label">Prioridad</span><b id="sum_prioridad">--</b></div>
+        <div class="sum-item"><span class="sum-label">Estatus interno</span><b id="sum_estatus">--</b></div>
+        <div class="sum-item"><span class="sum-label">Fecha recepción</span><b id="sum_fecha">--</b></div>
+        <div class="sum-item"><span class="sum-label">Gestor</span><b id="sum_gestor">--</b></div>
+      </div>
+
+      <!-- Identidad corporativa. Informativa y no editable. Muestra únicamente
+           nombre y correo de la sesión: nunca oid, tenant, tokens ni claims. -->
+      <div class="card sum-card ident-card" id="tarjetaIdentidadGestor">
+        <div class="sum-head">
+          <svg class="sum-ic" aria-hidden="true"><use href="#ic-gestor"></use></svg> Gestor (identidad corporativa)
+          <svg class="ident-lock" role="img" aria-label="Identidad protegida por la sesión"><use href="#ic-identidad"></use></svg>
+        </div>
+        <div class="ident-body">
+          <svg class="ident-avatar" aria-hidden="true"><use href="#ic-gestor"></use></svg>
+          <div class="ident-datos">
+            <b class="ident-nombre" id="identGestorNombre">--</b>
+            <span class="ident-correo" id="identGestorCorreo">--</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card sum-card">
+        <div class="sum-head"><svg class="sum-ic" aria-hidden="true"><use href="#ic-adjuntos"></use></svg> Adjuntos y evidencia</div>
+        <div class="sum-item"><span class="sum-label">Cuenta con pruebas</span><b id="sum_pruebas">--</b></div>
+        <div class="sum-item"><span class="sum-label">Archivos seleccionados</span><b id="sum_adjuntos">0</b></div>
+      </div>
+
+      <!-- Línea de tiempo: representación DERIVADA de los campos ya existentes.
+           No persiste ninguna estructura nueva y no incorpora FechaCierre. -->
+      <div class="card sum-card timeline-card">
+        <div class="sum-head"><svg class="sum-ic" aria-hidden="true"><use href="#ic-tiempo"></use></svg> Línea de tiempo</div>
+        <ol class="tl" id="lineaTiempo">
+          <li class="tl-item" data-tl="Fecha_Recepcion_ATC"><span class="tl-dot" aria-hidden="true"></span><div class="tl-txt"><b>Recepción ATC</b><span class="tl-val">Pendiente</span></div></li>
+          <li class="tl-item" data-tl="Fecha_Primera_Atencion_ATC"><span class="tl-dot" aria-hidden="true"></span><div class="tl-txt"><b>Primera atención ATC</b><span class="tl-val">Pendiente</span></div></li>
+          <li class="tl-item" data-tl="Fecha_Activacion_Area"><span class="tl-dot" aria-hidden="true"></span><div class="tl-txt"><b>Activación con el área</b><span class="tl-val">Pendiente</span></div></li>
+          <li class="tl-item" data-tl="Fecha_Respuesta_Area_Interna"><span class="tl-dot" aria-hidden="true"></span><div class="tl-txt"><b>Respuesta del área</b><span class="tl-val">Pendiente</span></div></li>
+          <li class="tl-item" data-tl="Fecha_Comunicacion_Cliente"><span class="tl-dot" aria-hidden="true"></span><div class="tl-txt"><b>Comunicación al cliente</b><span class="tl-val">Pendiente</span></div></li>
+          <li class="tl-item" data-tl="Fecha_Respuesta_Final"><span class="tl-dot" aria-hidden="true"></span><div class="tl-txt"><b>Respuesta final</b><span class="tl-val">Pendiente</span></div></li>
+        </ol>
+      </div>
+    </aside>
+
+    </div><!-- /viewRegistro -->
+
+    <div class="view hidden" data-view-panel="reportes" id="viewReportes">
+
+    <!-- ============ Reporte filtrado ============ -->
+    <div class="card report-filter-card">
+      <div class="report-page-title">
+        <button type="button" class="back-link" aria-label="Volver a Registro">
+          <svg class="back-ic" aria-hidden="true"><use href="#ic-expandir"></use></svg>
+        </button>
+        <span class="report-title-ic" aria-hidden="true">
+          <svg><use href="#ic-reportes"></use></svg>
+        </span>
+        <div class="report-title-text">
+          <h2>Reporte de trámites o reclamaciones</h2>
+          <p class="report-subtitle">Genera y descarga el CSV filtrado por periodo y tipo</p>
+        </div>
+      </div>
+
+      <!-- Los catálogos de Cliente, Tipo de trámite, Tipo de solicitud, Prioridad y
+           Estatus interno los llena `reportes.js` desde `catalogos-publicos.js`: es la
+           MISMA fuente que consume el Registro. No se mantiene ninguna copia aquí.
+           Tipo de reporte no es un catálogo de negocio, sino la salida del flujo, y
+           por eso conserva sus opciones en el marcado.
+           Orden conceptual: primero el alcance, después el periodo y la salida. -->
+      <div class="report-filter-grid">
+        <div class="field">
+          <label for="Reporte_Campania">Cliente</label>
+          <select id="Reporte_Campania" data-cat-reporte="clientes">
+            <option value="Todos">Todos</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="Reporte_Tipo_Tramite">Tipo de trámite</label>
+          <select id="Reporte_Tipo_Tramite" data-cat-reporte="tramites">
+            <option value="Todos">Todos</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="Reporte_Tipo_Atencion">Tipo de solicitud</label>
+          <select id="Reporte_Tipo_Atencion" data-cat-reporte="atenciones">
+            <option value="Todos">Todos</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="Reporte_Prioridad">Prioridad</label>
+          <select id="Reporte_Prioridad" data-cat-reporte="prioridad">
+            <option value="Todos">Todos</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="Reporte_Fecha_Inicio">Fecha inicio <span class="req">*</span></label>
+          <input type="date" id="Reporte_Fecha_Inicio">
+        </div>
+
+        <div class="field">
+          <label for="Reporte_Fecha_Fin">Fecha fin <span class="req">*</span></label>
+          <input type="date" id="Reporte_Fecha_Fin">
+        </div>
+
+        <div class="field">
+          <label for="Reporte_Estatus_Interno">Estatus interno</label>
+          <select id="Reporte_Estatus_Interno" data-cat-reporte="estatus">
+            <option value="Todos">Todos</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="Reporte_Tipo">Tipo de reporte</label>
+          <select id="Reporte_Tipo">
+            <option value="detalle">Detalle de trámites</option>
+            <option value="calidad">Calidad y seguimiento</option>
+            <option value="adjuntos">Evidencias / adjuntos</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="report-action-area">
+        <div class="report-format">
+          <span class="excel-badge" aria-hidden="true">
+            <svg><use href="#ic-evidencias"></use></svg>
+          </span>
+          <span class="excel-caption">
+            <b>Formato CSV</b>
+            <span>Compatible con Excel</span>
+          </span>
+        </div>
+        <button type="button" class="btn btn-primary" id="btnGenerarReporte">
+          <svg class="btn-ic" aria-hidden="true"><use href="#ic-guardar"></use></svg>
+          <span class="btn-label">Generar reporte</span>
+        </button>
+      </div>
+    </div>
+
+    </div><!-- /viewReportes -->
+
+    <div class="view hidden" data-view-panel="powerbi" id="viewPowerBI">
+    <div class="card powerbi-card">
+      <div class="powerbi-head">
+        <h2>Dashboard Power BI — Quejas Banorte</h2>
+        <p>Consulta visual del comportamiento de quejas, trámites, impacto económico y seguimiento.</p>
+      </div>
+
+      <div class="powerbi-actions">
+        <button type="button" class="powerbi-action-card">
+          <span class="powerbi-action-icon" aria-hidden="true">↗</span>
+          <span class="powerbi-action-text">
+            <strong>Abrir dashboard</strong>
+            <small>Abre el reporte público en una nueva pestaña.</small>
+          </span>
+        </button>
+        <button type="button" class="powerbi-action-card" id="btnRefreshPowerBI">
+          <span class="powerbi-action-icon" aria-hidden="true">⟳</span>
+          <span class="powerbi-action-text">
+            <strong>Actualizar Power BI</strong>
+            <small>Solicita actualización del modelo semántico.</small>
+          </span>
+        </button>
+      </div>
+
+      <div class="powerbi-note">
+        La actualización <strong>no es en tiempo real puro</strong>: primero se solicita el refresh del modelo y el reporte se actualizará cuando Power BI termine de procesarlo (puede tardar unos minutos).
+      </div>
+
+      <div class="powerbi-preview">
+        <iframe id="powerbiFrame" title="Dashboard Power BI Quejas Banorte" loading="lazy" allowfullscreen="true"></iframe>
+      </div>
+    </div>
+    </div><!-- /viewPowerBI -->
+
+    <!-- Mis Folios (MIS-FOLIOS-CRM-ATC-01, Fase 2). El panel nace vacío: todo
+         su contenido lo construye el módulo por nodos DOM al activarse, nunca
+         por innerHTML.
+
+         Oculto por la clase .hidden y NO por el atributo `hidden`, igual que
+         los otros paneles: cambiarVista() alterna la clase, y el atributo
+         quedaría fijo porque nadie lo retira — el panel no volvería a
+         mostrarse nunca. Basta con la clase: `.view.hidden{display:none}`
+         también lo retira del árbol de accesibilidad. -->
+    <div class="view hidden" data-view-panel="misfolios" id="viewMisFolios">
+      <div data-mf-raiz></div>
+    </div><!-- /viewMisFolios -->
+
+    </main>
+  </div><!-- /layout -->
+  </div><!-- /appShellRoot -->
+
+  <div class="toast" id="toast">
+    <div class="ic" id="toastIc">✓</div>
+    <span id="toastMsg"></span>
+  </div>
+
+  <!-- Autenticación (MIS-FOLIOS-CRM-ATC-01, Fase 1) — orden obligatorio: bundle MSAL
+       local, luego configuración no secreta, luego el módulo de auth que depende
+       de ambos. Debe cargar antes que el resto de la app. -->
+  <script src="../lib/msal-browser.min.js"></script>
+  <script src="../js/config/auth-config.js?v=20260816b"></script>
+  <script src="../js/modules/auth.js?v=20260816b"></script>
+  <script src="../data/public/catalogos-publicos.js?v=20260816b"></script>
+  <script src="../js/utils/dom.js?v=20260816b"></script>
+  <script src="../js/utils/dates.js?v=20260816b"></script>
+  <script src="../js/utils/format.js"></script>
+  <script src="../js/utils/files.js"></script>
+  <script src="../js/utils/notifications.js"></script>
+  <script src="../js/validation/business-rules.js?v=20260816b"></script>
+  <script src="../js/validation/validation.js?v=20260816b"></script>
+  <script src="../js/modules/registro.js?v=20260816b"></script>
+  <script src="../js/modules/reportes.js?v=20260816b"></script>
+
+  <!-- Mis Folios (MIS-FOLIOS-CRM-ATC-01, Fase 2).
+       El orden es de dependencia, no estético: contratos y datos primero,
+       luego adaptadores, después dominio y servicio, y al final interfaz y
+       arranque. Cada archivo lee del global lo que declararon los anteriores,
+       así que adelantar cualquiera lo dejaría con una referencia indefinida.
+       Todo el bloque va antes de app.js, que es quien llama a activar(). -->
+  <script src="../js/mis-folios/contracts/operaciones.js"></script>
+  <script src="../js/mis-folios/config/entorno.js"></script>
+  <script src="../js/mis-folios/mocks/datos-mock.js"></script>
+  <script src="../js/mis-folios/adapters/adaptador-mock.js"></script>
+  <script src="../js/mis-folios/adapters/adaptador-dev.js"></script>
+  <script src="../js/mis-folios/adapters/selector.js"></script>
+  <script src="../js/mis-folios/domain/validaciones.js"></script>
+  <script src="../js/mis-folios/domain/estado.js"></script>
+  <script src="../js/mis-folios/services/servicio-folios.js"></script>
+  <script src="../js/mis-folios/ui/componentes.js"></script>
+  <script src="../js/mis-folios/ui/pagina.js"></script>
+  <script src="../js/mis-folios/mis-folios.js"></script>
+
+  <script src="../js/app.js?v=20260816b"></script>
+
+  </body>
+  </html>

@@ -1,0 +1,995 @@
+/* ============================================================================
+   registro-redesign.css — Rediseño visual del módulo Registro
+   Sistema Integral ATC · 2026-08-13
+
+   PRECEDENCIA: se carga DESPUÉS de tokens, base, layout, navigation, components,
+   forms, reports, powerbi, responsive, auth-login y mis-folios. Gana por orden
+   de cascada, no por especificidad artificial. Sin `!important`.
+
+   ALCANCE: exclusivamente presentación. No cambia ids, catálogos, obligatoriedad,
+   visibilidad condicional, validaciones ni payload.
+   ========================================================================== */
+
+:root{
+  /* ===== Fuente única de verdad del layout (2026-08-16) =====
+     Navegación, área principal y barra inferior consumen ESTAS variables; no se
+     duplica ningún valor en otros selectores. Todas son fluidas: ninguna medida
+     está calibrada para una resolución concreta. */
+  --rd-nav-w: clamp(220px, 13vw, 250px);
+  --rd-summary-w: clamp(320px, 22vw, 380px);
+  /* Ancho mínimo del formulario cuando comparte fila con el panel de contexto.
+     Es el valor que decide el umbral de apilado (ver sección 12). */
+  --rd-form-min: 720px;
+  --rd-content-gap: clamp(18px, 1.5vw, 26px);
+  --rd-page-pad-x: clamp(20px, 2vw, 44px);
+  --rd-action-h: 68px;
+  --rd-header-h: 56px;
+
+  /* Escala vertical de la sección 3 (2026-08-16). Una sola fuente de verdad:
+     los subbloques no pueden apretarse para que quepa más contenido. */
+  --rd-sub-gap: 28px;      /* separación entre subbloques        */
+  --rd-sub-pad: 22px;      /* relleno interior del subbloque     */
+  --rd-sub-title-gap: 18px;/* del título a su contenido          */
+  --rd-row-gap: 22px;      /* entre filas de campos              */
+  --rd-col-gap: 22px;      /* entre columnas de campos           */
+  --rd-sub-head-gap: 9px;  /* icono ↔ título del subencabezado   */
+  --rd-label-gap: 8px;     /* de la etiqueta al control          */
+  --rd-hint-gap: 7px;      /* del control al texto auxiliar      */
+
+  --rd-card-gap: 16px;
+  --rd-radius: 12px;
+  --rd-field-radius: 9px;
+  --rd-field-h: 44px;
+
+  --rd-azul: #1d4ed8;
+  --rd-azul-oscuro: #1e3a8a;
+  --rd-azul-suave: #eef4ff;
+  --rd-borde: #dbe3f0;
+  --rd-borde-campo: #cbd8ea;
+  --rd-fondo-campo: #f6f9fd;
+  --rd-texto: #17224a;
+  --rd-texto-sec: #64748b;
+  --rd-coral: #ef5f5f;
+  --rd-verde: #16a34a;
+  --rd-lienzo: #f4f7fc;
+  --rd-sombra: 0 1px 2px rgba(23,34,74,.05), 0 4px 14px rgba(23,34,74,.06);
+}
+
+/* --------------------------------------- 0. Accesibilidad transversal ------
+   Correcciones A–E de la revisión con platform-design-web (WCAG 2.2 AA). */
+
+/* Skip link: primer elemento enfocable del App Shell. Oculto hasta recibir
+   foco; no depende de JavaScript. */
+.skip-link{
+  position: absolute;
+  left: 8px;
+  top: -100px;
+  z-index: 100;
+  padding: 10px 16px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 0 0 8px 8px;
+  background: var(--rd-azul);
+  color: #fff;
+  font-size: .875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top .12s ease;
+}
+.skip-link:focus{ top: 0; }
+.skip-link:focus-visible{ outline: 3px solid #fff; outline-offset: -6px; }
+
+/* Foco visible uniforme: WCAG 2.2 pide 2px de perímetro con 3:1 de contraste.
+   Se usan 3px con desplazamiento para que nunca quede tapado por el borde. */
+.nav-item:focus-visible,
+.btn:focus-visible,
+.impact-option:focus-visible,
+.atc-section-toggle:focus-visible,
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible{
+  outline: 3px solid var(--rd-azul);
+  outline-offset: 2px;
+}
+
+/* Objetivos interactivos: mínimo 44px de alto. Se usa `min-height`, nunca
+   `height`, para que una etiqueta de dos líneas pueda crecer sin recortarse. */
+.nav-item,
+.impact-option,
+.actions-sticky .btn,
+.atc-section-toggle,
+.sidebar-help .help-btn{
+  min-height: 44px;
+}
+
+/* Los dos grupos de respuesta excluyente pasan a fieldset/legend: el grupo se
+   anuncia como tal. El fieldset no aporta marco propio; el diseño no lo pide. */
+.field.full[data-impact-toggle],
+.field.full[data-error-toggle],
+fieldset.field{
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;          /* evita que el fieldset imponga su min-content */
+}
+fieldset.field > legend{
+  padding: 0;
+  margin-bottom: var(--rd-label-gap);
+  font-size: .75rem;
+  font-weight: 700;
+  line-height: 1.45;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--rd-texto-sec);
+}
+
+/* ------------------------------------------------------------ 1. Lienzo ---- */
+
+/* ===== Escala 100% (2026-08-16) ==========================================
+   `responsive.css` aplicaba `zoom: var(--atc-ui-scale)` con valor 0.75 sobre
+   <body> (addendum del 2026-07-14). Toda la interfaz se dibujaba al 75%: un
+   menú declarado en 250px medía 187px reales y el contenido parecía perdido
+   dentro de la pantalla. Esa era la causa de fondo del espacio desaprovechado,
+   por debajo de cualquier ajuste de rejilla.
+
+   La misión vigente prohíbe expresamente el zoom como recurso de layout, así
+   que se restituye la escala natural. Se neutraliza AQUÍ, en la última hoja de
+   la cascada, para no tocar `responsive.css` y poder revertirlo en una línea.
+
+   ALCANCE: `body` es global, de modo que Reportes, Power BI y Mis Folios
+   también vuelven al 100%. Está fuera del alcance de esta misión y queda
+   reportado para revisión visual de esos tres módulos. */
+body{
+  zoom: 1;
+  min-height: 100vh;
+  background: var(--rd-lienzo);
+}
+
+/* navigation.css desplaza el contenido con `margin-left: var(--sbw)` y limita
+   `.canvas` a 1240px. Aquí se adopta una rejilla explícita y se NEUTRALIZAN esos
+   desplazamientos heredados: de lo contrario se suman dos veces el ancho de la
+   navegación y se desperdicia el espacio útil de escritorio. */
+.topbar{ margin-left: 0; }
+
+.layout{
+  display: grid;
+  grid-template-columns: var(--rd-nav-w) minmax(0, 1fr);
+  align-items: start;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  max-width: none;
+  /* La columna de navegación se pinta hasta el final del documento. El sidebar
+     es sticky y sólo mide una pantalla, así que sin esto quedaba una franja
+     inferior con el color del lienzo bajo el menú. No se usa posición absoluta. */
+  background: linear-gradient(to right,
+    #fff 0, #fff calc(var(--rd-nav-w) - 1px),
+    var(--rd-borde) calc(var(--rd-nav-w) - 1px), var(--rd-borde) var(--rd-nav-w),
+    transparent var(--rd-nav-w));
+}
+
+/* El lienzo ocupa TODO el ancho posterior a la navegación (2026-08-16). Se
+   retira el tope de anchura: era la regla que concentraba el contenido a la
+   izquierda y dejaba la franja vacía a la derecha en pantallas anchas. El único
+   margen exterior es --rd-page-pad-x (20–36px), compartido con la barra
+   inferior para que ambas geometrías coincidan. El relleno inferior reserva la
+   altura de la barra fija más holgura, de modo que el último control siempre
+   puede desplazarse por encima de ella. */
+.canvas{
+  min-width: 0;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 18px var(--rd-page-pad-x) calc(var(--rd-action-h) + 24px);
+}
+
+/* La animación de entrada de `.view` terminaba con un `transform` y modo `both`,
+   por lo que el transform PERSISTE y convierte a `.view` en bloque contenedor de
+   cualquier `position: fixed` descendiente. Se sustituye por una transición de
+   opacidad, que no crea bloque contenedor: así la barra inferior se ancla al
+   viewport y no al final de la tarjeta. */
+.view{ animation: rd-fade .26s ease both; }
+@keyframes rd-fade{ from{ opacity: 0; } to{ opacity: 1; } }
+@media (prefers-reduced-motion: reduce){ .view{ animation: none; } }
+
+/* ------------------------------------------------- 2. Encabezado compacto -- */
+
+.topbar{
+  padding-top: 8px;
+  padding-bottom: 4px;
+  position: relative;
+  z-index: 30;
+}
+.topbar .brand-sys{ margin-top: 2px; letter-spacing: .01em; }
+.topbar-auth{ gap: 10px; align-items: center; }
+.auth-identidad{ font-weight: 600; font-size: 13px; }
+
+/* --------------------------------------------- 3. Navegación lateral ------- */
+
+/* El menú ocupa toda la altura disponible bajo el encabezado. El fondo blanco
+   continuo hasta el pie lo aporta la columna de `.layout`, no una altura fija:
+   así no aparece una franja inferior de otro color. */
+.sidebar{
+  position: sticky;
+  top: 0;
+  align-self: start;
+  min-height: calc(100dvh - var(--rd-header-h));
+  width: var(--rd-nav-w);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 14px;
+  background: transparent;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+/* La tarjeta de ayuda se empuja al final con el propio flujo flex. */
+.sidebar-help{ margin-top: auto; }
+
+.sidebar-brand{
+  font-size: .8125rem;
+  font-weight: 700;
+  color: var(--rd-texto);
+  letter-spacing: .02em;
+  padding: 2px 8px 10px;
+  border-bottom: 1px solid var(--rd-borde);
+}
+
+.sidebar-title{
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--rd-texto-sec);
+  padding: 0 8px 6px;
+}
+
+.sidebar-nav{ display: flex; flex-direction: column; gap: 3px; }
+
+.nav-item{
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  text-align: left;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--rd-texto);
+  font-size: .8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+.nav-item .nav-ic{ line-height: 1; }
+.nav-item:hover:not(.active):not(.pending){ background: var(--rd-azul-suave); }
+
+.nav-item.active{
+  background: var(--rd-azul);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(29,78,216,.28);
+}
+.nav-item.active .nav-ic{ color: #fff; }
+
+.nav-item.pending{
+  color: var(--rd-texto-sec);
+  cursor: default;
+  font-weight: 500;
+}
+.pend-tag{
+  margin-left: auto;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: #92400e;
+  background: #fef3c7;
+  border-radius: 5px;
+  padding: 2px 5px;
+}
+
+/* Tarjeta de ayuda, anclada al final de la navegación y alineada con el ancho
+   y los márgenes del menú, no flotando en un hueco. */
+.sidebar-help{
+  margin-top: auto;
+  margin-inline: 0;
+  align-self: stretch;
+  background: var(--rd-azul-suave);
+  border: 1px solid #dbe7fb;
+  border-radius: 10px;
+  padding: 11px 10px;
+}
+.sidebar-help .help-title{ font-size: .8125rem; font-weight: 700; color: var(--rd-texto); }
+.sidebar-help .help-text{ margin: 4px 0 9px; font-size: .75rem; color: var(--rd-texto-sec); line-height: 1.5; }
+.sidebar-help .help-btn{ width: 100%; font-size: .8125rem; padding: 8px; }
+.sidebar-help .help-btn[disabled]{ opacity: .55; cursor: not-allowed; }
+
+/* ------------------------------------------- 3b. Iconos Fluent locales ----- */
+
+/* El sprite se oculta por CLASE, no por atributo `style`: la CSP declara
+   style-src 'self' y bloquea los estilos en línea, con lo que el sprite se
+   habría pintado como un bloque de iconos al principio de la página.
+   Lo detectó la validación en navegador, no el arnés de Node. */
+.ic-sprite{ display: none; }
+
+/* Los símbolos viven en un sprite EN LÍNEA: sin CDN, sin fuentes de iconos y
+   sin ninguna petición de red. Heredan el color del texto por currentColor. */
+svg[class*="-ic"], .nav-ic, .sub-ic, .sum-ic, .btn-ic, .ident-lock, .ident-avatar{
+  display: inline-block;
+  flex: 0 0 auto;
+  fill: currentColor;
+  color: inherit;
+  vertical-align: -0.14em;
+}
+.nav-ic{ width: 18px; height: 18px; }
+.sidebar-group-secondary .nav-ic{ width: 17px; height: 17px; }
+.sub-ic{ width: 16px; height: 16px; color: var(--rd-texto-sec); }
+.sum-ic{ width: 16px; height: 16px; color: var(--rd-texto-sec); }
+.btn-ic{ width: 18px; height: 18px; }
+.ident-lock{ width: 15px; height: 15px; margin-left: auto; color: var(--rd-texto-sec); }
+.ident-avatar{ width: 22px; height: 22px; color: var(--rd-azul); }
+.tl-item .sub-ic{ width: 14px; height: 14px; }
+
+/* --------------------------------- 3c. Subencabezados de la sección 3 ------ */
+
+/* Los subbloques NO llevan número ni letra: la numeración 1·2·3 pertenece sólo
+   a las tres secciones principales. Un icono, un título y una línea ligera. */
+.sub-head{
+  display: flex;
+  align-items: center;
+  gap: var(--rd-sub-head-gap);
+  padding-bottom: calc(var(--rd-sub-head-gap) + 1px);
+  margin-bottom: var(--rd-sub-title-gap);
+  border-bottom: 1px solid var(--rd-borde);
+}
+
+/* El chip de contexto del subencabezado seguía con la paleta antigua
+   (`components.css`): se migra a los tokens del rediseño. */
+.sub-head .card-sub{
+  margin-left: 6px;
+  background: var(--rd-azul-suave);
+  color: var(--rd-azul-oscuro);
+  border-color: #dbe7fb;
+}
+
+/* `components.css` mantiene un resplandor azul en `.card:hover` y una micro
+   rotación en `.card-num`, que chocan con la sombra plana del rediseño y
+   ganaban por pseudo-clase. Se neutralizan aquí, en la última hoja. */
+.card:hover,
+.card:focus-within{ box-shadow: var(--rd-sombra); }
+.card:hover .card-num{ transform: none; }
+.sub-title{
+  margin: 0;
+  font-size: .875rem;
+  font-weight: 700;
+  letter-spacing: .01em;
+  color: var(--rd-texto);
+}
+
+/* ------------------------------------------------------ 4. Migas de pan ---- */
+
+.breadcrumb{
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--rd-texto-sec);
+  margin-bottom: 14px;
+}
+.breadcrumb b{ color: var(--rd-texto); font-weight: 700; }
+.bc-sep{ color: #b8c4d8; }
+
+/* ------------------------------------- 5. Dos columnas: forma y contexto --- */
+
+/* Formulario y resumen forman las dos columnas principales. El formulario tiene
+   un mínimo real (--rd-form-min) para que no se estruje cuando el resumen crece,
+   y el resumen deja de ser una franja angosta pegada al formulario. Sin
+   max-width: el conjunto ocupa todo el ancho del lienzo.
+
+   ===== Especificidad (corregido 2026-08-17) ==============================
+   Este bloque se declaraba con `.view[data-view-panel="registro"]`, cuya
+   especificidad es (0,2,0). `layout.css:17` declara `#viewRegistro{display:flex;
+   gap:20px}` con especificidad de id (1,0,0), que gana SIN IMPORTAR el orden de
+   carga. Medido en navegador: el contenedor era `flex` sin `flex-wrap`, la
+   rejilla nunca se aplicó, el `gap` fluido quedaba anulado por 20px fijos y la
+   media query de apilado era inerte. En 390x844 el resumen retenía sus 300px y
+   el formulario quedaba en 50px de ancho, con las etiquetas a área cero.
+   Se añade el id para igualar la especificidad y ganar por orden de cascada,
+   igual que se hace en la línea siguiente. Sin !important.
+
+   `min(100%, var(--rd-form-min))` es la guarda estándar contra desbordamiento de
+   `minmax`: si el contenedor fuera más angosto que el mínimo, la pista cede a
+   100% en lugar de desbordar. */
+#viewRegistro.view[data-view-panel="registro"]{
+  display: grid;
+  grid-template-columns: minmax(min(100%, var(--rd-form-min)), 1fr) var(--rd-summary-w);
+  gap: var(--rd-content-gap);
+  align-items: start;
+  width: 100%;
+  max-width: none;
+}
+/* `layout.css` limita `#viewRegistro .form-col` a 820px con un selector de id.
+   Ese tope era la razón real de que el formulario se quedara pequeño y sobrara
+   pantalla a la derecha, por debajo de cualquier ajuste de rejilla. Se levanta
+   con la misma especificidad, no con !important. */
+#viewRegistro .form-col{ max-width: none; }
+
+.form-col{
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--rd-card-gap);
+}
+/* Tarjetas, progreso y aviso siguen el ancho completo de la columna. */
+.form-col > *{ width: 100%; box-sizing: border-box; }
+
+.atc-summary{
+  position: sticky;
+  top: calc(var(--rd-header-h) + 12px);
+  /* components.css declara `flex: 0 0 280px`. Como elemento de rejilla debería
+     ignorarse, pero mantenerlo dejaba el panel clavado en 280px: se neutraliza
+     y se fija el ancho de la columna de forma explícita. */
+  flex: 0 0 auto;
+  width: var(--rd-summary-w);
+  max-width: 100%;
+  min-width: 0;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--rd-card-gap);
+  min-width: 0;
+}
+
+/* ---------------------------------------------------- 6. Barra de progreso - */
+
+.wee-progress{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border: 1px solid var(--rd-borde);
+  border-radius: var(--rd-radius);
+  box-shadow: var(--rd-sombra);
+  padding: 14px 18px;
+  margin: 0;
+}
+.wee-progress .wp-track{
+  flex: 1 1 auto;
+  height: 7px;
+  background: #e8eefa;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.wee-progress .wp-fill{
+  height: 100%;
+  background: linear-gradient(90deg, var(--rd-azul), #3b82f6);
+  border-radius: 999px;
+  transition: width .3s ease;
+}
+/* Porcentaje destacado y separado del contador; la pista ocupa el recorrido
+   máximo disponible. Los valores siguen siendo los que calcula el formulario. */
+.wee-progress .wp-label{
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--rd-azul);
+  min-width: 52px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.wee-progress .wp-count{
+  font-size: 12px;
+  color: var(--rd-texto-sec);
+  white-space: nowrap;
+  padding-left: 14px;
+  border-left: 1px solid var(--rd-borde);
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-hint{ font-size: .75rem; line-height: 1.5; }
+
+/* --------------------------------------------------------- 7. Tarjetas ----- */
+
+.card{
+  background: #fff;
+  border: 1px solid var(--rd-borde);
+  border-radius: var(--rd-radius);
+  box-shadow: var(--rd-sombra);
+  padding: 18px 20px 20px;
+  margin: 0;
+}
+
+.card-head{
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 16px;
+}
+.card-num{
+  flex: 0 0 auto;
+  width: 26px; height: 26px;
+  border-radius: 8px;
+  display: grid; place-items: center;
+  font-size: 12.5px; font-weight: 700;
+  color: #fff;
+  background: var(--rd-azul);
+}
+.card-title{ font-size: .9375rem; font-weight: 700; color: var(--rd-texto); }
+
+/* Color por sección mediante clases EXPLÍCITAS en el marcado. No se usa
+   :nth-of-type: insertar una tarjeta nueva no debe alterar estos colores. */
+.card.sec-azul  > .card-head .card-num,
+.card.sec-azul  .atc-section-icon{ background: var(--rd-azul); }
+.card.sec-coral > .card-head .card-num,
+.card.sec-coral .atc-section-icon{ background: var(--rd-coral); }
+.card.sec-verde > .card-head .card-num,
+.card.sec-verde .atc-section-icon{ background: var(--rd-verde); }
+
+/* ------------------------------------------------------ 7b. Acordeón -------
+   El colapso es SOLO visual. No se usa `hidden` ni `display:none` en el
+   contenido: ambos anulan `offsetParent`, y validation.js decide con
+   `offsetParent !== null` si un campo condicional es exigible. Colapsar con
+   `display:none` apagaría la obligatoriedad condicional de la sección cerrada,
+   que es precisamente lo que no debe cambiar. Por eso se colapsa con
+   `grid-template-rows` y `overflow`, que preservan la caja de diseño. */
+
+.atc-section{ padding: 0; overflow: hidden; }
+
+.atc-section-toggle{
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  margin: 0;
+  padding: 16px 20px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: background .15s ease;
+}
+.atc-section-toggle:hover{ background: #f8fafd; }
+.atc-section-toggle:focus-visible{ outline: 2px solid var(--rd-azul); outline-offset: -2px; }
+
+.atc-section-icon{
+  flex: 0 0 auto;
+  width: 26px; height: 26px;
+  border-radius: 8px;
+  display: grid; place-items: center;
+  font-size: 12.5px; font-weight: 700;
+  color: #fff;
+}
+.atc-section-title{ flex: 1 1 auto; font-size: 15px; font-weight: 700; color: var(--rd-texto); }
+
+/* Chevrón único, dibujado en CSS. Un solo estilo para las tres secciones. */
+.atc-section-chevron{
+  flex: 0 0 auto;
+  width: 10px; height: 10px;
+  margin-right: 2px;
+  border-right: 2px solid #7c8db0;
+  border-bottom: 2px solid #7c8db0;
+  transform: rotate(45deg);
+  transform-origin: 60% 60%;
+  transition: transform .18s ease;
+}
+.atc-section.is-expanded > .atc-section-toggle .atc-section-chevron{ transform: rotate(-135deg); }
+@media (prefers-reduced-motion: reduce){
+  .atc-section-chevron{ transition: none; }
+  .atc-section-content{ transition: none; }
+}
+
+.atc-section-content{
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-auto-rows: auto;
+  transition: grid-template-rows .22s ease, grid-auto-rows .22s ease;
+}
+.atc-section-content > *{ min-height: 0; padding: 0 20px 20px; }
+
+/* Una sección puede tener VARIAS tarjetas hijas directas (la 3 tiene ocho).
+   `grid-template-rows: 0fr` colapsa solo la PRIMERA fila: las restantes caen
+   en filas implícitas de tamaño `auto` y conservan su altura completa. Esa era
+   la causa del enorme hueco en blanco bajo la sección 3 cerrada. Se colapsan
+   también las filas implícitas y se anulan padding, margen y borde de los
+   hijos para que la altura cerrada sea exactamente cero. */
+.atc-section.is-collapsed > .atc-section-content{
+  grid-template-rows: 0fr;
+  grid-auto-rows: 0fr;
+}
+.atc-section.is-collapsed > .atc-section-content > *{
+  overflow: hidden;
+  visibility: hidden;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-top: 0;
+  border-top-width: 0;
+}
+
+/* Las tarjetas condicionales anidadas dentro de una sección pierden su propio
+   marco: la sección ya lo aporta. Conservan sus ids, data-block y reglas. */
+/* Las tarjetas anidadas pierden su marco, pero CONSERVAN el margen lateral:
+   sin él los campos se pegan al borde de la sección. */
+/* Densidad de los subbloques: separación holgada y uniforme. No se comprimen
+   para hacer caber más contenido. */
+.atc-section-content .card{
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0 var(--rd-sub-pad) var(--rd-sub-pad);
+  margin-top: var(--rd-sub-gap);
+}
+.atc-section-content .card:first-child{ margin-top: 0; }
+.atc-section-content > .card + .card{
+  border-top: 1px solid var(--rd-borde);
+  padding-top: var(--rd-sub-gap);
+}
+.atc-section-content .card .card-head{ margin-bottom: var(--rd-sub-title-gap); }
+
+/* ------------------------------------------- 8. Cuadrícula de dos columnas - */
+
+.card > .grid,
+.atc-section-content > .grid{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--rd-row-gap) var(--rd-col-gap);
+  align-items: start;
+}
+.card > .grid > .field.full,
+.card > .grid > fieldset.field.full,
+.atc-section-content > .grid > .field.full{ grid-column: 1 / -1; }
+
+/* Los bloques condicionales aparecen sin salto brusco. */
+.card > .grid > .field:not(.hidden){ animation: rd-in .18s ease-out; }
+@keyframes rd-in{ from{ opacity: 0; transform: translateY(-2px); } to{ opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce){
+  .card > .grid > .field:not(.hidden){ animation: none; }
+  .wee-progress .wp-fill{ transition: none; }
+}
+
+/* ------------------------------------------------------------ 9. Campos ---- */
+
+.field,
+fieldset.field{ display: flex; flex-direction: column; gap: var(--rd-label-gap); min-width: 0; }
+
+/* Las etiquetas largas ocupan dos líneas sin desalinear la fila: el bloque de
+   etiqueta reserva alto para dos renglones y ancla su texto abajo, de modo que
+   los controles de una misma fila arrancan a la misma altura. No se reduce la
+   tipografía para resolverlo. */
+/* Tipografía en unidades relativas (2026-08-16): 11px fijos no escalaban con
+   la preferencia del usuario y quedaban por debajo del mínimo legible.
+   0.75rem = 12px con la raíz por defecto, e interlineado 1.45 según WCAG. */
+.field > label,
+fieldset.field > legend{
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .045em;
+  line-height: 1.45;
+  text-transform: uppercase;
+  color: #33456b;
+  display: flex;
+  align-items: flex-end;
+  min-height: 2.6em;
+}
+.field .req{ color: var(--rd-coral); font-weight: 700; }
+
+.field input[type="text"],
+.field input[type="number"],
+.field input[type="date"],
+.field input[type="datetime-local"],
+.field input[type="email"],
+.field select,
+.field textarea{
+  width: 100%;
+  min-height: var(--rd-field-h);
+  padding: 10px 12px;
+  border: 1px solid var(--rd-borde-campo);
+  border-radius: var(--rd-field-radius);
+  background: var(--rd-fondo-campo);
+  color: var(--rd-texto);
+  font-size: .875rem;
+  line-height: 1.5;
+  font-family: inherit;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.field textarea{ min-height: 112px; resize: vertical; line-height: 1.5; }
+
+.field input:hover:not([disabled]),
+.field select:hover:not([disabled]){ border-color: #b6c8e2; }
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus{
+  outline: none;
+  background: #fff;
+  border-color: var(--rd-azul);
+  box-shadow: 0 0 0 3px rgba(29,78,216,.16);
+}
+
+/* Foco visible también para teclado en botones y navegación. */
+.nav-item:focus-visible,
+.btn:focus-visible,
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible{
+  outline: 2px solid var(--rd-azul);
+  outline-offset: 2px;
+}
+
+.field input[readonly],
+.field input[disabled]{
+  background: #eef2f8;
+  color: #475569;
+  cursor: default;
+}
+
+.field .hint, fieldset.field .hint{
+  font-size: .75rem;
+  line-height: 1.5;
+  color: var(--rd-texto-sec);
+  margin-top: calc(var(--rd-hint-gap) - var(--rd-label-gap));
+}
+
+/* Error: borde + texto, nunca solo color. */
+.field .invalid,
+.field input.invalid,
+.field select.invalid,
+.field textarea.invalid{
+  border-color: var(--rd-coral);
+  background: #fff7f7;
+  box-shadow: 0 0 0 3px rgba(239,95,95,.13);
+}
+.field-error{
+  display: none;
+  font-size: .75rem;
+  line-height: 1.5;
+  font-weight: 600;
+  color: #b91c1c;
+  margin-top: 2px;
+}
+.field-error.show{ display: block; }
+.field-error.show::before{ content: "⚠ "; }
+
+/* -------------------------------------------- 10. Panel derecho: tarjetas -- */
+
+.sum-card{ padding: 14px 16px; }
+
+.sum-head{
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--rd-texto);
+  padding-bottom: 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--rd-borde);
+}
+
+.sum-item{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  font-size: 12px;
+}
+.sum-item .sum-label{ color: var(--rd-texto-sec); flex: 0 0 auto; }
+.sum-item b{
+  color: var(--rd-texto);
+  font-weight: 600;
+  text-align: right;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Identidad corporativa */
+.ident-card .ident-lock{ margin-left: auto; font-size: 11px; }
+.ident-body{ display: flex; align-items: center; gap: 10px; padding-top: 10px; }
+.ident-avatar{
+  flex: 0 0 auto;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--rd-azul-suave);
+  font-size: 15px;
+}
+.ident-datos{ display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.ident-nombre{ font-size: 12.5px; font-weight: 700; color: var(--rd-texto); overflow-wrap: anywhere; }
+.ident-correo{ font-size: 11px; color: var(--rd-texto-sec); overflow-wrap: anywhere; }
+
+/* Línea de tiempo — compacta: seis eventos legibles sin desbordar el viewport. */
+.timeline-card{ padding: 12px 14px; }
+.tl{ list-style: none; margin: 6px 0 0; padding: 0; }
+.tl-item{
+  position: relative;
+  display: flex;
+  gap: 8px;
+  padding: 0 0 9px 0;
+}
+.tl-item::before{
+  content: "";
+  position: absolute;
+  left: 5px; top: 12px; bottom: 0;
+  width: 2px;
+  background: #e2e8f0;
+}
+.tl-item:last-child{ padding-bottom: 0; }
+.tl-item:last-child::before{ display: none; }
+.tl-dot{
+  flex: 0 0 auto;
+  width: 12px; height: 12px;
+  margin-top: 2px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #cbd5e1;
+  z-index: 1;
+}
+.tl-txt{ display: flex; flex-direction: column; gap: 0; min-width: 0; line-height: 1.3; }
+.tl-txt b{ font-size: 11.5px; font-weight: 600; color: var(--rd-texto-sec); }
+/* Contraste: #94a3b8 sobre blanco da ~2.6:1, por debajo de WCAG AA. */
+.tl-val{ font-size: 10.5px; color: var(--rd-texto-sec); }
+
+.tl-item.done .tl-dot{ background: var(--rd-azul); border-color: var(--rd-azul); }
+.tl-item.done::before{ background: var(--rd-azul); }
+.tl-item.done .tl-txt b{ color: var(--rd-texto); }
+.tl-item.done .tl-val{ color: var(--rd-texto-sec); }
+
+/* -------------------------------------------------- 11. Barra de acciones -- */
+
+/* La barra arranca justo después del menú y llega al borde derecho del
+   viewport: comparte --rd-nav-w y --rd-page-pad-x con el lienzo, así que ambas
+   geometrías coinciden. No depende del ancho de .form-col ni se desplaza con
+   él. z-index 40: por encima del contenido, por debajo de diálogos. */
+.actions-sticky{
+  position: fixed;
+  left: var(--rd-nav-w);
+  right: 0;
+  bottom: 0;
+  /* `width: auto` es imprescindible: la regla heredada de `.actions` dejaba la
+     barra con el ancho completo del viewport y, sumada a `left`, la desbordaba
+     por la derecha; el botón principal quedaba fuera de la pantalla. */
+  width: auto;
+  z-index: 40;
+  /* Tres zonas equilibradas: borrador · cancelar · validar y enviar. */
+  /* DOS acciones (2026-08-16): espacio flexible · Cancelar · Guardar registro.
+     El bloque de borrador se retiró por completo, incluido su espacio. */
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  height: var(--rd-action-h);
+  padding: 0 var(--rd-page-pad-x);
+  box-sizing: border-box;
+  background: #fff;
+  border-top: 1px solid var(--rd-borde);
+  box-shadow: 0 -3px 14px rgba(23,34,74,.07);
+  margin: 0;
+}
+.act-zone{ display: flex; align-items: center; gap: 10px; min-width: 0; }
+.act-center{ grid-column: 2; justify-content: flex-end; }
+.act-right{ grid-column: 3; justify-content: flex-end; }
+.actions-sticky .btn{ display: inline-flex; align-items: center; gap: 8px; }
+/* `.act-ic`, `.act-txt` y `.pend-tag` dentro de la barra se retiraron con el
+   bloque de borrador: ya no existe marcado que los use. */
+
+.actions-sticky .btn{ border-radius: 9px; font-size: .875rem; padding: 10px 20px; }
+.actions-sticky .btn-primary{
+  background: var(--rd-azul);
+  border-color: var(--rd-azul);
+  color: #fff;
+  font-weight: 600;
+  min-width: 168px;
+  box-shadow: 0 4px 12px rgba(29,78,216,.26);
+}
+.actions-sticky .btn-primary:hover{ background: var(--rd-azul-oscuro); border-color: var(--rd-azul-oscuro); }
+.actions-sticky .btn[disabled]{ opacity: .5; cursor: not-allowed; }
+
+/* ------------------------------------------------------- 12. Responsive ---- */
+
+/* 1180–1439: menú y resumen en su extremo inferior, sin perder dos columnas. */
+@media (max-width: 1439px){
+  :root{
+    --rd-nav-w: 220px;
+    --rd-summary-w: clamp(300px, 24vw, 330px);
+  }
+}
+
+/* El panel de contexto baja bajo el formulario. El formulario deja de exigir
+   --rd-form-min para no provocar desplazamiento horizontal.
+
+   ===== Umbral (corregido 2026-08-17) =====================================
+   El umbral era 1180px, aritméticamente incorrecto para un mínimo de 720px. Con
+   las variables vigentes el ancho de contenido del lienzo es
+       A(vw) = vw − navW − 2·padX = 0,96·vw − 220
+   y lo que exigen las dos columnas
+       R(vw) = 720 + gap + resumen = 720 + 0,015·vw + 0,24·vw
+   de modo que A ≥ R ⟹ vw ≥ 1333,3px. Entre 1181 y 1333 las dos columnas NO
+   caben: con la rejilla ya operativa habría aparecido desplazamiento horizontal
+   en una franja que ninguna resolución de prueba visita (se prueba 1180 y 1366,
+   nunca 1200 ni 1280). `UI-P06` exige dos columnas desde 1366, así que el umbral
+   debe caer en [1334, 1366). El valor NO está calibrado para una resolución: se
+   deriva de las variables fluidas y se verifica en 1200/1280/1330/1334/1340.
+
+   `components.css:203` oculta el panel bajo 1100px. Aquí se RESTITUYE como
+   rejilla horizontal a ancho completo. */
+@media (max-width: 1339px){
+  #viewRegistro.view[data-view-panel="registro"]{ grid-template-columns: minmax(0, 1fr); }
+  .atc-summary{
+    position: static;
+    /* Imprescindible: sin esto el panel apilado conservaría los 300px de la
+       línea 420 y quedaría como una franja angosta a la izquierda. Antes no se
+       notaba porque el apilado nunca llegaba a ocurrir. */
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
+
+/* Navegación compacta. */
+@media (max-width: 1024px){
+  :root{ --rd-nav-w: 64px; }
+  .sidebar{ padding: 14px 8px; }
+  .sidebar-brand,
+  .sidebar-title,
+  .nav-label,
+  .pend-tag,
+  .sidebar-help{ display: none; }
+  .nav-item{ justify-content: center; padding: 11px 6px; }
+  .canvas{ padding-left: 16px; padding-right: 16px; }
+}
+
+/* Móvil: una sola columna, navegación horizontal, sin scroll lateral. */
+@media (max-width: 900px){
+  :root{ --rd-nav-w: 0px; --rd-action-h: 96px; }
+  html, body{ max-width: 100%; overflow-x: hidden; }
+  .layout{ grid-template-columns: minmax(0, 1fr); }
+
+  .sidebar{
+    position: static;
+    height: auto;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--rd-borde);
+    padding: 8px 10px;
+  }
+  .sidebar-group{ display: flex; }
+  .sidebar-group-secondary{ display: none; }
+  .sidebar-nav{ flex-direction: row; gap: 6px; }
+  .nav-item{ white-space: nowrap; padding: 9px 12px; }
+  .nav-label{ display: inline; font-size: 12px; }
+
+  .card > .grid,
+.atc-section-content > .grid{ grid-template-columns: minmax(0, 1fr); gap: var(--rd-row-gap); }
+  .canvas{ padding: 14px 14px calc(var(--rd-action-h) + 24px); }
+
+  .wee-progress{ flex-wrap: wrap; gap: 8px 12px; padding: 12px 14px; }
+  .wee-progress .wp-track{ order: 3; flex-basis: 100%; }
+
+  .actions-sticky{
+    left: 0;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 14px;
+  }
+  /* Móvil: sin textos auxiliares; ambas acciones visibles y táctiles. */
+  .actions-sticky{ grid-template-columns: 1fr 1fr; }
+  .act-center, .act-right{ grid-column: auto; }
+  .act-zone{ min-width: 0; }
+  .actions-sticky .btn{ min-height: 44px; flex: 1 1 auto; }
+  .actions-sticky .btn-primary{ min-width: 0; }
+}
+
+@media (max-width: 420px){
+  .canvas{ padding-left: 10px; padding-right: 10px; }
+  .card{ padding: 14px; }
+}

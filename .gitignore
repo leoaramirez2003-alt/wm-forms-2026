@@ -1,0 +1,100 @@
+# ============================================================
+# ALCANCE DEL REPOSITORIO — decisión de Leonardo, 2026-08-17
+# ============================================================
+# Se versiona ÚNICAMENTE lo necesario para que el CRM funcione.
+# El cerebro documental, las evidencias, la gobernanza y las
+# herramientas internas NO se versionan ni se publican.
+#
+# Estrategia: lista blanca. Se ignora todo y se readmite solo
+# lo que sirve al frontend. Un archivo nuevo en la raíz queda
+# fuera por omisión, no por olvido.
+# ============================================================
+
+# 1) Ignorar TODO en la raíz.
+/*
+
+# 2) Readmitir solo lo indispensable.
+!/.gitignore
+!/.gitattributes
+!/07-src/
+
+# ============================================================
+# 3) Exclusiones DENTRO de 07-src (se aplican después de la
+#    readmisión, por eso van aquí y no antes).
+# ============================================================
+
+# Herramientas internas: no las necesita el navegador.
+07-src/tools/
+
+# Office Scripts: lógica de negocio interna, ajena al frontend.
+07-src/office-scripts/
+
+# Monolito PRE-multicliente (2026-07-06), superado por la versión
+# multicliente. No sirve al CRM y arrastra 3 firmas SAS y 4 correos.
+# Copia histórica conservada en 99-archive/.
+07-src/html/quejas_banorte_form.html
+
+# Configuración y catálogos con datos reales — NUNCA se versionan.
+# Cada uno tiene su gemelo *.example.js con placeholders, ese sí versionado.
+07-src/js/config/*.local.js
+07-src/data/private/
+
+# ============================================================
+# 4) Reglas transversales de higiene (aplican en cualquier ruta)
+# ============================================================
+
+# Dependencias
+node_modules/
+
+# Variables, secretos y configuración local
+.env
+.env.*
+!.env.example
+*.secret
+*.secrets
+local.settings.json
+
+# Datos y exportaciones
+*.csv
+*.xls
+*.xlsx
+
+# Documentos potencialmente sensibles
+*.doc
+*.docx
+*.pdf
+
+# Respaldos, registros y temporales
+*.bak
+*.backup
+*.tmp
+*.temp
+*.log
+*.zip
+*.7z
+*.rar
+~$*
+Thumbs.db
+.DS_Store
+
+# Configuración local de herramientas
+.claude/
+.obsidian/
+.vscode/
+
+# Resultados y compilados
+dist/
+build/
+coverage/
+.cache/
+tmp/
+temp/
+
+# Evidencias y respaldos, en cualquier nivel
+**/evidencias/
+**/evidence/
+**/exports/
+**/exportaciones/
+**/respaldos/
+**/backups/
+07-src.PRE-SAN-*/

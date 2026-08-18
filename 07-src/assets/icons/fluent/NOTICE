@@ -1,0 +1,35 @@
+Fluent UI System Icons
+Copyright (c) Microsoft Corporation.
+
+Este directorio contiene una selección de 19 iconos tomados del repositorio
+oficial https://github.com/microsoft/fluentui-system-icons, publicado por
+Microsoft bajo licencia MIT. El texto completo de la licencia se conserva en
+el archivo LICENSE de este mismo directorio.
+
+Los archivos se descargaron individualmente el 2026-08-16 desde
+raw.githubusercontent.com (rama main). No se incorporó el repositorio completo,
+no se conservó ninguna copia temporal y no se ejecutó Git dentro del
+repositorio CRM_Quejas_Banorte.
+
+Modificaciones aplicadas respecto del original:
+
+  - Los atributos fill y stroke con color fijo (#212121) se sustituyeron por
+    currentColor, para que el icono herede el color del texto.
+  - Se retiraron los atributos width y height; el tamaño lo fija el CSS.
+  - Las rutas (path) y el viewBox no se alteraron.
+
+Alcance de esas modificaciones: se aplican TANTO a los 19 archivos .svg de este
+directorio COMO a la copia embebida en sprite-inline.html y en el HTML del
+formulario. Los tres artefactos están alineados; verificable con:
+
+    grep -c 'fill="#' 07-src/assets/icons/fluent/*.svg      -> 0 en todos
+    grep -c 'style='  07-src/assets/icons/fluent/sprite-inline.html -> 0
+
+El sprite se oculta con la clase .ic-sprite y no con un atributo style en
+línea: la Content-Security-Policy del formulario declara style-src 'self' y
+bloquearía un estilo en línea, dejando los iconos visibles en la página.
+
+Estas modificaciones están permitidas por la licencia MIT. Los iconos siguen
+siendo obra de Microsoft Corporation y conservan su atribución.
+
+El detalle de símbolos disponibles se encuentra en ICONS_MANIFEST.md.

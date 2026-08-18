@@ -1,0 +1,654 @@
+/* ================================================================
+   Mis Folios — Hoja de estilo del módulo
+   MIS-FOLIOS-CRM-ATC-01 · Fase 2 · Fable 5
+
+   Aditiva y aislada: todo selector empieza por `.mf-`. No redefine
+   ningún selector del App Shell, no toca `[hidden]` ni `.hidden`, y no
+   altera la regla de ocultamiento autoritativa establecida en
+   HF-MIS-FOLIOS-F1-AUTH-VISIBILITY-02.
+
+   Reutiliza los tokens de tokens.css. Los únicos valores propios son
+   los de estado (abierto / cerrado / cancelado / evidencia), que el
+   sistema base no define.
+
+   Accesibilidad:
+     - foco visible propio en todo control del módulo, porque
+       forms.css:25 anula el contorno del navegador en inputs y selects
+       (hallazgo A11Y-01 de la auditoría; aquí se compensa dentro del
+       módulo, sin modificar la hoja compartida);
+     - área mínima de 24×24 px en todo destino interactivo (2.5.8);
+     - contraste ≥ 4.5:1 en texto y ≥ 3:1 en bordes de control;
+     - animaciones anuladas bajo prefers-reduced-motion.
+   ================================================================ */
+
+.mf-modulo{
+  --mf-abierto:#0e6fd4;
+  --mf-abierto-bg:#e4f0ff;
+  --mf-cerrado:#0e7a56;
+  --mf-cerrado-bg:#e2f6ee;
+  --mf-cancelado:#8a5a00;
+  --mf-cancelado-bg:#fdf1dc;
+  --mf-critico:#b31b1b;
+  --mf-critico-bg:#fdecec;
+  --mf-foco:#0a2a6b;
+
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  color:var(--ink);
+}
+
+/* ---------- Foco visible ---------- */
+
+.mf-modulo :focus-visible{
+  outline:3px solid var(--mf-foco);
+  outline-offset:2px;
+  border-radius:4px;
+}
+
+/* Contorno también en :focus para navegadores sin :focus-visible. Se
+   retira en cuanto :focus-visible está soportado, para no marcar el
+   foco tras un clic de ratón. */
+.mf-modulo :focus{ outline:3px solid var(--mf-foco); outline-offset:2px; }
+.mf-modulo :focus:not(:focus-visible){ outline:none; }
+
+.mf-solo-lectores{
+  position:absolute;
+  width:1px;height:1px;
+  padding:0;margin:-1px;
+  overflow:hidden;
+  clip:rect(0 0 0 0);
+  white-space:nowrap;
+  border:0;
+}
+
+/* ---------- Encabezado ---------- */
+
+.mf-encabezado{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+}
+
+.mf-titulo{
+  margin:0;
+  font-size:24px;
+  font-weight:800;
+  letter-spacing:-.01em;
+  color:var(--wee-ink);
+}
+
+.mf-titulo:focus{ outline:3px solid var(--mf-foco); outline-offset:4px; }
+
+.mf-subtitulo{
+  margin:6px 0 0;
+  font-size:14px;
+  color:var(--ink-soft);
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:6px;
+}
+
+.mf-version{ font-variant-numeric:tabular-nums; }
+
+.mf-alcance,
+.mf-acciones,
+.mf-filtros-acciones,
+.mf-evidencia-acciones{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+/* ---------- Botones ---------- */
+
+.mf-boton{
+  min-height:40px;
+  min-width:40px;
+  padding:9px 16px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--line-2);
+  background:var(--card);
+  color:var(--ink);
+  font:inherit;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  transition:background .16s ease,border-color .16s ease,color .16s ease;
+}
+
+.mf-boton:hover:not(:disabled){ background:var(--wee-tint-2); border-color:var(--wee); }
+
+.mf-boton:disabled{ opacity:.55; cursor:not-allowed; }
+
+.mf-boton--primario{
+  background:var(--wee);
+  border-color:var(--wee);
+  color:#fff;
+}
+.mf-boton--primario:hover:not(:disabled){ background:var(--wee-600); border-color:var(--wee-600); }
+
+.mf-boton--enlace{
+  background:transparent;
+  border-color:transparent;
+  color:var(--wee-600);
+  text-decoration:underline;
+  text-underline-offset:3px;
+  padding:9px 8px;
+}
+.mf-boton--enlace:hover:not(:disabled){ background:var(--wee-tint); border-color:transparent; }
+
+.mf-boton--icono{
+  padding:0;
+  width:40px;
+  min-width:40px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+  line-height:1;
+  border-color:transparent;
+  background:transparent;
+}
+.mf-boton--icono:hover:not(:disabled){ background:var(--wee-tint); }
+
+/* ---------- Filtros ---------- */
+
+.mf-filtros{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:14px;
+  align-items:end;
+  padding:16px;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-sm);
+}
+
+/* ---------- Campos ---------- */
+
+.mf-campo{ display:flex; flex-direction:column; gap:5px; }
+
+.mf-campo-etiqueta{
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+}
+
+.mf-campo-ayuda{
+  margin:0;
+  font-size:12px;
+  color:var(--ink-soft);
+}
+
+.mf-control{
+  min-height:40px;
+  width:100%;
+  padding:9px 12px;
+  border:1px solid var(--line-2);
+  border-radius:var(--radius-sm);
+  background:var(--card);
+  color:var(--ink);
+  font:inherit;
+  font-size:14px;
+}
+
+.mf-control:hover:not(:disabled){ border-color:var(--wee); }
+.mf-control:disabled{ background:var(--bg); color:var(--ink-soft); cursor:not-allowed; }
+.mf-control--area{ resize:vertical; min-height:88px; line-height:1.5; }
+
+.mf-campo--error .mf-control,
+.mf-control[aria-invalid="true"]{ border-color:var(--err); border-width:2px; }
+
+.mf-campo-error{
+  margin:0;
+  font-size:13px;
+  font-weight:600;
+  color:var(--err);
+}
+
+.mf-rejilla{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:14px;
+}
+
+/* ---------- Tabla ---------- */
+
+.mf-tabla-marco{
+  overflow-x:auto;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--card);
+  box-shadow:var(--shadow-sm);
+}
+
+.mf-tabla{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+  min-width:920px;
+}
+
+.mf-tabla thead th{
+  position:sticky;
+  top:0;
+  z-index:1;
+  background:var(--wee-tint);
+  color:var(--wee-ink);
+  text-align:left;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+  padding:12px 14px;
+  border-bottom:1px solid var(--line-2);
+  white-space:nowrap;
+}
+
+.mf-tabla tbody th,
+.mf-tabla tbody td{
+  padding:12px 14px;
+  border-bottom:1px solid var(--line);
+  vertical-align:middle;
+  text-align:left;
+}
+
+.mf-tabla tbody tr:last-child th,
+.mf-tabla tbody tr:last-child td{ border-bottom:0; }
+
+.mf-tabla tbody tr:hover{ background:var(--wee-tint-2); }
+
+.mf-celda-folio{ font-weight:700; color:var(--wee-ink); white-space:nowrap; }
+.mf-celda-numerica{ font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+/* ---------- Píldoras de estado ---------- */
+
+.mf-pildora,
+.mf-prioridad{
+  display:inline-block;
+  padding:3px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+  white-space:nowrap;
+  border:1px solid transparent;
+}
+
+.mf-pildora--abierto{ background:var(--mf-abierto-bg); color:var(--mf-abierto); border-color:var(--mf-abierto); }
+.mf-pildora--cerrado{ background:var(--mf-cerrado-bg); color:var(--mf-cerrado); border-color:var(--mf-cerrado); }
+.mf-pildora--cancelado{ background:var(--mf-cancelado-bg); color:var(--mf-cancelado); border-color:var(--mf-cancelado); }
+.mf-pildora--neutro{ background:var(--bg); color:var(--ink-soft); border-color:var(--line-2); }
+
+.mf-pildora--evidencia-vigente{ background:var(--mf-cerrado-bg); color:var(--mf-cerrado); border-color:var(--mf-cerrado); }
+.mf-pildora--evidencia-invalida{ background:var(--mf-critico-bg); color:var(--mf-critico); border-color:var(--mf-critico); }
+.mf-pildora--evidencia-sustituida{ background:var(--mf-cancelado-bg); color:var(--mf-cancelado); border-color:var(--mf-cancelado); }
+
+.mf-prioridad--baja{ background:var(--bg); color:var(--ink-soft); border-color:var(--line-2); }
+.mf-prioridad--media{ background:var(--wee-tint); color:var(--wee-ink); border-color:var(--wee-ink); }
+.mf-prioridad--alta{ background:var(--mf-cancelado-bg); color:var(--mf-cancelado); border-color:var(--mf-cancelado); }
+.mf-prioridad--critica{ background:var(--mf-critico-bg); color:var(--mf-critico); border-color:var(--mf-critico); }
+
+/* ---------- Secciones del detalle ---------- */
+
+.mf-detalle{ display:flex; flex-direction:column; gap:20px; }
+
+.mf-migas{ margin-bottom:-8px; }
+
+.mf-seccion{
+  padding:18px;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-sm);
+}
+
+.mf-seccion-encabezado{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.mf-seccion-titulo{
+  margin:0 0 4px;
+  font-size:17px;
+  font-weight:800;
+  color:var(--wee-ink);
+}
+
+.mf-seccion-subtitulo{
+  margin:0 0 12px;
+  font-size:15px;
+  font-weight:700;
+  color:var(--wee-ink);
+}
+
+.mf-seccion-nota{
+  margin:0 0 14px;
+  font-size:13px;
+  color:var(--ink-soft);
+}
+
+.mf-datos{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:12px 20px;
+  margin:0;
+}
+
+.mf-dato{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+
+.mf-dato-etiqueta{
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+}
+
+.mf-dato-valor{
+  margin:0;
+  font-size:14px;
+  color:var(--ink);
+  overflow-wrap:anywhere;
+}
+
+/* ---------- Comentarios ---------- */
+
+.mf-comentarios{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.mf-comentario{
+  padding:12px 14px;
+  background:var(--wee-tint-2);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+}
+
+.mf-comentario-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:baseline;
+  margin-bottom:6px;
+}
+
+.mf-comentario-autor{ font-size:13px; font-weight:700; color:var(--wee-ink); }
+.mf-comentario-fecha{ font-size:12px; color:var(--ink-soft); font-variant-numeric:tabular-nums; }
+
+.mf-comentario-referencia{
+  margin:0 0 6px;
+  font-size:12px;
+  font-style:italic;
+  color:var(--ink-soft);
+}
+
+.mf-comentario-texto{ margin:0; font-size:14px; line-height:1.55; overflow-wrap:anywhere; }
+
+/* ---------- Evidencias ---------- */
+
+.mf-evidencias{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.mf-evidencia{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  background:var(--card);
+}
+
+.mf-evidencia-datos{ min-width:0; flex:1 1 260px; }
+
+.mf-evidencia-nombre{
+  margin:0 0 4px;
+  font-size:14px;
+  font-weight:700;
+  color:var(--wee-ink);
+  overflow-wrap:anywhere;
+}
+
+.mf-evidencia-meta{
+  margin:0;
+  font-size:12px;
+  color:var(--ink-soft);
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:6px;
+}
+
+.mf-evidencia-motivo,
+.mf-evidencia-vinculo{
+  margin:6px 0 0;
+  font-size:12px;
+  color:var(--ink-soft);
+}
+
+/* ---------- Trazabilidad ---------- */
+
+.mf-traza{
+  list-style:none;
+  margin:0;
+  padding:0 0 0 18px;
+  border-left:2px solid var(--line-2);
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+.mf-traza-evento{ position:relative; }
+
+.mf-traza-evento::before{
+  content:"";
+  position:absolute;
+  left:-25px;
+  top:6px;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:var(--wee);
+  border:2px solid var(--card);
+}
+
+.mf-traza-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:baseline;
+}
+
+.mf-traza-tipo{
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.02em;
+  color:var(--wee-ink);
+}
+
+.mf-traza-fecha{ font-size:12px; color:var(--ink-soft); font-variant-numeric:tabular-nums; }
+.mf-traza-actor{ margin:2px 0 0; font-size:13px; font-weight:600; }
+.mf-traza-detalle{ margin:2px 0 0; font-size:12px; color:var(--ink-soft); overflow-wrap:anywhere; }
+
+/* ---------- Bandas de aviso ---------- */
+
+.mf-banda{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:12px;
+  padding:14px 16px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--err);
+  background:var(--err-bg);
+}
+
+.mf-banda--conflicto{
+  border-color:var(--mf-cancelado);
+  background:var(--mf-cancelado-bg);
+}
+
+.mf-banda-icono{
+  flex:0 0 auto;
+  width:26px;height:26px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:var(--err);
+  color:#fff;
+  font-weight:800;
+}
+
+.mf-banda--conflicto .mf-banda-icono{ background:var(--mf-cancelado); }
+
+.mf-banda-texto{ flex:1 1 240px; min-width:0; }
+.mf-banda-mensaje{ margin:0; font-size:14px; font-weight:700; }
+.mf-banda-detalle{ margin:4px 0 0; font-size:13px; }
+
+/* ---------- Estados vacíos y carga ---------- */
+
+.mf-vacio,
+.mf-cargando{
+  margin:0;
+  padding:28px 18px;
+  text-align:center;
+  font-size:14px;
+  color:var(--ink-soft);
+  background:var(--card);
+  border:1px dashed var(--line-2);
+  border-radius:var(--radius);
+}
+
+.mf-paginacion{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.mf-paginacion-texto{ margin:0; font-size:13px; color:var(--ink-soft); }
+
+/* ---------- Diálogo ---------- */
+
+.mf-dialogo-capa{
+  position:fixed;
+  inset:0;
+  z-index:80;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(10,42,107,.42);
+  overflow-y:auto;
+}
+
+.mf-dialogo-panel{
+  width:100%;
+  max-width:560px;
+  max-height:calc(100vh - 40px);
+  display:flex;
+  flex-direction:column;
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  animation:mfAparecer .18s ease-out both;
+}
+
+@keyframes mfAparecer{
+  from{ opacity:0; transform:translateY(8px); }
+  to{ opacity:1; transform:none; }
+}
+
+.mf-dialogo-encabezado{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:16px 18px;
+  border-bottom:1px solid var(--line);
+}
+
+.mf-dialogo-titulo{
+  margin:0;
+  font-size:17px;
+  font-weight:800;
+  color:var(--wee-ink);
+}
+
+.mf-dialogo-cuerpo{
+  padding:18px;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.mf-dialogo-descripcion{
+  margin:0;
+  font-size:13px;
+  line-height:1.55;
+  color:var(--ink-soft);
+}
+
+.mf-dialogo-pie{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:8px;
+  padding:14px 18px;
+  border-top:1px solid var(--line);
+}
+
+/* ---------- Adaptaciones ---------- */
+
+@media (max-width:720px){
+  .mf-encabezado{ flex-direction:column; align-items:stretch; }
+  .mf-acciones .mf-boton,
+  .mf-alcance .mf-boton{ flex:1 1 auto; }
+  .mf-titulo{ font-size:20px; }
+  /* El encabezado deja de ser fijo: en pantallas bajas puede tapar la
+     fila enfocada al tabular (2.4.11 Foco no oscurecido). */
+  .mf-tabla thead th{ position:static; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .mf-modulo *,
+  .mf-dialogo-panel{
+    animation:none !important;
+    transition:none !important;
+  }
+}
+
+@media print{
+  .mf-acciones,
+  .mf-alcance,
+  .mf-filtros,
+  .mf-dialogo-capa,
+  .mf-paginacion{ display:none; }
+  .mf-seccion{ box-shadow:none; break-inside:avoid; }
+}
