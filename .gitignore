@@ -18,6 +18,13 @@
 !/.gitattributes
 !/07-src/
 
+# Formulario que GitHub Pages sirve a la operación. Debe vivir en la RAÍZ:
+# esa es la URL que el área usa. Es copia byte a byte de
+# 07-src/html/quejas_banorte_form_producción_multicliente_dev.html
+# Al cambiar producción hay que actualizar AMBOS y verificar que los
+# hashes coincidan antes de confirmar.
+!/quejas_banorte_form.html
+
 # ============================================================
 # 3) Exclusiones DENTRO de 07-src (se aplican después de la
 #    readmisión, por eso van aquí y no antes).
