@@ -901,8 +901,24 @@ OTRO
 
   function cargarTipoAtencion(){
     const actual = valor("Tipo_Atencion");
-    llenarSelect("Tipo_Atencion", ATENCIONES_UNIFICADAS, "Selecciona…");
-    if(ATENCIONES_UNIFICADAS.includes(actual)) $("Tipo_Atencion").value = actual;
+    /* Captura usa la lista filtrada (sin los valores deshabilitados). El filtro
+       de reportes sigue usando ATENCIONES_UNIFICADAS completo, para que los
+       registros históricos con valores retirados sigan siendo consultables. */
+    const opciones = (typeof ATENCIONES_CAPTURA !== "undefined")
+      ? ATENCIONES_CAPTURA
+      : ATENCIONES_UNIFICADAS;
+    llenarSelect("Tipo_Atencion", opciones, "Selecciona…");
+    /* Si el registro que se está editando trae un valor ya deshabilitado, se
+       conserva: deshabilitar no debe alterar lo capturado antes. */
+    if(ATENCIONES_UNIFICADAS.includes(actual)){
+      if(!opciones.includes(actual)){
+        const op = document.createElement("option");
+        op.value = actual;
+        op.textContent = actual;
+        $("Tipo_Atencion").appendChild(op);
+      }
+      $("Tipo_Atencion").value = actual;
+    }
   }
 
   /* Área responsable: catálogo funcional único para los 4 clientes (D-AREA-01).

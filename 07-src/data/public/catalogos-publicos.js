@@ -37,7 +37,11 @@
 
      Denominación EQUIVALENTE PERO NO IDÉNTICA conservada sin normalizar:
        · "Incidencias" (Banorte) vs "Incidencia" (General de Salud)
-     Ambas permanecen hasta que el área decida expresamente cuál prevalece. */
+     Ambas permanecen hasta que el área decida expresamente cuál prevalece.
+
+     Este arreglo es el CATÁLOGO GOBERNADO COMPLETO. Ningún valor se elimina
+     de aquí: los retiros se hacen deshabilitando, no borrando (ver
+     ATENCIONES_DESHABILITADAS más abajo). */
   const ATENCIONES_UNIFICADAS = [
     /* Banorte */
     "Queja","Asesoría","Corrección","Seguimiento","Reconsideración","Jurídico",
@@ -48,6 +52,30 @@
     /* Escape final */
     "Otro"
   ];
+
+  /* ===== Valores deshabilitados para CAPTURA =====
+     Un valor deshabilitado deja de ofrecerse al capturar, pero permanece en el
+     catálogo gobernado y sigue disponible para FILTRAR reportes: los registros
+     históricos que lo usan deben seguir siendo consultables.
+
+     Para reactivar un valor, basta con quitarlo de este arreglo.
+
+     · "Seguimiento" — deshabilitado el 2026-08-18 a solicitud del área funcional.
+       Motivo declarado: se considera equivalente a "Requerimiento", que ya tiene
+       cargado su catálogo de subtipos.
+       Contexto para cualquier revisión futura: era el valor MÁS usado del
+       catálogo (177 de 415 registros entre el 2026-08-01 y el 2026-08-17, 42.6 %),
+       frente a 1 registro de "Requerimiento".
+       No se toca la llave de duplicidad Folio + Tipo_Atencion ni el caso especial
+       de Power BI que numera los seguimientos por folio: ambos siguen siendo
+       necesarios para el histórico. */
+  const ATENCIONES_DESHABILITADAS = ["Seguimiento"];
+
+  /* Lista que se ofrece al capturar. Los reportes siguen usando el catálogo
+     completo (ATENCIONES_UNIFICADAS), no esta. */
+  const ATENCIONES_CAPTURA = ATENCIONES_UNIFICADAS.filter(function (v) {
+    return ATENCIONES_DESHABILITADAS.indexOf(v) === -1;
+  });
 
   /* Área responsable — catálogo funcional ratificado por ATC el 2026-08-13 (D-AREA-01).
      Identifica el área que debe resolver el caso. NO representa el organigrama y NO

@@ -1457,9 +1457,13 @@
     "General de Salud Infonavit": ["Envío a Domicilio","Alcance y/o Cobertura","Corrección de datos","Cita Médica","Estado de Cuenta","Áreas CAT","Servicio del Proveedor","Transcripción","Aclaraciones","Otro"]
   };
 
-  /* Catálogos de Tipo de atención por cliente (Banorte = catálogo productivo + Otro) */
+  /* Catálogos de Tipo de atención por cliente (Banorte = catálogo productivo + Otro)
+     "Seguimiento" retirado de CAPTURA el 2026-09-07 a solicitud del área funcional
+     (equivalente a "Requerimiento" en el catálogo unificado DEV). Se conserva en
+     Reporte_Tipo_Atencion para no romper el filtrado de folios históricos ni el
+     conteo de Power BI que numera los seguimientos por folio. */
   const ATENCIONES_POR_CLIENTE = {
-    "Banorte": ["Queja","Asesoría","Corrección","Seguimiento","Reconsideración","Jurídico","Licitación","Reinstalación","Programación","Reembolso","Otro"],
+    "Banorte": ["Queja","Asesoría","Corrección","Reconsideración","Jurídico","Licitación","Reinstalación","Programación","Reembolso","Otro"],
     "Sura": ["Queja","Otro"],
     "General de Salud": ["Incidencia","Queja","Otro"],
     "General de Salud Infonavit": ["Queja","Otro"]
