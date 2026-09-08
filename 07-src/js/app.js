@@ -49,11 +49,31 @@
     ]
   };
 
-  // CONTRATANTES_GS_RAW, construirCatalogoGS(), limpiarTextoCatalogo() y
-  // normalizarClaveCatalogo() eliminados 2026-09-07 (sanitizacion Gate 0 del
-  // traspaso): eran codigo muerto en este archivo (ningun call site los usaba;
-  // cargarContratantes() ya usa CONTRATANTES_GS, definido arriba) y contenian
-  // 300+ nombres reales (empresas y personas fisicas).
+  // CONTRATANTES_GS_RAW y construirCatalogoGS() eliminados 2026-09-07
+  // (sanitizacion Gate 0 del traspaso): contenian 300+ nombres reales
+  // (empresas y personas fisicas) y eran codigo muerto en este archivo
+  // (cargarContratantes() ya usa CONTRATANTES_GS, definido arriba).
+  //
+  // limpiarTextoCatalogo()/normalizarClaveCatalogo() SI se conservan: aunque
+  // no se usan mas dentro de app.js, 07-src/js/validation/business-rules.js
+  // depende de normalizarClaveCatalogo() como funcion global (bug detectado
+  // 2026-09-08 tras el primer intento de eliminarlas).
+  function limpiarTextoCatalogo(v){
+    return String(v || "")
+      .replace(/&amp;/g, "&")
+      .replace(/[\t\r]+/g, " ")
+      .trim()                       // quita espacios envolventes antes de las comillas
+      .replace(/^"+|"+$/g, "")      // comillas envolventes
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function normalizarClaveCatalogo(v){
+    return limpiarTextoCatalogo(v)
+      .toUpperCase()
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "");
+  }
 
   function cargarContratantes(){
     const tg = valor("Tipo_Gestion");
